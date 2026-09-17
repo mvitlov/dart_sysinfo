@@ -9,3 +9,5 @@ export 'src/core/sys_info.dart';
 export 'src/core/sys_info_exception.dart';
 export 'src/domains/cpu/cpu_domain.dart';
 export 'src/domains/cpu/cpu_info.dart';
+export 'src/domains/memory/memory_domain.dart';
+export 'src/domains/memory/memory_info.dart';

@@ -1,16 +1,25 @@
-/// Memory domain implementation (stub until M1-08).
+/// Memory domain implementation (TDD §3.4, §4.2).
 library;
 
+import 'package:dart_sysinfo/src/bridge/api/memory.dart';
+import 'package:dart_sysinfo/src/core/ttl_cache.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_info.dart';
+import 'package:dart_sysinfo/src/domains/memory/memory_mapper.dart';
 
-/// Stub MemoryDomain so SysInfo can compile before M1-08.
+/// Real memory domain backed by the native bridge.
 class MemoryDomainImpl implements MemoryDomain {
-  /// Creates a stub memory domain.
-  const MemoryDomainImpl();
+  /// Creates a memory domain with optional test double for cache.
+  MemoryDomainImpl({TtlCache<MemoryInfo>? snapshotCache})
+      : _cache = snapshotCache ?? TtlCache(const Duration(milliseconds: 500));
+
+  final TtlCache<MemoryInfo> _cache;
 
   @override
   Future<MemoryInfo> snapshot({bool forceRefresh = false}) {
-    throw UnimplementedError('MemoryDomain.snapshot is implemented in M1-08');
+    return _cache.read(
+      () async => mapMemoryInfoDto(memorySnapshot()),
+      forceRefresh: forceRefresh,
+    );
   }
 }

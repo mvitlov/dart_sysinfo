@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -857119716;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1585689341;
 
 // Section: executor
 
@@ -201,6 +201,35 @@ fn wire__crate__api__lifecycle__init_impl(
         },
     )
 }
+fn wire__crate__api__memory__memory_snapshot_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "memory_snapshot",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>(crate::api::memory::memory_snapshot())?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__abi__native_crate_version_impl(
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -263,6 +292,34 @@ impl SseDecode for bool {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_u8().unwrap() != 0
+    }
+}
+
+impl SseDecode for crate::api::memory::CGroupLimitsDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_totalMemoryBytes = <u64>::sse_decode(deserializer);
+        let mut var_freeMemoryBytes = <u64>::sse_decode(deserializer);
+        let mut var_freeSwapBytes = <u64>::sse_decode(deserializer);
+        let mut var_rssBytes = <u64>::sse_decode(deserializer);
+        return crate::api::memory::CGroupLimitsDto {
+            total_memory_bytes: var_totalMemoryBytes,
+            free_memory_bytes: var_freeMemoryBytes,
+            free_swap_bytes: var_freeSwapBytes,
+            rss_bytes: var_rssBytes,
+        };
+    }
+}
+
+impl SseDecode for crate::api::memory::CGroupLimitsReadingDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_supported = <bool>::sse_decode(deserializer);
+        let mut var_value = <Option<crate::api::memory::CGroupLimitsDto>>::sse_decode(deserializer);
+        return crate::api::memory::CGroupLimitsReadingDto {
+            supported: var_supported,
+            value: var_value,
+        };
     }
 }
 
@@ -374,6 +431,44 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for crate::api::memory::MemoryInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_totalMemoryBytes = <u64>::sse_decode(deserializer);
+        let mut var_freeMemoryBytes = <u64>::sse_decode(deserializer);
+        let mut var_availableMemoryBytes = <u64>::sse_decode(deserializer);
+        let mut var_usedMemoryBytes = <u64>::sse_decode(deserializer);
+        let mut var_totalSwapBytes = <u64>::sse_decode(deserializer);
+        let mut var_freeSwapBytes = <u64>::sse_decode(deserializer);
+        let mut var_usedSwapBytes = <u64>::sse_decode(deserializer);
+        let mut var_cgroupLimits =
+            <crate::api::memory::CGroupLimitsReadingDto>::sse_decode(deserializer);
+        return crate::api::memory::MemoryInfoDto {
+            total_memory_bytes: var_totalMemoryBytes,
+            free_memory_bytes: var_freeMemoryBytes,
+            available_memory_bytes: var_availableMemoryBytes,
+            used_memory_bytes: var_usedMemoryBytes,
+            total_swap_bytes: var_totalSwapBytes,
+            free_swap_bytes: var_freeSwapBytes,
+            used_swap_bytes: var_usedSwapBytes,
+            cgroup_limits: var_cgroupLimits,
+        };
+    }
+}
+
+impl SseDecode for Option<crate::api::memory::CGroupLimitsDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::memory::CGroupLimitsDto>::sse_decode(
+                deserializer,
+            ));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<f32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -459,13 +554,58 @@ fn pde_ffi_dispatcher_sync_impl(
         3 => wire__crate__api__lifecycle__dispose_impl(ptr, rust_vec_len, data_len),
         4 => wire__crate__api__smoke__frb_platform_smoke_ping_impl(ptr, rust_vec_len, data_len),
         5 => wire__crate__api__lifecycle__init_impl(ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__abi__native_crate_version_impl(ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__memory__memory_snapshot_impl(ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__abi__native_crate_version_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
 
 // Section: rust2dart
 
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::memory::CGroupLimitsDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.total_memory_bytes.into_into_dart().into_dart(),
+            self.free_memory_bytes.into_into_dart().into_dart(),
+            self.free_swap_bytes.into_into_dart().into_dart(),
+            self.rss_bytes.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::memory::CGroupLimitsDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::memory::CGroupLimitsDto>
+    for crate::api::memory::CGroupLimitsDto
+{
+    fn into_into_dart(self) -> crate::api::memory::CGroupLimitsDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::memory::CGroupLimitsReadingDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.supported.into_into_dart().into_dart(),
+            self.value.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::memory::CGroupLimitsReadingDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::memory::CGroupLimitsReadingDto>
+    for crate::api::memory::CGroupLimitsReadingDto
+{
+    fn into_into_dart(self) -> crate::api::memory::CGroupLimitsReadingDto {
+        self
+    }
+}
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::cpu::CpuCoreDto {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
@@ -549,6 +689,33 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::lifecycle::InitResult>
         self
     }
 }
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::memory::MemoryInfoDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.total_memory_bytes.into_into_dart().into_dart(),
+            self.free_memory_bytes.into_into_dart().into_dart(),
+            self.available_memory_bytes.into_into_dart().into_dart(),
+            self.used_memory_bytes.into_into_dart().into_dart(),
+            self.total_swap_bytes.into_into_dart().into_dart(),
+            self.free_swap_bytes.into_into_dart().into_dart(),
+            self.used_swap_bytes.into_into_dart().into_dart(),
+            self.cgroup_limits.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::memory::MemoryInfoDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::memory::MemoryInfoDto>
+    for crate::api::memory::MemoryInfoDto
+{
+    fn into_into_dart(self) -> crate::api::memory::MemoryInfoDto {
+        self
+    }
+}
 
 impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -577,6 +744,24 @@ impl SseEncode for bool {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::api::memory::CGroupLimitsDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.total_memory_bytes, serializer);
+        <u64>::sse_encode(self.free_memory_bytes, serializer);
+        <u64>::sse_encode(self.free_swap_bytes, serializer);
+        <u64>::sse_encode(self.rss_bytes, serializer);
+    }
+}
+
+impl SseEncode for crate::api::memory::CGroupLimitsReadingDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.supported, serializer);
+        <Option<crate::api::memory::CGroupLimitsDto>>::sse_encode(self.value, serializer);
     }
 }
 
@@ -657,6 +842,30 @@ impl SseEncode for Vec<u8> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <u8>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::api::memory::MemoryInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.total_memory_bytes, serializer);
+        <u64>::sse_encode(self.free_memory_bytes, serializer);
+        <u64>::sse_encode(self.available_memory_bytes, serializer);
+        <u64>::sse_encode(self.used_memory_bytes, serializer);
+        <u64>::sse_encode(self.total_swap_bytes, serializer);
+        <u64>::sse_encode(self.free_swap_bytes, serializer);
+        <u64>::sse_encode(self.used_swap_bytes, serializer);
+        <crate::api::memory::CGroupLimitsReadingDto>::sse_encode(self.cgroup_limits, serializer);
+    }
+}
+
+impl SseEncode for Option<crate::api::memory::CGroupLimitsDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::memory::CGroupLimitsDto>::sse_encode(value, serializer);
         }
     }
 }

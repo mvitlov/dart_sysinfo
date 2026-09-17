@@ -65,7 +65,7 @@ abstract class SysInfo {
 class _RealSysInfo extends SysInfo {
   _RealSysInfo._(this._initResult)
       : cpu = CpuDomainImpl(),
-        memory = const MemoryDomainImpl(),
+        memory = MemoryDomainImpl(),
         os = const OsDomainImpl();
 
   /// Production callers must call `initDartSysinfoBridge()` before the first

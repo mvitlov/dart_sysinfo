@@ -6,6 +6,7 @@
 import 'api/abi.dart';
 import 'api/cpu.dart';
 import 'api/lifecycle.dart';
+import 'api/memory.dart';
 import 'api/smoke.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -67,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -857119716;
+  int get rustContentHash => 1585689341;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -90,6 +91,8 @@ abstract class RustLibApi extends BaseApi {
   int crateApiSmokeFrbPlatformSmokePing();
 
   InitResult crateApiLifecycleInit();
+
+  MemoryInfoDto crateApiMemoryMemorySnapshot();
 
   String crateApiAbiNativeCrateVersion();
 }
@@ -221,12 +224,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "init", argNames: []);
 
   @override
-  String crateApiAbiNativeCrateVersion() {
+  MemoryInfoDto crateApiMemoryMemorySnapshot() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_memory_info_dto,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryMemorySnapshotConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryMemorySnapshotConstMeta =>
+      const TaskConstMeta(debugName: "memory_snapshot", argNames: []);
+
+  @override
+  String crateApiAbiNativeCrateVersion() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -268,6 +293,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CGroupLimitsDto dco_decode_box_autoadd_c_group_limits_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_c_group_limits_dto(raw);
+  }
+
+  @protected
   double dco_decode_box_autoadd_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
@@ -277,6 +308,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int dco_decode_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
+  }
+
+  @protected
+  CGroupLimitsDto dco_decode_c_group_limits_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return CGroupLimitsDto(
+      totalMemoryBytes: dco_decode_u_64(arr[0]),
+      freeMemoryBytes: dco_decode_u_64(arr[1]),
+      freeSwapBytes: dco_decode_u_64(arr[2]),
+      rssBytes: dco_decode_u_64(arr[3]),
+    );
+  }
+
+  @protected
+  CGroupLimitsReadingDto dco_decode_c_group_limits_reading_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return CGroupLimitsReadingDto(
+      supported: dco_decode_bool(arr[0]),
+      value: dco_decode_opt_box_autoadd_c_group_limits_dto(arr[1]),
+    );
   }
 
   @protected
@@ -363,6 +420,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MemoryInfoDto dco_decode_memory_info_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 8)
+      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    return MemoryInfoDto(
+      totalMemoryBytes: dco_decode_u_64(arr[0]),
+      freeMemoryBytes: dco_decode_u_64(arr[1]),
+      availableMemoryBytes: dco_decode_u_64(arr[2]),
+      usedMemoryBytes: dco_decode_u_64(arr[3]),
+      totalSwapBytes: dco_decode_u_64(arr[4]),
+      freeSwapBytes: dco_decode_u_64(arr[5]),
+      usedSwapBytes: dco_decode_u_64(arr[6]),
+      cgroupLimits: dco_decode_c_group_limits_reading_dto(arr[7]),
+    );
+  }
+
+  @protected
+  CGroupLimitsDto? dco_decode_opt_box_autoadd_c_group_limits_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_c_group_limits_dto(raw);
+  }
+
+  @protected
   double? dco_decode_opt_box_autoadd_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_f_32(raw);
@@ -432,6 +513,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CGroupLimitsDto sse_decode_box_autoadd_c_group_limits_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_c_group_limits_dto(deserializer));
+  }
+
+  @protected
   double sse_decode_box_autoadd_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_f_32(deserializer));
@@ -441,6 +530,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_u_32(deserializer));
+  }
+
+  @protected
+  CGroupLimitsDto sse_decode_c_group_limits_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_totalMemoryBytes = sse_decode_u_64(deserializer);
+    var var_freeMemoryBytes = sse_decode_u_64(deserializer);
+    var var_freeSwapBytes = sse_decode_u_64(deserializer);
+    var var_rssBytes = sse_decode_u_64(deserializer);
+    return CGroupLimitsDto(
+      totalMemoryBytes: var_totalMemoryBytes,
+      freeMemoryBytes: var_freeMemoryBytes,
+      freeSwapBytes: var_freeSwapBytes,
+      rssBytes: var_rssBytes,
+    );
+  }
+
+  @protected
+  CGroupLimitsReadingDto sse_decode_c_group_limits_reading_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_supported = sse_decode_bool(deserializer);
+    var var_value = sse_decode_opt_box_autoadd_c_group_limits_dto(deserializer);
+    return CGroupLimitsReadingDto(supported: var_supported, value: var_value);
   }
 
   @protected
@@ -540,6 +654,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MemoryInfoDto sse_decode_memory_info_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_totalMemoryBytes = sse_decode_u_64(deserializer);
+    var var_freeMemoryBytes = sse_decode_u_64(deserializer);
+    var var_availableMemoryBytes = sse_decode_u_64(deserializer);
+    var var_usedMemoryBytes = sse_decode_u_64(deserializer);
+    var var_totalSwapBytes = sse_decode_u_64(deserializer);
+    var var_freeSwapBytes = sse_decode_u_64(deserializer);
+    var var_usedSwapBytes = sse_decode_u_64(deserializer);
+    var var_cgroupLimits = sse_decode_c_group_limits_reading_dto(deserializer);
+    return MemoryInfoDto(
+      totalMemoryBytes: var_totalMemoryBytes,
+      freeMemoryBytes: var_freeMemoryBytes,
+      availableMemoryBytes: var_availableMemoryBytes,
+      usedMemoryBytes: var_usedMemoryBytes,
+      totalSwapBytes: var_totalSwapBytes,
+      freeSwapBytes: var_freeSwapBytes,
+      usedSwapBytes: var_usedSwapBytes,
+      cgroupLimits: var_cgroupLimits,
+    );
+  }
+
+  @protected
+  CGroupLimitsDto? sse_decode_opt_box_autoadd_c_group_limits_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_c_group_limits_dto(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -636,6 +786,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_c_group_limits_dto(
+    CGroupLimitsDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_c_group_limits_dto(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_f_32(self, serializer);
@@ -645,6 +804,28 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_c_group_limits_dto(
+    CGroupLimitsDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.totalMemoryBytes, serializer);
+    sse_encode_u_64(self.freeMemoryBytes, serializer);
+    sse_encode_u_64(self.freeSwapBytes, serializer);
+    sse_encode_u_64(self.rssBytes, serializer);
+  }
+
+  @protected
+  void sse_encode_c_group_limits_reading_dto(
+    CGroupLimitsReadingDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self.supported, serializer);
+    sse_encode_opt_box_autoadd_c_group_limits_dto(self.value, serializer);
   }
 
   @protected
@@ -725,6 +906,35 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_memory_info_dto(
+    MemoryInfoDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.totalMemoryBytes, serializer);
+    sse_encode_u_64(self.freeMemoryBytes, serializer);
+    sse_encode_u_64(self.availableMemoryBytes, serializer);
+    sse_encode_u_64(self.usedMemoryBytes, serializer);
+    sse_encode_u_64(self.totalSwapBytes, serializer);
+    sse_encode_u_64(self.freeSwapBytes, serializer);
+    sse_encode_u_64(self.usedSwapBytes, serializer);
+    sse_encode_c_group_limits_reading_dto(self.cgroupLimits, serializer);
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_c_group_limits_dto(
+    CGroupLimitsDto? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_c_group_limits_dto(self, serializer);
+    }
   }
 
   @protected
