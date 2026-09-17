@@ -16,13 +16,19 @@ void main() {
     final dartSysinfoPubspec = File('pubspec.yaml');
     final flutterPubspec = File('../dart_sysinfo_flutter/pubspec.yaml');
 
-    test('dart_sysinfo pubspec declares exactly 5 native platforms, no web', () {
-      _assertPlatforms(dartSysinfoPubspec, _supportedPlatforms);
-    });
+    test(
+      'dart_sysinfo pubspec declares exactly 5 native platforms, no web',
+      () {
+        _assertPlatforms(dartSysinfoPubspec, _supportedPlatforms);
+      },
+    );
 
-    test('dart_sysinfo_flutter pubspec declares exactly 5 native platforms, no web', () {
-      _assertPlatforms(flutterPubspec, _supportedPlatforms);
-    });
+    test(
+      'dart_sysinfo_flutter pubspec declares 5 native platforms, no web',
+      () {
+        _assertPlatforms(flutterPubspec, _supportedPlatforms);
+      },
+    );
 
     test('dart_sysinfo flutter.plugin.platforms excludes web', () {
       final content = dartSysinfoPubspec.readAsStringSync();
@@ -78,11 +84,11 @@ Set<String> _extractYamlMapKeys(
     }
   } else if (afterKey != null && nestedPath != null) {
     var depth = 0;
-    var targetDepth = nestedPath.length;
+    final targetDepth = nestedPath.length;
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
       final trimmed = line.trimLeft();
-      if (depth == 0 && trimmed.startsWith('$afterKey')) {
+      if (depth == 0 && trimmed.startsWith(afterKey)) {
         baseIndent = _leadingSpaces(line) + 2;
         depth = 1;
         continue;

@@ -1,8 +1,7 @@
 import 'dart:io';
 
+import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
-
-import 'frb_generated.dart';
 
 /// Initializes the FRB bridge, loading the native library from the correct
 /// location for each platform.

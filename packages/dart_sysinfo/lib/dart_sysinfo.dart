@@ -1,4 +1,4 @@
-/// Public facade for [dart_sysinfo]. Implemented in M1 (see EPICS.md).
+/// Public facade for `dart_sysinfo`. Implemented in M1 (see EPICS.md).
 library;
 
 export 'src/bridge/api/smoke.dart';

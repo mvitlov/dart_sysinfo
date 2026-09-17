@@ -12,7 +12,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.pingResult});
+  const MyApp({required this.pingResult, super.key});
 
   final int pingResult;
 

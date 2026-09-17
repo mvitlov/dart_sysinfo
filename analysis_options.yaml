@@ -1,0 +1,16 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    # FRB-generated bridge glue — do not hand-edit (TDD §1.1)
+    - packages/dart_sysinfo/lib/src/bridge/frb_generated.dart
+    - packages/dart_sysinfo/lib/src/bridge/frb_generated.io.dart
+    - packages/dart_sysinfo/lib/src/bridge/frb_generated.web.dart
+    # Vendored Cargokit tooling — separate pubspec, not workspace-scoped
+    - packages/dart_sysinfo/cargokit/**
+
+linter:
+  rules:
+    # PRD §7.2: 100% dartdoc coverage gate deferred to M3/M4; keep lint active without
+    # forcing full public API docs on M0 scaffolding stubs.
+    public_member_api_docs: false

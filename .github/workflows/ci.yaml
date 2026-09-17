@@ -87,6 +87,24 @@ jobs:
           dart pub get
           dart test
 
+  lint:
+    name: Lint (very_good_analysis, zero warnings)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: stable
+          cache: true
+
+      - name: Resolve workspace dependencies
+        run: flutter pub get
+
+      - name: Analyze workspace (zero warnings)
+        run: dart analyze --fatal-warnings .
+
   android-build:
     name: Android APK (NDK r28+ / JDK 17)
     runs-on: ubuntu-latest

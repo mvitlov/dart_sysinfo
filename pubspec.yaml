@@ -11,6 +11,7 @@ workspace:
 
 dev_dependencies:
   melos: ^7.0.0
+  very_good_analysis: ^7.0.0
 
 melos:
   # Use the FVM-pinned SDK (.fvmrc) instead of whatever flutter/dart happens
@@ -18,6 +19,8 @@ melos:
   sdkPath: .fvm/flutter_sdk
 
   scripts:
+    analyze:
+      run: dart analyze --fatal-warnings .
     frb:generate:
       run: cd packages/dart_sysinfo && flutter_rust_bridge_codegen generate
 
