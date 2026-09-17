@@ -69,7 +69,7 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 | M1-13 | Capability matrix + Android permission rows (P1) | ⬜ | Docs | §2.5, §6 | — | Table in repo docs lists OS/CPU/Memory rows (permissions: none) |
 | M1-14 | Apple store-profile stub | ⬜ | Rust | §2.4 | — | `apple-app-store` feature flag compiles; CI assertion deferred to M4 |
 | M1-15 | CI SDK matrix for P1 | ⬜ | CI | §7.2 | §8 | Min + one intermediate + latest Flutter/Dart pairs green |
-| M1-16 | Example app: P1 domains + hot-restart manual QA | ⬜ | Dart/QA | §3.4, §8 | §5.2 | Manual checklist executed: start `cpu.load` stream → hot restart → no duplicate workers |
+| M1-16 | Example app: P1 domains + hot-restart manual QA | ✅ | Dart/QA | §3.4, §8 | §5.2 | Manual checklist executed: start `cpu.load` stream → hot restart → no duplicate workers |
 
 ***
 

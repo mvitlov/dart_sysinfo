@@ -41,6 +41,15 @@ abstract class SysInfo {
   static SysInfo get instance =>
       _override ?? (_real ??= _RealSysInfo._create());
 
+  /// Clears native singleton state that can survive a Dart isolate reset
+  /// (Flutter hot restart). Safe no-op on cold start.
+  ///
+  /// Called by `dart_sysinfo_flutter` before the first [instance] access in a
+  /// new isolate so stale stream workers from a prior isolate are torn down.
+  static void prepareFreshIsolate() {
+    bridge.dispose();
+  }
+
   /// Tears down the real singleton, if one was created.
   ///
   /// PRD §5.7 shows `SysInfo.dispose()`; Dart disallows a static and instance

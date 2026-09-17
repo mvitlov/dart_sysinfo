@@ -15,6 +15,8 @@ Requirements and implementation detail live in three docs, in order of authority
    Android permission rows (M1-13)
 5. [`docs/apple-store-profile.md`](./docs/apple-store-profile.md) — Apple
    `apple-app-store` build profile stub (M1-14)
+6. [`docs/example-app-qa.md`](./docs/example-app-qa.md) — example app hot-restart
+   manual QA checklist (M1-16)
 
 **Spec-first rule:** new work should map to an existing story in
 [`EPICS.md`](./EPICS.md). If it does not, amend the governing docs first rather
@@ -171,6 +173,21 @@ Example annotation:
 @Deprecated('Use newMethod() instead; removed in v2.0.0')
 Future<void> oldMethod() => newMethod();
 ```
+
+## Manual QA (M1)
+
+The example app includes a manual hot-restart checklist required by TDD §5.2 and
+EPIC-M1 story M1-16. See [`docs/example-app-qa.md`](./docs/example-app-qa.md)
+for the full procedure and sign-off table.
+
+Run from `example/`:
+
+```bash
+fvm flutter run -d macos
+```
+
+Start the CPU load stream, hot restart (`R`), and confirm tick rate stays ~1/sec
+(not ~2/sec) after each cycle.
 
 ## Domain checklist (deferred — PRD §10.2)
 

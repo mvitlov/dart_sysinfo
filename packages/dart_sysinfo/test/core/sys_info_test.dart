@@ -84,6 +84,14 @@ void main() {
     });
   });
 
+  group('prepareFreshIsolate', () {
+    test('calls native dispose through the mock bridge', () {
+      SysInfo.prepareFreshIsolate();
+
+      expect(mockRustLibApi.disposeCalls, 1);
+    });
+  });
+
   group('disposeInstance', () {
     test('creates a new real singleton on next access', () async {
       final before = SysInfo.instance;

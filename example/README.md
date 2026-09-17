@@ -1,16 +1,33 @@
-# example
+# dart_sysinfo example app
 
-A new Flutter project.
+Demonstrates P1 domains (OS, CPU, memory) and a CPU load stream with observable
+tick counts for hot-restart QA.
 
-## Getting Started
+## Run locally
 
-This project is a starting point for a Flutter application.
+From this directory:
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+fvm flutter pub get
+fvm flutter run -d macos
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Use any supported desktop or mobile device instead of `macos` if preferred.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Bootstrap order
+
+The example wires lifecycle glue before the first `SysInfo.instance` access:
+
+```dart
+WidgetsFlutterBinding.ensureInitialized();
+await initDartSysinfoBridge();
+await DartSysinfoFlutter.ensureInitialized();
+```
+
+Flutter apps should depend on both `dart_sysinfo` and `dart_sysinfo_flutter`.
+
+## Manual QA
+
+Hot-restart verification (start CPU load stream → hot restart → no duplicate
+workers) is documented in
+[`docs/example-app-qa.md`](../docs/example-app-qa.md).
