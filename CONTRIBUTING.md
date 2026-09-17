@@ -13,6 +13,8 @@ Requirements and implementation detail live in three docs, in order of authority
 3. [`EPICS.md`](./EPICS.md) — milestone stories sized for tracker issues
 4. [`docs/capability-matrix.md`](./docs/capability-matrix.md) — P1 capability +
    Android permission rows (M1-13)
+5. [`docs/apple-store-profile.md`](./docs/apple-store-profile.md) — Apple
+   `apple-app-store` build profile stub (M1-14)
 
 **Spec-first rule:** new work should map to an existing story in
 [`EPICS.md`](./EPICS.md). If it does not, amend the governing docs first rather
@@ -49,6 +51,12 @@ Flutter-free core tests (no Flutter SDK required):
 
 ```bash
 cd packages/dart_sysinfo && fvm dart test
+```
+
+Rust store-profile verification (M1-14):
+
+```bash
+cd packages/native && cargo test --features apple-app-store --test apple_app_store -- --test-threads=1
 ```
 
 ## CI / M0 exit gate (PRD §12)

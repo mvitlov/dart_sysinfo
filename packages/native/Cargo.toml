@@ -18,3 +18,8 @@ disk = ["sysinfo/disk"]
 network = ["sysinfo/network"]
 component = ["sysinfo/component"]
 apple-app-store = ["sysinfo/apple-app-store"]
+
+[[test]]
+name = "apple_app_store"
+path = "tests/apple_app_store.rs"
+required-features = ["apple-app-store"]

@@ -17,9 +17,11 @@ domains (OS, CPU, Memory). Values match the hand-built M1 implementations in
 
 **Field-level mapping:** see [TDD.md §4.1–§4.3](../TDD.md) for the complete Dart field → `sysinfo` source → `Reading<T>` table for each domain.
 
-**Apple store profile note:** the `apple-app-store` Cargo feature (M1-14) is a
-first-class build dimension for App Store compliance on later domains. It does
-not restrict any P1 OS/CPU/Memory field at this milestone.
+**Apple store profile:** the `apple-app-store` Cargo feature is available as an
+opt-in build flag (M1-14). See
+[docs/apple-store-profile.md](./apple-store-profile.md) for build and
+verification instructions. It does not restrict any P1 OS/CPU/Memory field at
+this milestone; CI prohibited-API assertion is deferred to M4-01.
 
 ## Android permission matrix (P1)
 
