@@ -3,6 +3,8 @@ library;
 
 import 'dart:async' show unawaited;
 
+import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart' as bridge;
+import 'package:dart_sysinfo/src/core/abi_guard.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain_impl.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
@@ -60,17 +62,20 @@ abstract class SysInfo {
 }
 
 class _RealSysInfo extends SysInfo {
-  _RealSysInfo._({required bool createdFresh})
-      : _createdFresh = createdFresh,
-        cpu = const CpuDomainImpl(),
+  _RealSysInfo._(this._initResult)
+      : cpu = const CpuDomainImpl(),
         memory = const MemoryDomainImpl(),
         os = const OsDomainImpl();
 
-  factory _RealSysInfo._create() => _RealSysInfo._(
-        createdFresh: true,
-      ); // M1-04 replaces with bridge init + InitResult
+  /// Production callers must call `initDartSysinfoBridge()` before the first
+  /// [SysInfo.instance]; tests use `RustLib.initMock` instead.
+  factory _RealSysInfo._create() {
+    final result = bridge.init();
+    AbiGuard.check(actual: result.abiVersion);
+    return _RealSysInfo._(result);
+  }
 
-  final bool _createdFresh;
+  final bridge.InitResult _initResult;
 
   @override
   final CpuDomainImpl cpu;
@@ -82,11 +87,11 @@ class _RealSysInfo extends SysInfo {
   final OsDomainImpl os;
 
   @override
-  bool get nativeStateWasPreExisting => !_createdFresh;
+  bool get nativeStateWasPreExisting => !_initResult.createdFresh;
 
   @override
   Future<void> dispose() async {
     // M1-10: await SharedStreamRegistry.instance.cancelAll();
-    // M1-04: bridge.dispose();
+    bridge.dispose();
   }
 }

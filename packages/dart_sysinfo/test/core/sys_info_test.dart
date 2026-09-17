@@ -1,13 +1,34 @@
 import 'package:dart_sysinfo/dart_sysinfo.dart';
+import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
+import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
+import 'package:dart_sysinfo/src/core/abi_guard.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_info.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_info.dart';
 import 'package:dart_sysinfo/src/domains/os/os_domain.dart';
 import 'package:dart_sysinfo/src/domains/os/os_info.dart';
+import '../support/mock_rust_lib_api.dart';
 import 'package:test/test.dart';
 
+late MockRustLibApi mockRustLibApi;
+
 void main() {
+  setUpAll(() {
+    mockRustLibApi = MockRustLibApi();
+    RustLib.initMock(api: mockRustLibApi);
+  });
+
+  setUp(() {
+    mockRustLibApi
+      ..initCalls = 0
+      ..disposeCalls = 0
+      ..initResult = const InitResult(
+        createdFresh: true,
+        abiVersion: AbiGuard.expectedAbi,
+      );
+  });
+
   tearDown(() async {
     SysInfo.resetForTesting();
     await SysInfo.disposeInstance();
@@ -71,11 +92,27 @@ void main() {
 
       expect(identical(before, after), isFalse);
     });
+
+    test('calls native dispose through the mock bridge', () async {
+      SysInfo.instance;
+      await SysInfo.disposeInstance();
+
+      expect(mockRustLibApi.disposeCalls, 1);
+    });
   });
 
   group('nativeStateWasPreExisting', () {
-    test('is false for the M1-03 stub real singleton', () {
+    test('is false when init reports createdFresh', () {
       expect(SysInfo.instance.nativeStateWasPreExisting, isFalse);
+    });
+
+    test('is true when init reports reused native state', () {
+      mockRustLibApi.initResult = const InitResult(
+        createdFresh: false,
+        abiVersion: AbiGuard.expectedAbi,
+      );
+
+      expect(SysInfo.instance.nativeStateWasPreExisting, isTrue);
     });
 
     test('is false for test fakes', () {
