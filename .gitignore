@@ -42,4 +42,4 @@ packages/dart_sysinfo/**/generated_plugin_registrant.*
 packages/dart_sysinfo/**/generated_plugins.cmake
 packages/**/melos_*.iml
 packages/**/.dart_tool/
-example/.dart_tool/
+example/.dart_tool/locks/
