@@ -21,6 +21,8 @@ melos:
   scripts:
     analyze:
       run: dart analyze --fatal-warnings .
+    doctor:
+      run: dart run dart_sysinfo:doctor
     frb:generate:
       run: cd packages/dart_sysinfo && flutter_rust_bridge_codegen generate
 

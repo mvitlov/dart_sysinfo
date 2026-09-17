@@ -15,6 +15,9 @@ platforms:
   windows:
   # web: intentionally absent — PRD §1.6
 
+executables:
+  doctor:
+
 # Cargokit FFI plugin wiring (transitional default). No `environment:flutter` —
 # see PRD §2.1 Flutter-free core verification in M0-05.
 flutter:

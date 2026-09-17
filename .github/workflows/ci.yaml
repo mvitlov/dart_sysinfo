@@ -140,7 +140,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.98.1
-          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+          targets: >-
+            aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,
+            aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios,
+            aarch64-apple-darwin,x86_64-apple-darwin,
+            x86_64-unknown-linux-gnu,x86_64-pc-windows-msvc
 
       - uses: subosito/flutter-action@v2
         with:
@@ -150,6 +154,11 @@ jobs:
 
       - name: Resolve workspace dependencies
         run: flutter pub get
+
+      - name: Smoke-test dart_sysinfo:doctor
+        run: dart run dart_sysinfo:doctor
+        env:
+          ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: Build example APK (Cargokit + FRB smoke)
         run: cd example && flutter build apk --debug
