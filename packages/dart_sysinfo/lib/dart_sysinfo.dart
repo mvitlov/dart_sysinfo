@@ -4,3 +4,4 @@ library;
 export 'src/bridge/api/smoke.dart';
 export 'src/bridge/frb_generated.dart';
 export 'src/bridge/init.dart';
+export 'src/core/reading.dart';
