@@ -8,7 +8,8 @@ get_filename_component(cargokit_cmake_root "${cargokit_cmake_root}" REALPATH)
 
 if(WIN32)
     # REALPATH does not properly resolve symlinks on windows :-/
-    execute_process(COMMAND powershell -ExecutionPolicy Bypass -File "${CMAKE_CURRENT_LIST_DIR}/resolve_symlinks.ps1" "${cargokit_cmake_root}" OUTPUT_VARIABLE cargokit_cmake_root OUTPUT_STRIP_TRAILING_WHITESPACE)
+    find_program(CARGOKIT_PWSH NAMES pwsh powershell)
+    execute_process(COMMAND ${CARGOKIT_PWSH} -ExecutionPolicy Bypass -File "${CARGOKIT_RESOLVE_SYMLINKS_PS1}" "${cargokit_cmake_root}" OUTPUT_VARIABLE cargokit_cmake_root OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 # Arguments
@@ -39,13 +40,20 @@ function(apply_cargokit target manifest_dir lib_name any_symbol_name)
 
     # Resolve plugin symlink paths on Windows (pub #4010); Linux/macOS REALPATH
     # is sufficient when CMake follows symlinks to the real package tree.
-    set(_manifest_dir "${CMAKE_CURRENT_SOURCE_DIR}/${manifest_dir}")
     if(WIN32)
+        set(_source_dir "${CMAKE_CURRENT_SOURCE_DIR}")
+        find_program(CARGOKIT_PWSH NAMES pwsh powershell)
         execute_process(
-            COMMAND powershell -ExecutionPolicy Bypass -File "${CARGOKIT_RESOLVE_SYMLINKS_PS1}" "${_manifest_dir}"
-            OUTPUT_VARIABLE _manifest_dir
+            COMMAND ${CARGOKIT_PWSH} -ExecutionPolicy Bypass -File "${CARGOKIT_RESOLVE_SYMLINKS_PS1}" "${_source_dir}"
+            OUTPUT_VARIABLE _resolved_source_dir
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
+        if(_resolved_source_dir AND EXISTS "${_resolved_source_dir}")
+            set(_source_dir "${_resolved_source_dir}")
+        endif()
+        get_filename_component(_manifest_dir "${_source_dir}/${manifest_dir}" ABSOLUTE)
+    else()
+        set(_manifest_dir "${CMAKE_CURRENT_SOURCE_DIR}/${manifest_dir}")
     endif()
 
     set(CARGOKIT_ENV

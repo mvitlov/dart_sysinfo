@@ -1,0 +1,3 @@
+tags:
+  monorepo:
+    description: Tests that require sibling packages in the monorepo workspace.
