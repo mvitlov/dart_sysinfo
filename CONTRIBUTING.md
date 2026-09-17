@@ -11,6 +11,8 @@ Requirements and implementation detail live in three docs, in order of authority
 1. [`PRD.md`](./PRD.md) — approved requirements and architecture
 2. [`TDD.md`](./TDD.md) — implementation detail (M0–M2 complete; M3+ stubbed)
 3. [`EPICS.md`](./EPICS.md) — milestone stories sized for tracker issues
+4. [`docs/capability-matrix.md`](./docs/capability-matrix.md) — P1 capability +
+   Android permission rows (M1-13)
 
 **Spec-first rule:** new work should map to an existing story in
 [`EPICS.md`](./EPICS.md). If it does not, amend the governing docs first rather
