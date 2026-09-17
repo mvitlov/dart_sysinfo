@@ -1,0 +1,9 @@
+---
+description: Git workflow conventions — never commit or push automatically, and omit AI attribution trailers
+alwaysApply: true
+---
+
+# Git workflow conventions
+
+- **Never commit or push automatically**: Do not run `git commit` or `git push` unless the user explicitly requests it in their prompt. Even after tests pass, refactorings finish, or documents are updated, present the changes and wait for explicit confirmation.
+- **Never add tool/AI trailers**: When crafting commit messages, never include `Co-authored-by: Cursor <...>` or any other automated AI references/trailers (`--trailer`). Keep commit messages clean and author-attributed as requested.
