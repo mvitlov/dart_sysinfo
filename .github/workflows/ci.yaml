@@ -105,28 +105,58 @@ jobs:
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .
 
-  android-build:
-    name: Android APK (NDK r28+ / JDK 17)
-    runs-on: ubuntu-latest
+  flutter-build:
+    name: Flutter build (${{ matrix.platform }})
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: android
+            runs-on: ubuntu-latest
+            build: cd example && flutter build apk --debug
+          - platform: ios
+            runs-on: macos-latest
+            build: cd example && flutter build ios --debug --no-codesign
+          - platform: linux
+            runs-on: ubuntu-latest
+            build: cd example && flutter build linux --debug
+          - platform: macos
+            runs-on: macos-latest
+            build: cd example && flutter build macos --debug
+          - platform: windows
+            runs-on: windows-latest
+            build: cd example; flutter build windows --debug
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v5
+      - name: Install Linux desktop build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Set up JDK 17 (Android)
+        if: matrix.platform == 'android'
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: gradle
 
-      - uses: nttld/setup-ndk@v1
+      - name: Set up Android NDK r28+
+        if: matrix.platform == 'android'
         id: setup-ndk
+        uses: nttld/setup-ndk@v1
         with:
           ndk-version: r28c
           link-to-sdk: true
 
       - name: Assert NDK r28+
+        if: matrix.platform == 'android'
         run: |
           NDK_MAJOR=$(grep '^Pkg.Revision' "${{ steps.setup-ndk.outputs.ndk-path }}/source.properties" | cut -d= -f2 | cut -d. -f1 | tr -d ' ')
           if [ "$NDK_MAJOR" -lt 28 ]; then
@@ -156,9 +186,35 @@ jobs:
         run: flutter pub get
 
       - name: Smoke-test dart_sysinfo:doctor
+        if: matrix.platform == 'android'
         run: dart run dart_sysinfo:doctor
         env:
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
 
-      - name: Build example APK (Cargokit + FRB smoke)
-        run: cd example && flutter build apk --debug
+      - name: Build example app (Cargokit + FRB smoke)
+        run: ${{ matrix.build }}
+
+  m0-exit-gate:
+    name: M0 go/no-go exit gate (PRD §12)
+    needs: [dart-only-test, lint, flutter-build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assert all M0 exit-criteria jobs passed
+        env:
+          DART_ONLY: ${{ needs.dart-only-test.result }}
+          LINT: ${{ needs.lint.result }}
+          FLUTTER_BUILD: ${{ needs.flutter-build.result }}
+        run: |
+          echo "dart-only-test=$DART_ONLY lint=$LINT flutter-build=$FLUTTER_BUILD"
+          failed=false
+          for result in "$DART_ONLY" "$LINT" "$FLUTTER_BUILD"; do
+            if [ "$result" != "success" ]; then
+              failed=true
+            fi
+          done
+          if [ "$failed" = true ]; then
+            echo "M0 exit criteria NOT met."
+            exit 1
+          fi
+          echo "M0 exit criteria met."
