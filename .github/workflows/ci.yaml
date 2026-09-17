@@ -55,6 +55,16 @@ jobs:
           fi
           echo "Confirmed: packages/dart_sysinfo/pubspec.yaml has no Flutter SDK constraints."
 
+      - name: Assert pubspec platforms exclude web (PRD §1.6)
+        run: |
+          for pubspec in packages/dart_sysinfo/pubspec.yaml packages/dart_sysinfo_flutter/pubspec.yaml; do
+            if grep -A 8 "^platforms:" "$pubspec" | grep -q "web:"; then
+              echo "ERROR: 'web:' platform found in $pubspec"
+              exit 1
+            fi
+          done
+          echo "Confirmed: web is excluded from all package platforms declarations."
+
       - name: Resolve dependencies in packages/dart_sysinfo
         run: |
           cd packages/dart_sysinfo

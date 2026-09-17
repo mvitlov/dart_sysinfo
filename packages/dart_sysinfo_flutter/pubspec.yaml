@@ -8,6 +8,14 @@ environment:
   sdk: ">=3.10.0 <4.0.0"
   flutter: ">=3.38.0"
 
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  # web: intentionally absent — PRD §1.6
+
 dependencies:
   dart_sysinfo: 0.1.0
   flutter:
