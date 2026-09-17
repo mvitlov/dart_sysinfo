@@ -1,2 +1,10 @@
-/// Placeholder. Implemented in a later M0/M1 story (see EPICS.md).
+/// Memory domain interface (P1).
 library;
+
+import 'package:dart_sysinfo/src/domains/memory/memory_info.dart';
+
+/// Memory metrics: TTL-cached snapshot.
+abstract class MemoryDomain {
+  /// Returns a TTL-cached memory snapshot.
+  Future<MemoryInfo> snapshot({bool forceRefresh = false});
+}
