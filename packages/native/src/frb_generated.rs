@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1585689341;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -749307456;
 
 // Section: executor
 
@@ -259,6 +259,35 @@ fn wire__crate__api__abi__native_crate_version_impl(
         },
     )
 }
+fn wire__crate__api__os__os_snapshot_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "os_snapshot",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>(crate::api::os::os_snapshot())?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
 
 // Section: dart2rust
 
@@ -376,6 +405,13 @@ impl SseDecode for f32 {
     }
 }
 
+impl SseDecode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_f64::<NativeEndian>().unwrap()
+    }
+}
+
 impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -392,6 +428,18 @@ impl SseDecode for crate::api::lifecycle::InitResult {
             created_fresh: var_createdFresh,
             abi_version: var_abiVersion,
         };
+    }
+}
+
+impl SseDecode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
     }
 }
 
@@ -431,6 +479,32 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for crate::api::os::LoadAverageDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_one = <f64>::sse_decode(deserializer);
+        let mut var_five = <f64>::sse_decode(deserializer);
+        let mut var_fifteen = <f64>::sse_decode(deserializer);
+        return crate::api::os::LoadAverageDto {
+            one: var_one,
+            five: var_five,
+            fifteen: var_fifteen,
+        };
+    }
+}
+
+impl SseDecode for crate::api::os::LoadAverageReadingDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_supported = <bool>::sse_decode(deserializer);
+        let mut var_value = <Option<crate::api::os::LoadAverageDto>>::sse_decode(deserializer);
+        return crate::api::os::LoadAverageReadingDto {
+            supported: var_supported,
+            value: var_value,
+        };
+    }
+}
+
 impl SseDecode for crate::api::memory::MemoryInfoDto {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -453,6 +527,17 @@ impl SseDecode for crate::api::memory::MemoryInfoDto {
             used_swap_bytes: var_usedSwapBytes,
             cgroup_limits: var_cgroupLimits,
         };
+    }
+}
+
+impl SseDecode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
     }
 }
 
@@ -480,6 +565,17 @@ impl SseDecode for Option<f32> {
     }
 }
 
+impl SseDecode for Option<crate::api::os::LoadAverageDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::os::LoadAverageDto>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -499,6 +595,36 @@ impl SseDecode for Option<Vec<crate::api::cpu::CpuCoreDto>> {
         } else {
             return None;
         }
+    }
+}
+
+impl SseDecode for crate::api::os::OsInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <Option<String>>::sse_decode(deserializer);
+        let mut var_kernelVersion = <Option<String>>::sse_decode(deserializer);
+        let mut var_osVersion = <Option<String>>::sse_decode(deserializer);
+        let mut var_longOsVersion = <Option<String>>::sse_decode(deserializer);
+        let mut var_hostName = <Option<String>>::sse_decode(deserializer);
+        let mut var_distributionId = <String>::sse_decode(deserializer);
+        let mut var_distributionIdLike = <Vec<String>>::sse_decode(deserializer);
+        let mut var_kernelLongVersion = <String>::sse_decode(deserializer);
+        let mut var_uptimeSeconds = <u64>::sse_decode(deserializer);
+        let mut var_bootTimeSeconds = <u64>::sse_decode(deserializer);
+        let mut var_loadAverage = <crate::api::os::LoadAverageReadingDto>::sse_decode(deserializer);
+        return crate::api::os::OsInfoDto {
+            name: var_name,
+            kernel_version: var_kernelVersion,
+            os_version: var_osVersion,
+            long_os_version: var_longOsVersion,
+            host_name: var_hostName,
+            distribution_id: var_distributionId,
+            distribution_id_like: var_distributionIdLike,
+            kernel_long_version: var_kernelLongVersion,
+            uptime_seconds: var_uptimeSeconds,
+            boot_time_seconds: var_bootTimeSeconds,
+            load_average: var_loadAverage,
+        };
     }
 }
 
@@ -556,6 +682,7 @@ fn pde_ffi_dispatcher_sync_impl(
         5 => wire__crate__api__lifecycle__init_impl(ptr, rust_vec_len, data_len),
         6 => wire__crate__api__memory__memory_snapshot_impl(ptr, rust_vec_len, data_len),
         7 => wire__crate__api__abi__native_crate_version_impl(ptr, rust_vec_len, data_len),
+        8 => wire__crate__api__os__os_snapshot_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -690,6 +817,49 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::lifecycle::InitResult>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::os::LoadAverageDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.one.into_into_dart().into_dart(),
+            self.five.into_into_dart().into_dart(),
+            self.fifteen.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::os::LoadAverageDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::os::LoadAverageDto>
+    for crate::api::os::LoadAverageDto
+{
+    fn into_into_dart(self) -> crate::api::os::LoadAverageDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::os::LoadAverageReadingDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.supported.into_into_dart().into_dart(),
+            self.value.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::os::LoadAverageReadingDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::os::LoadAverageReadingDto>
+    for crate::api::os::LoadAverageReadingDto
+{
+    fn into_into_dart(self) -> crate::api::os::LoadAverageReadingDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::memory::MemoryInfoDto {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -713,6 +883,31 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::memory::MemoryInfoDto>
     for crate::api::memory::MemoryInfoDto
 {
     fn into_into_dart(self) -> crate::api::memory::MemoryInfoDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::os::OsInfoDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.kernel_version.into_into_dart().into_dart(),
+            self.os_version.into_into_dart().into_dart(),
+            self.long_os_version.into_into_dart().into_dart(),
+            self.host_name.into_into_dart().into_dart(),
+            self.distribution_id.into_into_dart().into_dart(),
+            self.distribution_id_like.into_into_dart().into_dart(),
+            self.kernel_long_version.into_into_dart().into_dart(),
+            self.uptime_seconds.into_into_dart().into_dart(),
+            self.boot_time_seconds.into_into_dart().into_dart(),
+            self.load_average.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::os::OsInfoDto {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::os::OsInfoDto> for crate::api::os::OsInfoDto {
+    fn into_into_dart(self) -> crate::api::os::OsInfoDto {
         self
     }
 }
@@ -801,6 +996,13 @@ impl SseEncode for f32 {
     }
 }
 
+impl SseEncode for f64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_f64::<NativeEndian>(self).unwrap();
+    }
+}
+
 impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -813,6 +1015,16 @@ impl SseEncode for crate::api::lifecycle::InitResult {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.created_fresh, serializer);
         <u32>::sse_encode(self.abi_version, serializer);
+    }
+}
+
+impl SseEncode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <String>::sse_encode(item, serializer);
+        }
     }
 }
 
@@ -846,6 +1058,23 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for crate::api::os::LoadAverageDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <f64>::sse_encode(self.one, serializer);
+        <f64>::sse_encode(self.five, serializer);
+        <f64>::sse_encode(self.fifteen, serializer);
+    }
+}
+
+impl SseEncode for crate::api::os::LoadAverageReadingDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.supported, serializer);
+        <Option<crate::api::os::LoadAverageDto>>::sse_encode(self.value, serializer);
+    }
+}
+
 impl SseEncode for crate::api::memory::MemoryInfoDto {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -857,6 +1086,16 @@ impl SseEncode for crate::api::memory::MemoryInfoDto {
         <u64>::sse_encode(self.free_swap_bytes, serializer);
         <u64>::sse_encode(self.used_swap_bytes, serializer);
         <crate::api::memory::CGroupLimitsReadingDto>::sse_encode(self.cgroup_limits, serializer);
+    }
+}
+
+impl SseEncode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <String>::sse_encode(value, serializer);
+        }
     }
 }
 
@@ -880,6 +1119,16 @@ impl SseEncode for Option<f32> {
     }
 }
 
+impl SseEncode for Option<crate::api::os::LoadAverageDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::os::LoadAverageDto>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -897,6 +1146,23 @@ impl SseEncode for Option<Vec<crate::api::cpu::CpuCoreDto>> {
         if let Some(value) = self {
             <Vec<crate::api::cpu::CpuCoreDto>>::sse_encode(value, serializer);
         }
+    }
+}
+
+impl SseEncode for crate::api::os::OsInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<String>>::sse_encode(self.name, serializer);
+        <Option<String>>::sse_encode(self.kernel_version, serializer);
+        <Option<String>>::sse_encode(self.os_version, serializer);
+        <Option<String>>::sse_encode(self.long_os_version, serializer);
+        <Option<String>>::sse_encode(self.host_name, serializer);
+        <String>::sse_encode(self.distribution_id, serializer);
+        <Vec<String>>::sse_encode(self.distribution_id_like, serializer);
+        <String>::sse_encode(self.kernel_long_version, serializer);
+        <u64>::sse_encode(self.uptime_seconds, serializer);
+        <u64>::sse_encode(self.boot_time_seconds, serializer);
+        <crate::api::os::LoadAverageReadingDto>::sse_encode(self.load_average, serializer);
     }
 }
 

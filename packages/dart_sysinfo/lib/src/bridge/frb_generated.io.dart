@@ -7,6 +7,7 @@ import 'api/abi.dart';
 import 'api/cpu.dart';
 import 'api/lifecycle.dart';
 import 'api/memory.dart';
+import 'api/os.dart';
 import 'api/smoke.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -42,6 +43,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double dco_decode_box_autoadd_f_32(dynamic raw);
 
   @protected
+  LoadAverageDto dco_decode_box_autoadd_load_average_dto(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
 
   @protected
@@ -63,10 +67,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double dco_decode_f_32(dynamic raw);
 
   @protected
+  double dco_decode_f_64(dynamic raw);
+
+  @protected
   int dco_decode_i_32(dynamic raw);
 
   @protected
   InitResult dco_decode_init_result(dynamic raw);
+
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
 
   @protected
   List<CpuCoreDto> dco_decode_list_cpu_core_dto(dynamic raw);
@@ -78,7 +88,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  LoadAverageDto dco_decode_load_average_dto(dynamic raw);
+
+  @protected
+  LoadAverageReadingDto dco_decode_load_average_reading_dto(dynamic raw);
+
+  @protected
   MemoryInfoDto dco_decode_memory_info_dto(dynamic raw);
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw);
 
   @protected
   CGroupLimitsDto? dco_decode_opt_box_autoadd_c_group_limits_dto(dynamic raw);
@@ -87,10 +106,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
 
   @protected
+  LoadAverageDto? dco_decode_opt_box_autoadd_load_average_dto(dynamic raw);
+
+  @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
 
   @protected
   List<CpuCoreDto>? dco_decode_opt_list_cpu_core_dto(dynamic raw);
+
+  @protected
+  OsInfoDto dco_decode_os_info_dto(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -126,6 +151,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
 
   @protected
+  LoadAverageDto sse_decode_box_autoadd_load_average_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
@@ -149,10 +179,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double sse_decode_f_32(SseDeserializer deserializer);
 
   @protected
+  double sse_decode_f_64(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
   InitResult sse_decode_init_result(SseDeserializer deserializer);
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
   List<CpuCoreDto> sse_decode_list_cpu_core_dto(SseDeserializer deserializer);
@@ -164,7 +200,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  LoadAverageDto sse_decode_load_average_dto(SseDeserializer deserializer);
+
+  @protected
+  LoadAverageReadingDto sse_decode_load_average_reading_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   MemoryInfoDto sse_decode_memory_info_dto(SseDeserializer deserializer);
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
   CGroupLimitsDto? sse_decode_opt_box_autoadd_c_group_limits_dto(
@@ -175,12 +222,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
 
   @protected
+  LoadAverageDto? sse_decode_opt_box_autoadd_load_average_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
   List<CpuCoreDto>? sse_decode_opt_list_cpu_core_dto(
     SseDeserializer deserializer,
   );
+
+  @protected
+  OsInfoDto sse_decode_os_info_dto(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -222,6 +277,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_load_average_dto(
+    LoadAverageDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
   @protected
@@ -252,10 +313,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_f_32(double self, SseSerializer serializer);
 
   @protected
+  void sse_encode_f_64(double self, SseSerializer serializer);
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_init_result(InitResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_cpu_core_dto(
@@ -276,7 +343,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_load_average_dto(
+    LoadAverageDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_load_average_reading_dto(
+    LoadAverageReadingDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_memory_info_dto(MemoryInfoDto self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_c_group_limits_dto(
@@ -288,6 +370,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_load_average_dto(
+    LoadAverageDto? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
 
   @protected
@@ -295,6 +383,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     List<CpuCoreDto>? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_os_info_dto(OsInfoDto self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);

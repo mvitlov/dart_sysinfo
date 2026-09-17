@@ -11,3 +11,5 @@ export 'src/domains/cpu/cpu_domain.dart';
 export 'src/domains/cpu/cpu_info.dart';
 export 'src/domains/memory/memory_domain.dart';
 export 'src/domains/memory/memory_info.dart';
+export 'src/domains/os/os_domain.dart';
+export 'src/domains/os/os_info.dart';

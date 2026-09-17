@@ -66,7 +66,7 @@ class _RealSysInfo extends SysInfo {
   _RealSysInfo._(this._initResult)
       : cpu = CpuDomainImpl(),
         memory = MemoryDomainImpl(),
-        os = const OsDomainImpl();
+        os = OsDomainImpl();
 
   /// Production callers must call `initDartSysinfoBridge()` before the first
   /// [SysInfo.instance]; tests use `RustLib.initMock` instead.

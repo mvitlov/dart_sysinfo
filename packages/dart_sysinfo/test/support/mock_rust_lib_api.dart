@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dart_sysinfo/src/bridge/api/cpu.dart';
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
 import 'package:dart_sysinfo/src/bridge/api/memory.dart';
+import 'package:dart_sysinfo/src/bridge/api/os.dart';
 import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
 import 'package:dart_sysinfo/src/core/abi_guard.dart';
 
@@ -15,6 +16,7 @@ class MockRustLibApi implements RustLibApi {
     ),
     CpuInfoDto? cpuSnapshotResult,
     MemoryInfoDto? memorySnapshotResult,
+    OsInfoDto? osSnapshotResult,
     StreamController<CpuLoadSampleDto>? cpuLoadStreamController,
   })  : cpuSnapshotResult =
             cpuSnapshotResult ?? const CpuInfoDto(architecture: 'mock'),
@@ -29,6 +31,15 @@ class MockRustLibApi implements RustLibApi {
               usedSwapBytes: BigInt.zero,
               cgroupLimits: const CGroupLimitsReadingDto(supported: false),
             ),
+        osSnapshotResult = osSnapshotResult ??
+            OsInfoDto(
+              distributionId: 'mock',
+              distributionIdLike: const [],
+              kernelLongVersion: 'mock kernel',
+              uptimeSeconds: BigInt.zero,
+              bootTimeSeconds: BigInt.zero,
+              loadAverage: const LoadAverageReadingDto(supported: false),
+            ),
         cpuLoadStreamController = cpuLoadStreamController ??
             StreamController<CpuLoadSampleDto>.broadcast();
 
@@ -41,6 +52,9 @@ class MockRustLibApi implements RustLibApi {
 
   MemoryInfoDto memorySnapshotResult;
   int memorySnapshotCalls = 0;
+
+  OsInfoDto osSnapshotResult;
+  int osSnapshotCalls = 0;
 
   final StreamController<CpuLoadSampleDto> cpuLoadStreamController;
   int cpuLoadStreamCalls = 0;
@@ -82,5 +96,11 @@ class MockRustLibApi implements RustLibApi {
   MemoryInfoDto crateApiMemoryMemorySnapshot() {
     memorySnapshotCalls++;
     return memorySnapshotResult;
+  }
+
+  @override
+  OsInfoDto crateApiOsOsSnapshot() {
+    osSnapshotCalls++;
+    return osSnapshotResult;
   }
 }

@@ -170,5 +170,6 @@ class _TestMemoryDomain implements MemoryDomain {
 
 class _TestOsDomain implements OsDomain {
   @override
-  Future<OsInfo> snapshot({bool forceRefresh = false}) async => const OsInfo();
+  Future<OsInfo> snapshot({bool forceRefresh = false}) async =>
+      OsInfo.allUnavailable();
 }

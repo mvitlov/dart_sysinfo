@@ -7,6 +7,7 @@ import 'api/abi.dart';
 import 'api/cpu.dart';
 import 'api/lifecycle.dart';
 import 'api/memory.dart';
+import 'api/os.dart';
 import 'api/smoke.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -68,7 +69,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1585689341;
+  int get rustContentHash => -749307456;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -95,6 +96,8 @@ abstract class RustLibApi extends BaseApi {
   MemoryInfoDto crateApiMemoryMemorySnapshot();
 
   String crateApiAbiNativeCrateVersion();
+
+  OsInfoDto crateApiOsOsSnapshot();
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -267,6 +270,28 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiAbiNativeCrateVersionConstMeta =>
       const TaskConstMeta(debugName: "native_crate_version", argNames: []);
 
+  @override
+  OsInfoDto crateApiOsOsSnapshot() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_os_info_dto,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiOsOsSnapshotConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiOsOsSnapshotConstMeta =>
+      const TaskConstMeta(debugName: "os_snapshot", argNames: []);
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -302,6 +327,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   double dco_decode_box_autoadd_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
+  }
+
+  @protected
+  LoadAverageDto dco_decode_box_autoadd_load_average_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_load_average_dto(raw);
   }
 
   @protected
@@ -384,6 +415,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double dco_decode_f_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
   int dco_decode_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -399,6 +436,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       createdFresh: dco_decode_bool(arr[0]),
       abiVersion: dco_decode_u_32(arr[1]),
     );
+  }
+
+  @protected
+  List<String> dco_decode_list_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_String).toList();
   }
 
   @protected
@@ -420,6 +463,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  LoadAverageDto dco_decode_load_average_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return LoadAverageDto(
+      one: dco_decode_f_64(arr[0]),
+      five: dco_decode_f_64(arr[1]),
+      fifteen: dco_decode_f_64(arr[2]),
+    );
+  }
+
+  @protected
+  LoadAverageReadingDto dco_decode_load_average_reading_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return LoadAverageReadingDto(
+      supported: dco_decode_bool(arr[0]),
+      value: dco_decode_opt_box_autoadd_load_average_dto(arr[1]),
+    );
+  }
+
+  @protected
   MemoryInfoDto dco_decode_memory_info_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -438,6 +506,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  String? dco_decode_opt_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
   CGroupLimitsDto? dco_decode_opt_box_autoadd_c_group_limits_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_c_group_limits_dto(raw);
@@ -450,6 +524,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  LoadAverageDto? dco_decode_opt_box_autoadd_load_average_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_load_average_dto(raw);
+  }
+
+  @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
@@ -459,6 +539,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<CpuCoreDto>? dco_decode_opt_list_cpu_core_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_list_cpu_core_dto(raw);
+  }
+
+  @protected
+  OsInfoDto dco_decode_os_info_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 11)
+      throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
+    return OsInfoDto(
+      name: dco_decode_opt_String(arr[0]),
+      kernelVersion: dco_decode_opt_String(arr[1]),
+      osVersion: dco_decode_opt_String(arr[2]),
+      longOsVersion: dco_decode_opt_String(arr[3]),
+      hostName: dco_decode_opt_String(arr[4]),
+      distributionId: dco_decode_String(arr[5]),
+      distributionIdLike: dco_decode_list_String(arr[6]),
+      kernelLongVersion: dco_decode_String(arr[7]),
+      uptimeSeconds: dco_decode_u_64(arr[8]),
+      bootTimeSeconds: dco_decode_u_64(arr[9]),
+      loadAverage: dco_decode_load_average_reading_dto(arr[10]),
+    );
   }
 
   @protected
@@ -524,6 +625,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   double sse_decode_box_autoadd_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_f_32(deserializer));
+  }
+
+  @protected
+  LoadAverageDto sse_decode_box_autoadd_load_average_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_load_average_dto(deserializer));
   }
 
   @protected
@@ -611,6 +720,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  double sse_decode_f_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat64();
+  }
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
@@ -625,6 +740,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       createdFresh: var_createdFresh,
       abiVersion: var_abiVersion,
     );
+  }
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <String>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_String(deserializer));
+    }
+    return ans_;
   }
 
   @protected
@@ -654,6 +781,25 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  LoadAverageDto sse_decode_load_average_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_one = sse_decode_f_64(deserializer);
+    var var_five = sse_decode_f_64(deserializer);
+    var var_fifteen = sse_decode_f_64(deserializer);
+    return LoadAverageDto(one: var_one, five: var_five, fifteen: var_fifteen);
+  }
+
+  @protected
+  LoadAverageReadingDto sse_decode_load_average_reading_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_supported = sse_decode_bool(deserializer);
+    var var_value = sse_decode_opt_box_autoadd_load_average_dto(deserializer);
+    return LoadAverageReadingDto(supported: var_supported, value: var_value);
+  }
+
+  @protected
   MemoryInfoDto sse_decode_memory_info_dto(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_totalMemoryBytes = sse_decode_u_64(deserializer);
@@ -674,6 +820,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       usedSwapBytes: var_usedSwapBytes,
       cgroupLimits: var_cgroupLimits,
     );
+  }
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
   }
 
   @protected
@@ -701,6 +858,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  LoadAverageDto? sse_decode_opt_box_autoadd_load_average_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_load_average_dto(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -722,6 +892,35 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     } else {
       return null;
     }
+  }
+
+  @protected
+  OsInfoDto sse_decode_os_info_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_opt_String(deserializer);
+    var var_kernelVersion = sse_decode_opt_String(deserializer);
+    var var_osVersion = sse_decode_opt_String(deserializer);
+    var var_longOsVersion = sse_decode_opt_String(deserializer);
+    var var_hostName = sse_decode_opt_String(deserializer);
+    var var_distributionId = sse_decode_String(deserializer);
+    var var_distributionIdLike = sse_decode_list_String(deserializer);
+    var var_kernelLongVersion = sse_decode_String(deserializer);
+    var var_uptimeSeconds = sse_decode_u_64(deserializer);
+    var var_bootTimeSeconds = sse_decode_u_64(deserializer);
+    var var_loadAverage = sse_decode_load_average_reading_dto(deserializer);
+    return OsInfoDto(
+      name: var_name,
+      kernelVersion: var_kernelVersion,
+      osVersion: var_osVersion,
+      longOsVersion: var_longOsVersion,
+      hostName: var_hostName,
+      distributionId: var_distributionId,
+      distributionIdLike: var_distributionIdLike,
+      kernelLongVersion: var_kernelLongVersion,
+      uptimeSeconds: var_uptimeSeconds,
+      bootTimeSeconds: var_bootTimeSeconds,
+      loadAverage: var_loadAverage,
+    );
   }
 
   @protected
@@ -801,6 +1000,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_load_average_dto(
+    LoadAverageDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_load_average_dto(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_32(self, serializer);
@@ -864,6 +1072,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_f_64(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat64(self);
+  }
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
@@ -874,6 +1088,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_bool(self.createdFresh, serializer);
     sse_encode_u_32(self.abiVersion, serializer);
+  }
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_String(item, serializer);
+    }
   }
 
   @protected
@@ -909,6 +1132,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_load_average_dto(
+    LoadAverageDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_64(self.one, serializer);
+    sse_encode_f_64(self.five, serializer);
+    sse_encode_f_64(self.fifteen, serializer);
+  }
+
+  @protected
+  void sse_encode_load_average_reading_dto(
+    LoadAverageReadingDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self.supported, serializer);
+    sse_encode_opt_box_autoadd_load_average_dto(self.value, serializer);
+  }
+
+  @protected
   void sse_encode_memory_info_dto(
     MemoryInfoDto self,
     SseSerializer serializer,
@@ -922,6 +1166,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_u_64(self.freeSwapBytes, serializer);
     sse_encode_u_64(self.usedSwapBytes, serializer);
     sse_encode_c_group_limits_reading_dto(self.cgroupLimits, serializer);
+  }
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_String(self, serializer);
+    }
   }
 
   @protected
@@ -948,6 +1202,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_load_average_dto(
+    LoadAverageDto? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_load_average_dto(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -968,6 +1235,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     if (self != null) {
       sse_encode_list_cpu_core_dto(self, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_os_info_dto(OsInfoDto self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_String(self.name, serializer);
+    sse_encode_opt_String(self.kernelVersion, serializer);
+    sse_encode_opt_String(self.osVersion, serializer);
+    sse_encode_opt_String(self.longOsVersion, serializer);
+    sse_encode_opt_String(self.hostName, serializer);
+    sse_encode_String(self.distributionId, serializer);
+    sse_encode_list_String(self.distributionIdLike, serializer);
+    sse_encode_String(self.kernelLongVersion, serializer);
+    sse_encode_u_64(self.uptimeSeconds, serializer);
+    sse_encode_u_64(self.bootTimeSeconds, serializer);
+    sse_encode_load_average_reading_dto(self.loadAverage, serializer);
   }
 
   @protected
