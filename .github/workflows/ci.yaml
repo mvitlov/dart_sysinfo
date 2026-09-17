@@ -3,9 +3,19 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.cursor/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.cursor/**'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   dart-only-test:
@@ -80,6 +90,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
 
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
@@ -111,9 +122,6 @@ jobs:
 
       - name: Resolve workspace dependencies
         run: flutter pub get
-
-      - name: Accept Android SDK licenses
-        run: yes | flutter doctor --android-licenses || true
 
       - name: Build example APK (Cargokit + FRB smoke)
         run: cd example && flutter build apk --debug
