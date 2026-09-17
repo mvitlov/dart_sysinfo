@@ -155,14 +155,15 @@ jobs:
             runs-on: windows-latest
             rust-targets: x86_64-pc-windows-msvc
             build: cd example; flutter build windows --debug
-          # --- Minimum (3.38.0): android + linux spot-check ---
-          - flutter-version: '3.38.0'
+          # --- Minimum (3.38.1): android + linux spot-check ---
+          # 3.38.0 shipped Dart 3.10.0-beta and fails pub get with sdk: >=3.10.0.
+          - flutter-version: '3.38.1'
             sdk-tier: minimum
             platform: android
             runs-on: ubuntu-latest
             rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
             build: cd example && flutter build apk --debug
-          - flutter-version: '3.38.0'
+          - flutter-version: '3.38.1'
             sdk-tier: minimum
             platform: linux
             runs-on: ubuntu-latest

@@ -80,7 +80,7 @@ Pull requests must pass the **`M1 P1 CI gate (PRD §7.2)`** check in
 
 | Tier | Flutter (`flutter-build`) | Dart (`dart-only-test`) | Platforms built |
 |---|---|---|---|
-| Minimum | 3.38.0 | `dart:3.10.0` | Android, Linux (spot-check) |
+| Minimum | 3.38.1 | `dart:3.10.0` | Android, Linux (spot-check) |
 | Intermediate | 3.44.0 | `dart:3.12.2` | Android, Linux (spot-check) |
 | Latest | 3.47.4 | `dart:3.13.3` | All 5 (Android, iOS, Linux, macOS, Windows) |
 
@@ -88,6 +88,9 @@ This yields **9** `flutter-build` cells and **3** `dart-only-test` cells per CI
 run. Min/intermediate tiers spot-check mobile + desktop Unix on Ubuntu; latest
 tier runs the full five-platform matrix. iOS/macOS/Windows compile paths are
 covered on the latest SDK only.
+
+**Note:** CI uses Flutter **3.38.1** (not 3.38.0) for the minimum tier because
+3.38.0 shipped a Dart beta that does not satisfy `sdk: >=3.10.0 <4.0.0`.
 
 **CI safeguards:**
 

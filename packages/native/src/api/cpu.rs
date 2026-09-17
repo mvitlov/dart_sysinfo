@@ -112,7 +112,7 @@ fn map_cores(sys: &System) -> Option<Vec<CpuCoreDto>> {
         return None;
     }
 
-    let cores = sys
+    let cores: Vec<CpuCoreDto> = sys
         .cpus()
         .iter()
         .map(|cpu| CpuCoreDto {
