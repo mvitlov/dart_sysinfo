@@ -17,19 +17,24 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   dart-only-test:
     name: Flutter-free core (${{ matrix.dart-image }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     container:
       image: ${{ matrix.dart-image }}
     strategy:
       fail-fast: false
       matrix:
+        # PRD §7.2 SDK tiers (paired with flutter-build Flutter versions).
         dart-image:
-          - 'dart:3.10.0'
-          - 'dart:3.12.2'
-          - 'dart:3.13.3'
+          - 'dart:3.10.0'   # minimum (~Flutter 3.38.x)
+          - 'dart:3.12.2'   # intermediate (~Flutter 3.44.x)
+          - 'dart:3.13.3'   # latest (~Flutter 3.47.4)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -76,7 +81,9 @@ jobs:
           cd packages/dart_sysinfo
           dart test
 
+      # Standalone pub.dev consumer sim is expensive; once on latest Dart is enough.
       - name: Verify standalone package resolution (pub.dev consumer simulation)
+        if: matrix.dart-image == 'dart:3.13.3'
         run: |
           mkdir -p /tmp/pkg_standalone
           cp -r packages/dart_sysinfo /tmp/pkg_standalone/
@@ -90,6 +97,7 @@ jobs:
   lint:
     name: Lint (very_good_analysis, zero warnings)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
 
@@ -98,6 +106,7 @@ jobs:
           flutter-version: '3.47.4'
           channel: stable
           cache: true
+          cache-key: flutter-3.47.4
 
       - name: Resolve workspace dependencies
         run: flutter pub get
@@ -106,27 +115,72 @@ jobs:
         run: dart analyze --fatal-warnings .
 
   flutter-build:
-    name: Flutter build (${{ matrix.platform }})
+    name: Flutter build (${{ matrix.platform }}, Flutter ${{ matrix.flutter-version }})
     runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 90
     strategy:
       fail-fast: false
+      # Explicit include avoids ambiguous matrix+include expansion and lets us
+      # spot-check min/intermediate SDKs on android+linux only (PRD §7.2).
       matrix:
         include:
-          - platform: android
+          # --- Latest (3.47.4): all 5 platforms ---
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: android
             runs-on: ubuntu-latest
+            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
             build: cd example && flutter build apk --debug
-          - platform: ios
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: ios
             runs-on: macos-latest
+            rust-targets: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
             build: cd example && flutter build ios --debug --no-codesign
-          - platform: linux
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: linux
             runs-on: ubuntu-latest
+            rust-targets: x86_64-unknown-linux-gnu
             build: cd example && flutter build linux --debug
-          - platform: macos
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: macos
             runs-on: macos-latest
+            rust-targets: aarch64-apple-darwin x86_64-apple-darwin
             build: cd example && flutter build macos --debug
-          - platform: windows
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: windows
             runs-on: windows-latest
+            rust-targets: x86_64-pc-windows-msvc
             build: cd example; flutter build windows --debug
+          # --- Minimum (3.38.0): android + linux spot-check ---
+          - flutter-version: '3.38.0'
+            sdk-tier: minimum
+            platform: android
+            runs-on: ubuntu-latest
+            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+            build: cd example && flutter build apk --debug
+          - flutter-version: '3.38.0'
+            sdk-tier: minimum
+            platform: linux
+            runs-on: ubuntu-latest
+            rust-targets: x86_64-unknown-linux-gnu
+            build: cd example && flutter build linux --debug
+          # --- Intermediate (3.44.0): android + linux spot-check ---
+          - flutter-version: '3.44.0'
+            sdk-tier: intermediate
+            platform: android
+            runs-on: ubuntu-latest
+            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+            build: cd example && flutter build apk --debug
+          - flutter-version: '3.44.0'
+            sdk-tier: intermediate
+            platform: linux
+            runs-on: ubuntu-latest
+            rust-targets: x86_64-unknown-linux-gnu
+            build: cd example && flutter build linux --debug
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -170,17 +224,19 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.98.1
-          targets: >-
-            aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,
-            aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios,
-            aarch64-apple-darwin,x86_64-apple-darwin,
-            x86_64-unknown-linux-gnu,x86_64-pc-windows-msvc
+          targets: ${{ matrix.rust-targets }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/native
+          shared-key: flutter-build-${{ matrix.platform }}-${{ matrix.flutter-version }}
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.4'
+          flutter-version: ${{ matrix.flutter-version }}
           channel: stable
           cache: true
+          cache-key: flutter-${{ matrix.flutter-version }}
 
       - name: Resolve workspace dependencies
         run: flutter pub get
@@ -189,7 +245,7 @@ jobs:
         run: cd example && flutter pub get
 
       - name: Smoke-test dart_sysinfo:doctor
-        if: matrix.platform == 'android'
+        if: matrix.platform == 'android' && matrix.flutter-version == '3.47.4'
         run: dart run dart_sysinfo:doctor
         env:
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
@@ -197,27 +253,49 @@ jobs:
       - name: Build example app (Cargokit + FRB smoke)
         run: ${{ matrix.build }}
 
+  rust-test:
+    name: Rust tests (packages/native)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/native
+          shared-key: rust-test
+
+      - name: Run Rust integration tests
+        run: cd packages/native && cargo test -- --test-threads=1
+
   m0-exit-gate:
-    name: M0 go/no-go exit gate (PRD §12)
-    needs: [dart-only-test, lint, flutter-build]
+    name: M1 P1 CI gate (PRD §7.2)
+    needs: [dart-only-test, lint, flutter-build, rust-test]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Assert all M0 exit-criteria jobs passed
+      - name: Assert all P1 CI jobs passed
         env:
           DART_ONLY: ${{ needs.dart-only-test.result }}
           LINT: ${{ needs.lint.result }}
           FLUTTER_BUILD: ${{ needs.flutter-build.result }}
+          RUST_TEST: ${{ needs.rust-test.result }}
         run: |
-          echo "dart-only-test=$DART_ONLY lint=$LINT flutter-build=$FLUTTER_BUILD"
+          echo "dart-only-test=$DART_ONLY lint=$LINT flutter-build=$FLUTTER_BUILD rust-test=$RUST_TEST"
           failed=false
-          for result in "$DART_ONLY" "$LINT" "$FLUTTER_BUILD"; do
+          for result in "$DART_ONLY" "$LINT" "$FLUTTER_BUILD" "$RUST_TEST"; do
             if [ "$result" != "success" ]; then
+              echo "Upstream job result: $result"
               failed=true
             fi
           done
           if [ "$failed" = true ]; then
-            echo "M0 exit criteria NOT met."
+            echo "M1 P1 CI gate NOT met."
             exit 1
           fi
-          echo "M0 exit criteria met."
+          echo "M1 P1 CI gate met (all SDK tiers + rust tests)."

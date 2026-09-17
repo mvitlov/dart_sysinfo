@@ -53,24 +53,54 @@ Flutter-free core tests (no Flutter SDK required):
 cd packages/dart_sysinfo && fvm dart test
 ```
 
+Rust integration tests (M1-15):
+
+```bash
+cd packages/native && cargo test -- --test-threads=1
+```
+
 Rust store-profile verification (M1-14):
 
 ```bash
 cd packages/native && cargo test --features apple-app-store --test apple_app_store -- --test-threads=1
 ```
 
-## CI / M0 exit gate (PRD §12)
+## CI / P1 merge gate (PRD §7.2)
 
-Pull requests must pass the **`M0 go/no-go exit gate (PRD §12)`** check in
-[`.github/workflows/ci.yaml`](./.github/workflows/ci.yaml). That job aggregates:
+Pull requests must pass the **`M1 P1 CI gate (PRD §7.2)`** check in
+[`.github/workflows/ci.yaml`](./.github/workflows/ci.yaml). The job id is still
+`m0-exit-gate` for branch-protection compatibility. It aggregates:
 
-- **Flutter-free tests** — `dart-only-test` on Flutter-free Dart containers
-- **Lint** — `dart analyze --fatal-warnings` (PRD §10.1)
-- **Five-platform builds** — `flutter-build` matrix (Android, iOS, Linux,
-  macOS, Windows) compiling the example FFI smoke app via Cargokit
+- **Flutter-free tests** — `dart-only-test` (3 Dart SDK tiers)
+- **Lint** — `dart analyze --fatal-warnings` on latest Flutter (PRD §10.1)
+- **Flutter builds** — `flutter-build` (9 cells; see SDK matrix below)
+- **Rust tests** — `rust-test` (`cargo test -- --test-threads=1`)
 
-**Policy:** a red M0 exit gate blocks M1 kickoff. Configure it as a required
-status check in GitHub branch protection for `main` (repository admin setting).
+**SDK matrix (PRD §7.2 / §1.5):**
+
+| Tier | Flutter (`flutter-build`) | Dart (`dart-only-test`) | Platforms built |
+|---|---|---|---|
+| Minimum | 3.38.0 | `dart:3.10.0` | Android, Linux (spot-check) |
+| Intermediate | 3.44.0 | `dart:3.12.2` | Android, Linux (spot-check) |
+| Latest | 3.47.4 | `dart:3.13.3` | All 5 (Android, iOS, Linux, macOS, Windows) |
+
+This yields **9** `flutter-build` cells and **3** `dart-only-test` cells per CI
+run. Min/intermediate tiers spot-check mobile + desktop Unix on Ubuntu; latest
+tier runs the full five-platform matrix. iOS/macOS/Windows compile paths are
+covered on the latest SDK only.
+
+**CI safeguards:**
+
+- `concurrency.cancel-in-progress` — superseded runs on the same branch are
+  cancelled instead of piling up
+- `timeout-minutes` on every job — prevents hung workflows from running
+  indefinitely
+- Explicit `flutter-build` matrix `include` list — avoids ambiguous GitHub
+  Actions matrix expansion
+- Platform-scoped Rust targets + `Swatinem/rust-cache` — faster native builds
+
+**Policy:** configure `m0-exit-gate` as a required status check in GitHub
+branch protection for `main` (repository admin setting).
 
 ## Pub.dev (M0-12)
 
