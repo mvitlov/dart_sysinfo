@@ -1,3 +1,4 @@
+import 'package:dart_sysinfo/src/bridge/api/cpu.dart';
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
 import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
 import 'package:dart_sysinfo/src/core/abi_guard.dart';
@@ -31,4 +32,13 @@ class MockRustLibApi implements RustLibApi {
 
   @override
   String crateApiAbiNativeCrateVersion() => '0.1.0';
+
+  @override
+  CpuInfoDto crateApiCpuCpuSnapshot() => const CpuInfoDto(architecture: 'mock');
+
+  @override
+  Stream<CpuLoadSampleDto> crateApiCpuCpuLoadStream({
+    required BigInt intervalMs,
+  }) =>
+      const Stream.empty();
 }

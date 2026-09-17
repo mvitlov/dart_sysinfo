@@ -1,5 +1,6 @@
 //! Shared native state and idempotent init/dispose (TDD §2.1).
 
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 
 use sysinfo::System;
@@ -8,13 +9,28 @@ use sysinfo::System;
 pub struct SharedState {
     /// Inner system handle contended by domain snapshot and stream workers.
     pub system: RwLock<System>,
+    /// Whether at least one CPU usage refresh has completed (TDD §4.1 first-sample).
+    pub cpu_usage_ready: AtomicBool,
 }
 
 impl SharedState {
     fn new() -> Self {
         Self {
             system: RwLock::new(System::new()),
+            cpu_usage_ready: AtomicBool::new(false),
         }
+    }
+}
+
+impl SharedState {
+    /// Marks CPU usage as ready after the warm-up refresh.
+    pub fn mark_cpu_usage_ready(&self) {
+        self.cpu_usage_ready.store(true, Ordering::Release);
+    }
+
+    /// Returns whether a diff-based CPU usage sample is available.
+    pub fn is_cpu_usage_ready(&self) -> bool {
+        self.cpu_usage_ready.load(Ordering::Acquire)
     }
 }
 
