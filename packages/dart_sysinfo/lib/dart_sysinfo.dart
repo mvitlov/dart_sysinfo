@@ -7,3 +7,5 @@ export 'src/bridge/init.dart';
 export 'src/core/reading.dart';
 export 'src/core/sys_info.dart';
 export 'src/core/sys_info_exception.dart';
+export 'src/domains/cpu/cpu_domain.dart';
+export 'src/domains/cpu/cpu_info.dart';

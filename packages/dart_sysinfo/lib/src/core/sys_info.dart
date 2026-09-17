@@ -5,6 +5,7 @@ import 'dart:async' show unawaited;
 
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart' as bridge;
 import 'package:dart_sysinfo/src/core/abi_guard.dart';
+import 'package:dart_sysinfo/src/core/shared_stream_registry.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain_impl.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
@@ -63,7 +64,7 @@ abstract class SysInfo {
 
 class _RealSysInfo extends SysInfo {
   _RealSysInfo._(this._initResult)
-      : cpu = const CpuDomainImpl(),
+      : cpu = CpuDomainImpl(),
         memory = const MemoryDomainImpl(),
         os = const OsDomainImpl();
 
@@ -91,7 +92,7 @@ class _RealSysInfo extends SysInfo {
 
   @override
   Future<void> dispose() async {
-    // M1-10: await SharedStreamRegistry.instance.cancelAll();
+    await SharedStreamRegistry.instance.cancelAll();
     bridge.dispose();
   }
 }

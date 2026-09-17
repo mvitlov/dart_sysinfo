@@ -153,13 +153,13 @@ class _TestSysInfo extends SysInfo {
 class _TestCpuDomain implements CpuDomain {
   @override
   Future<CpuInfo> snapshot({bool forceRefresh = false}) async =>
-      const CpuInfo();
+      CpuInfo.allUnavailable();
 
   @override
   Stream<CpuLoadSample> load({
     Duration interval = const Duration(seconds: 1),
   }) =>
-      const Stream.empty();
+      Stream<CpuLoadSample>.empty();
 }
 
 class _TestMemoryDomain implements MemoryDomain {
