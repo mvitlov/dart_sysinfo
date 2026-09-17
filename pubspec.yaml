@@ -1,0 +1,27 @@
+name: dart_sysinfo_workspace
+publish_to: none
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+workspace:
+  - packages/dart_sysinfo
+  - packages/dart_sysinfo_flutter
+  - example
+
+dev_dependencies:
+  melos: ^7.0.0
+
+melos:
+  # Use the FVM-pinned SDK (.fvmrc) instead of whatever flutter/dart happens
+  # to be first on PATH — see PRD §1.5 (Development SDK: Flutter 3.47.4 / Dart 3.13.3).
+  sdkPath: .fvm/flutter_sdk
+
+  scripts:
+    frb:generate:
+      run: cd packages/dart_sysinfo && flutter_rust_bridge_codegen generate
+
+  command:
+    version:
+      mode: fixed
+      workspaceTag: true

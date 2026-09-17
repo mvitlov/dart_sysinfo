@@ -1,0 +1,45 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+**/pubspec_overrides.yaml
+build/
+**/pubspec.lock
+!pubspec.lock
+
+# Rust
+**/target/
+
+# FVM — .fvmrc is committed (source of truth); the local symlink/cache dir is not
+.fvm/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Melos
+.melos_tool/
+
+# Platform build artifacts
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/app/build/
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/macos/Flutter/
+**/linux/flutter/
+**/windows/flutter/
+packages/dart_sysinfo/**/GeneratedPluginRegistrant.*
+packages/dart_sysinfo/**/generated_plugin_registrant.*
+packages/dart_sysinfo/**/generated_plugins.cmake
+packages/**/melos_*.iml
+packages/**/.dart_tool/
+example/.dart_tool/

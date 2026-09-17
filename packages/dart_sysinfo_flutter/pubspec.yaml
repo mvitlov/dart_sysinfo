@@ -1,0 +1,14 @@
+name: dart_sysinfo_flutter
+description: Flutter lifecycle integration for dart_sysinfo.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"
+
+dependencies:
+  dart_sysinfo: 0.1.0
+  flutter:
+    sdk: flutter

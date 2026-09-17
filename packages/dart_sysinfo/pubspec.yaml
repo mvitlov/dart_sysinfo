@@ -1,0 +1,40 @@
+name: dart_sysinfo
+description: Cross-platform system information for Dart and Flutter.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  # web: intentionally absent — PRD §1.6
+
+# Cargokit FFI plugin wiring (transitional default). No `environment:flutter` —
+# see PRD §2.1 Flutter-free core verification in M0-05.
+flutter:
+  plugin:
+    platforms:
+      android:
+        ffiPlugin: true
+      ios:
+        ffiPlugin: true
+      linux:
+        ffiPlugin: true
+      macos:
+        ffiPlugin: true
+      windows:
+        ffiPlugin: true
+
+dependencies:
+  flutter_rust_bridge: 2.13.0
+  hooks: ^2.0.0
+  meta: ^1.15.0
+
+dev_dependencies:
+  test: ^1.25.0

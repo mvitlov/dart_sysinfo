@@ -1,0 +1,20 @@
+[package]
+name = "dart_sysinfo_native"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.95"
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+sysinfo = { version = "0.39", default-features = false }
+flutter_rust_bridge = "=2.13.0"
+
+[features]
+default = ["system"]
+system = ["sysinfo/system"]
+disk = ["sysinfo/disk"]
+network = ["sysinfo/network"]
+component = ["sysinfo/component"]
+apple-app-store = ["sysinfo/apple-app-store"]

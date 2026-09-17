@@ -1,0 +1,22 @@
+PODS:
+  - dart_sysinfo (0.1.0):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+
+DEPENDENCIES:
+  - dart_sysinfo (from `Flutter/ephemeral/.symlinks/plugins/dart_sysinfo/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+
+EXTERNAL SOURCES:
+  dart_sysinfo:
+    :path: Flutter/ephemeral/.symlinks/plugins/dart_sysinfo/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+
+SPEC CHECKSUMS:
+  dart_sysinfo: 667e86624e125c62f44b2ecfef272b6481a4d007
+  FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
+
+PODFILE CHECKSUM: 1e95c36afbfd1cb6423ceca4de7a8e1b256fb6ac
+
+COCOAPODS: 1.16.2

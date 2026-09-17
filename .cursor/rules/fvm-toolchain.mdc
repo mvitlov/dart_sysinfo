@@ -1,0 +1,23 @@
+---
+description: How to run Flutter/Dart/Melos commands in this repo (FVM-pinned SDK)
+alwaysApply: true
+---
+
+# Toolchain: always go through FVM
+
+This repo pins its SDK per-project via `.fvmrc` (currently Flutter 3.47.4 / Dart
+3.13.3 — the "Development SDK" row in `PRD.md` §1.5). The system-wide
+`flutter`/`dart` on `PATH` can silently resolve to a **different, stale**
+version installed via `fvm` globally — bare commands are not trustworthy here.
+
+- Prefer `fvm flutter ...` / `fvm dart ...` over bare `flutter`/`dart`.
+- Melos is configured with `sdkPath: .fvm/flutter_sdk` in the root
+  `pubspec.yaml`, so `melos` package/workspace operations already use the
+  pinned SDK. Still invoke melos itself via `fvm dart run melos ...` to be
+  safe.
+- To change the pinned version: `fvm use <version>` (updates `.fvmrc` and the
+  `.fvm/flutter_sdk` symlink). Never hand-edit `.fvm/flutter_sdk`.
+- `.fvm/` (local symlink + cache) is gitignored; only `.fvmrc` is committed.
+- The FVM pin is for local dev only. CI must still matrix-test minimum
+  (3.38.0) + one intermediate (e.g. 3.44.x) + latest (3.47.4) per `PRD.md`
+  §7.2 — do not narrow CI to just the FVM-pinned version.

@@ -1,0 +1,30 @@
+---
+description: Spec-first workflow — PRD/TDD/EPICS traceability and monorepo structure
+alwaysApply: true
+---
+
+# Spec-first workflow
+
+Three governing docs, in order of authority:
+
+1. `PRD.md` — approved requirements/architecture (what & why, see §14 sign-off).
+2. `TDD.md` — implementation detail, currently complete only for M0–M2. M3+ is
+   deliberately stubbed (§9) — do not design those domains ahead of the
+   milestone that actually picks them up.
+3. `EPICS.md` — one Epic per PRD milestone, Stories sized as tracker issues,
+   each citing the PRD §/TDD § it implements.
+
+Rules:
+
+- New work should map to an existing Story in `EPICS.md`. If it doesn't,
+  amend the docs first — usually a small addition — rather than building
+  untracked scope.
+- Don't implement a later story's deliverable as a side effect of an earlier
+  one; check the story's own plan for an explicit scope boundary before
+  reaching for "while I'm here" changes.
+- Monorepo layout: root `pubspec.yaml` is the Dart pub workspace (Melos 7
+  config lives under its `melos:` key — there is no separate `melos.yaml`).
+  `packages/dart_sysinfo` is Flutter-free (no `flutter:` SDK constraint,
+  ever). `packages/dart_sysinfo_flutter` may depend on `dart_sysinfo`; never
+  the reverse. `packages/native` is a Rust crate and is **not** a Dart
+  workspace member.
