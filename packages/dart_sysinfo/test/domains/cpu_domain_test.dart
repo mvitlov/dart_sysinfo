@@ -107,5 +107,31 @@ void main() {
 
       expect(mockRustLibApi.cpuLoadStreamCalls, 1);
     });
+
+    test('load_recreates_poller_after_all_listeners_cancel', () async {
+      final domain = CpuDomainImpl();
+
+      final sub1 = domain
+          .load(interval: const Duration(milliseconds: 100))
+          .listen((_) {});
+      final sub2 = domain
+          .load(interval: const Duration(milliseconds: 100))
+          .listen((_) {});
+
+      await sub1.cancel();
+      await sub2.cancel();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(mockRustLibApi.cpuLoadStreamCalls, 1);
+
+      final sub3 = domain
+          .load(interval: const Duration(milliseconds: 100))
+          .listen((_) {});
+      await Future<void>.delayed(Duration.zero);
+
+      expect(mockRustLibApi.cpuLoadStreamCalls, 2);
+
+      await sub3.cancel();
+    });
   });
 }
