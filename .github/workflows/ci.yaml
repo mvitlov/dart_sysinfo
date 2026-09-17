@@ -58,7 +58,7 @@ jobs:
       - name: Assert pubspec platforms exclude web (PRD §1.6)
         run: |
           for pubspec in packages/dart_sysinfo/pubspec.yaml packages/dart_sysinfo_flutter/pubspec.yaml; do
-            if grep -A 8 "^platforms:" "$pubspec" | grep -q "web:"; then
+            if grep -A 10 "^platforms:" "$pubspec" | grep -Ev '^\s*#' | grep -qE '^\s+web\s*:'; then
               echo "ERROR: 'web:' platform found in $pubspec"
               exit 1
             fi
@@ -184,6 +184,9 @@ jobs:
 
       - name: Resolve workspace dependencies
         run: flutter pub get
+
+      - name: Materialize example ephemeral Flutter files
+        run: cd example && flutter pub get
 
       - name: Smoke-test dart_sysinfo:doctor
         if: matrix.platform == 'android'

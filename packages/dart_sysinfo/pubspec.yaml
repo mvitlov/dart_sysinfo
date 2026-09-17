@@ -13,7 +13,7 @@ platforms:
   linux:
   macos:
   windows:
-  # web: intentionally absent — PRD §1.6
+  # Web platform intentionally absent (PRD §1.6).
 
 executables:
   doctor:
