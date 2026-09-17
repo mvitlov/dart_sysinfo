@@ -85,7 +85,7 @@ jobs:
           sed -i '/resolution: workspace/d' pubspec.yaml
           rm -f pubspec_overrides.yaml
           dart pub get
-          dart test
+          dart test --exclude-tags=monorepo
 
   lint:
     name: Lint (very_good_analysis, zero warnings)

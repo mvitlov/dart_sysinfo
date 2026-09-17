@@ -28,6 +28,7 @@ void main() {
       () {
         _assertPlatforms(flutterPubspec, _supportedPlatforms);
       },
+      tags: ['monorepo'],
     );
 
     test('dart_sysinfo flutter.plugin.platforms excludes web', () {
@@ -41,17 +42,21 @@ void main() {
       expect(pluginPlatforms, isNot(contains('web')));
     });
 
-    test('neither package declares web plugin implementation', () {
-      for (final file in [dartSysinfoPubspec, flutterPubspec]) {
-        final content = file.readAsStringSync();
-        expect(content, isNot(contains('fileName:')));
-        expect(content, isNot(contains('pluginClass:')));
-        final webPluginBlock = RegExp(
-          r'web:\s*\n\s*(pluginClass|dartPluginClass|fileName):',
-        );
-        expect(webPluginBlock.hasMatch(content), isFalse);
-      }
-    });
+    test(
+      'neither package declares web plugin implementation',
+      () {
+        for (final file in [dartSysinfoPubspec, flutterPubspec]) {
+          final content = file.readAsStringSync();
+          expect(content, isNot(contains('fileName:')));
+          expect(content, isNot(contains('pluginClass:')));
+          final webPluginBlock = RegExp(
+            r'web:\s*\n\s*(pluginClass|dartPluginClass|fileName):',
+          );
+          expect(webPluginBlock.hasMatch(content), isFalse);
+        }
+      },
+      tags: ['monorepo'],
+    );
   });
 }
 

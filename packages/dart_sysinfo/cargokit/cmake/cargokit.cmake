@@ -34,10 +34,21 @@ function(apply_cargokit target manifest_dir lib_name any_symbol_name)
     endif()
     set(CARGOKIT_OHOS_SDK_HOME $ENV{OHOS_SDK_HOME})
 
+    # Resolve plugin symlink paths on Windows (pub #4010); Linux/macOS REALPATH
+    # is sufficient when CMake follows symlinks to the real package tree.
+    set(_manifest_dir "${CMAKE_CURRENT_SOURCE_DIR}/${manifest_dir}")
+    if(WIN32)
+        execute_process(
+            COMMAND powershell -ExecutionPolicy Bypass -File "${CMAKE_CURRENT_LIST_DIR}/resolve_symlinks.ps1" "${_manifest_dir}"
+            OUTPUT_VARIABLE _manifest_dir
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif()
+
     set(CARGOKIT_ENV
         "CARGOKIT_CMAKE=${CMAKE_COMMAND}"
         "CARGOKIT_CONFIGURATION=$<CONFIG>"
-        "CARGOKIT_MANIFEST_DIR=${CMAKE_CURRENT_SOURCE_DIR}/${manifest_dir}"
+        "CARGOKIT_MANIFEST_DIR=${_manifest_dir}"
         "CARGOKIT_TARGET_TEMP_DIR=${CARGOKIT_TEMP_DIR}"
         "CARGOKIT_OUTPUT_DIR=${CARGOKIT_OUTPUT_DIR}"
         "CARGOKIT_TARGET_PLATFORM=${CARGOKIT_TARGET_PLATFORM}"
