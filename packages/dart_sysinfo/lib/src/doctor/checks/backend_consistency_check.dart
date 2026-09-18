@@ -4,7 +4,7 @@ import 'package:dart_sysinfo/src/doctor/doctor_check.dart';
 import 'package:dart_sysinfo/src/doctor/doctor_context.dart';
 import 'package:dart_sysinfo/src/doctor/doctor_result.dart';
 
-/// Verifies Cargokit-default backend wiring for M0 (TDD §6).
+/// Verifies dual-backend wiring: Cargokit (default) + Native Assets hook (M2).
 class BackendConsistencyCheck implements DoctorCheck {
   const BackendConsistencyCheck();
 
@@ -26,7 +26,7 @@ class BackendConsistencyCheck implements DoctorCheck {
     if (!Directory('$root/cargokit').existsSync()) {
       return const DoctorResult(
         ok: false,
-        summary: 'Cargokit directory missing (expected default backend for M0)',
+        summary: 'Cargokit directory missing (expected default backend)',
         fixCommand:
             'git checkout packages/dart_sysinfo/cargokit/  # restore vendored Cargokit subtree',
       );
@@ -49,18 +49,19 @@ class BackendConsistencyCheck implements DoctorCheck {
         ok: false,
         summary: 'hook/build.dart missing',
         fixCommand:
-            'git checkout packages/dart_sysinfo/hook/build.dart  # restore M0 placeholder',
+            'git checkout packages/dart_sysinfo/hook/build.dart  # restore build hook',
       );
     }
 
     final hookContent = hookFile.readAsStringSync();
-    if (hookContent.contains('flutter_rust_bridge_hooks')) {
+    if (!hookContent.contains('flutter_rust_bridge_hooks') ||
+        !hookContent.contains('FlutterRustBridgeNativeAssetsBuilder')) {
       return const DoctorResult(
         ok: false,
         summary:
-            'Native Assets hook activated prematurely (Cargokit is default until M2/M5)',
+            'Native Assets hook missing (expected FlutterRustBridgeNativeAssetsBuilder)',
         fixCommand:
-            'git checkout packages/dart_sysinfo/hook/build.dart  # restore M0 Cargokit-default placeholder',
+            'git checkout packages/dart_sysinfo/hook/build.dart  # restore M2 build hook',
       );
     }
 
@@ -92,6 +93,14 @@ class BackendConsistencyCheck implements DoctorCheck {
     }
 
     final pubspecContent = pubspecFile.readAsStringSync();
+    if (!pubspecContent.contains('flutter_rust_bridge_hooks')) {
+      return const DoctorResult(
+        ok: false,
+        summary: 'pubspec.yaml missing flutter_rust_bridge_hooks dependency',
+        fixCommand: 'git checkout packages/dart_sysinfo/pubspec.yaml',
+      );
+    }
+
     for (final platform in _supportedPlatforms) {
       if (!_hasFfiPluginForPlatform(pubspecContent, platform)) {
         return DoctorResult(
@@ -106,7 +115,7 @@ class BackendConsistencyCheck implements DoctorCheck {
     return const DoctorResult(
       ok: true,
       summary:
-          'Cargokit-default backend wiring consistent (M0 placeholder hook)',
+          'Dual-backend wiring OK (Cargokit default + Native Assets hook)',
     );
   }
 

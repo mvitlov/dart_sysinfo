@@ -36,6 +36,7 @@ flutter:
 
 dependencies:
   flutter_rust_bridge: 2.13.0
+  flutter_rust_bridge_hooks: 2.13.0
   hooks: ^2.0.0
   meta: ^1.15.0
 

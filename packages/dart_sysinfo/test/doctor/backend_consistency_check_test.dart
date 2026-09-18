@@ -27,12 +27,12 @@ void main() {
       }
     });
 
-    test('passes with valid Cargokit-default layout', () async {
+    test('passes with valid dual-backend layout', () async {
       await _writeValidLayout(tempRoot);
 
       final result = await const BackendConsistencyCheck().run(context);
       expect(result.ok, isTrue);
-      expect(result.summary, contains('Cargokit-default'));
+      expect(result.summary, contains('Dual-backend'));
     });
 
     test('fails when cargokit directory is missing', () async {
@@ -44,16 +44,18 @@ void main() {
       expect(result.fixCommand, contains('cargokit'));
     });
 
-    test('fails when hook uses flutter_rust_bridge_hooks', () async {
+    test('fails when hook is a no-op placeholder', () async {
       await _writeValidLayout(tempRoot);
       await File('${tempRoot.path}/hook/build.dart').writeAsString('''
-import 'package:flutter_rust_bridge_hooks/flutter_rust_bridge_hooks.dart';
-void main() {}
+import 'package:hooks/hooks.dart';
+void main(List<String> args) async {
+  await build(args, (input, output) async {});
+}
 ''');
 
       final result = await const BackendConsistencyCheck().run(context);
       expect(result.ok, isFalse);
-      expect(result.summary, contains('Native Assets hook'));
+      expect(result.summary, contains('Native Assets hook missing'));
     });
 
     test('fails when android gradle does not reference cargokit', () async {
@@ -75,13 +77,21 @@ Future<void> _writeValidLayout(Directory root) async {
   }
   await Directory('${root.path}/hook').create(recursive: true);
   await File('${root.path}/hook/build.dart').writeAsString('''
+import 'package:flutter_rust_bridge_hooks/flutter_rust_bridge_hooks.dart';
 import 'package:hooks/hooks.dart';
-void main(List<String> args) async {
-  await build(args, (input, output) async {});
+Future<void> main(List<String> args) async {
+  await build(args, (input, output) async {
+    await const FlutterRustBridgeNativeAssetsBuilder(
+      cratePath: '../native',
+      assetName: 'src/bridge/frb_generated.io.dart',
+    ).run(input: input, output: output);
+  });
 }
 ''');
   await File('${root.path}/pubspec.yaml').writeAsString('''
 name: dart_sysinfo
+dependencies:
+  flutter_rust_bridge_hooks: 2.13.0
 flutter:
   plugin:
     platforms:

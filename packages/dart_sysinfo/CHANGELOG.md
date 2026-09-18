@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Native Assets build hook (`hook/build.dart`) via `flutter_rust_bridge_hooks`
+  (M2-01; compiles `packages/native` in parallel with Cargokit).
 - P1 domains: OS, CPU, and memory snapshots with TTL caching.
 - CPU load stream (`cpu.load`) with broadcast, ref-count, and interval clamping.
 - `Reading<T>` sealed type and `SysInfoException` hierarchy.

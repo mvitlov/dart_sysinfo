@@ -1,11 +1,15 @@
+import 'package:flutter_rust_bridge_hooks/flutter_rust_bridge_hooks.dart';
 import 'package:hooks/hooks.dart';
 
-/// Placeholder. Full Native Assets hook via `flutter_rust_bridge_hooks`
-/// lands in M2.
+/// Native Assets build hook (M2-01, TDD §7).
 ///
-/// Cargokit is the active backend for M0–M1; this no-op hook satisfies
-/// Flutter's hook runner without compiling native code on the Native Assets
-/// path.
-void main(List<String> args) async {
-  await build(args, (input, output) async {});
+/// Compiles `packages/native` via `native_toolchain_rust` in parallel with the
+/// Cargokit default backend. Runtime loading remains Cargokit until M2-02/M5.
+Future<void> main(List<String> args) async {
+  await build(args, (input, output) async {
+    await const FlutterRustBridgeNativeAssetsBuilder(
+      cratePath: '../native',
+      assetName: 'src/bridge/frb_generated.io.dart',
+    ).run(input: input, output: output);
+  });
 }

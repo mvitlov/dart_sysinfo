@@ -81,7 +81,7 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 | ID | Title | Status | Area | PRD § | TDD § | Acceptance criteria |
 |---|---|---|---|---|---|---|
-| M2-01 | `hook/build.dart` via `flutter_rust_bridge_hooks` | ⬜ | Bridge | §3.3, §7.1 | §7 | Build hook compiles the Rust crate via `native_toolchain_rust` and registers it as a code asset |
+| M2-01 | `hook/build.dart` via `flutter_rust_bridge_hooks` | ✅ | Bridge | §3.3, §7.1 | §7 | Build hook compiles the Rust crate via `native_toolchain_rust` and registers it as a code asset |
 | M2-02 | Native Assets CI job (5-platform matrix) | ⬜ | CI | §7.2 | §7, §8 | Parallel job runs the same smoke test as Cargokit; red does not block merges |
 | M2-03 | Sunset-clock tracking automation | ⬜ | CI/Release | §3.3 | §7 | Each scheduled CI run's pass/fail is queryable, so "green for ≥2 stable releases or ≥8 weeks" is answerable without manual log-keeping |
 
@@ -138,7 +138,7 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 **Next (pick one or run M2 in parallel with M3 planning):**
 
-- **EPIC-M2** — Native Assets track (`hook/build.dart`, parallel CI job, sunset-clock automation). Does not block M3.
+- **EPIC-M2** — Native Assets track (M2-01 done; remaining: parallel CI job, sunset-clock automation). Does not block M3.
 - **EPIC-M3** — P2 domains (disks, network), domain generator, dartdoc/ABI CI gates.
 
 **Known M1 deferrals (not gaps in story completion):**

@@ -83,6 +83,22 @@ Rust store-profile verification (M1-14):
 cd packages/native && cargo test --features apple-app-store --test apple_app_store -- --test-threads=1
 ```
 
+## Native Assets hook (M2)
+
+The Native Assets build hook in `packages/dart_sysinfo/hook/build.dart` is **always-on**
+during Flutter builds: it compiles `packages/native` in parallel with Cargokit.
+Runtime loading still uses Cargokit until M2-02/M5.
+
+Verify locally (macOS or Linux):
+
+```bash
+fvm dart pub get
+cd example && fvm flutter build macos --debug   # or linux --debug
+# Expect native_assets output, e.g.:
+# example/build/.../native_assets/dart_sysinfo_native.framework/...
+fvm dart run melos doctor   # Backend consistency: dual-backend OK
+```
+
 ## CI / P1 merge gate (PRD §7.2)
 
 Pull requests must pass the **`M1 P1 CI gate (PRD §7.2)`** check in
