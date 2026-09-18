@@ -1,5 +1,6 @@
 import 'package:dart_sysinfo/src/doctor/checks/android_ndk_check.dart';
 import 'package:dart_sysinfo/src/doctor/checks/backend_consistency_check.dart';
+import 'package:dart_sysinfo/src/doctor/checks/prebuilt_check.dart';
 import 'package:dart_sysinfo/src/doctor/checks/cocoa_pods_check.dart';
 import 'package:dart_sysinfo/src/doctor/checks/rust_toolchain_check.dart';
 import 'package:dart_sysinfo/src/doctor/checks/xcode_check.dart';
@@ -17,6 +18,7 @@ Future<int> main(List<String> args) async {
       const XcodeCheck(),
       const CocoaPodsCheck(),
       const BackendConsistencyCheck(),
+      const PrebuiltCheck(),
     ],
   ).run();
 }

@@ -1,33 +1,66 @@
 import 'dart:io';
 
+import 'package:dart_sysinfo/src/prebuilt/prebuilt_env.dart';
+import 'package:dart_sysinfo/src/prebuilt/prebuilt_runner.dart';
 import 'package:flutter_rust_bridge_hooks/flutter_rust_bridge_hooks.dart';
-import 'package:hooks/hooks.dart';
 
-/// Native Assets build hook (M2-01, TDD §7).
+/// Native Assets build hook (M2-01, M3-06, TDD §7 / §9.4).
 ///
-/// Compiles `packages/native` via `native_toolchain_rust` in parallel with the
-/// Cargokit default backend. Runtime loading remains Cargokit until M5.
-///
-/// Skips when Rust is unavailable (Flutter-free `dart pub get` / `dart test`) or
-/// when [skipNativeAssetsHook] is true.
+/// Prefers verified prebuilt artifacts when available; compiles from source
+/// when `DART_SYSINFO_FROM_SOURCE=1`, prebuilts are unavailable, or Rust is
+/// present as a dev fallback. Cargokit remains the runtime default until M5.
 Future<void> main(List<String> args) async {
   await build(args, (input, output) async {
-    if (skipNativeAssetsHook()) {
+    if (PrebuiltEnv.skipNativeAssetsHook) {
       return;
     }
-    await const FlutterRustBridgeNativeAssetsBuilder(
-      cratePath: '../native',
-      assetName: 'src/bridge/frb_generated.io.dart',
-    ).run(input: input, output: output);
+
+    if (PrebuiltEnv.forceFromSource) {
+      await _compileFromSource(input: input, output: output);
+      return;
+    }
+
+    Object? prebuiltError;
+    StackTrace? prebuiltStack;
+    try {
+      final usedPrebuilt = await tryUsePrebuilt(input: input, output: output);
+      if (usedPrebuilt) {
+        return;
+      }
+    } on Object catch (error, stackTrace) {
+      prebuiltError = error;
+      prebuiltStack = stackTrace;
+      if (PrebuiltEnv.requirePrebuilt) {
+        Error.throwWithStackTrace(error, stackTrace);
+      }
+    }
+
+    if (isRustToolchainAvailable()) {
+      await _compileFromSource(input: input, output: output);
+      return;
+    }
+
+    if (PrebuiltEnv.requirePrebuilt) {
+      Error.throwWithStackTrace(
+        prebuiltError ??
+            StateError(
+              'prebuilt artifact required but unavailable for this target; '
+              'run `dart run dart_sysinfo:doctor`',
+            ),
+        prebuiltStack ?? StackTrace.current,
+      );
+    }
   });
 }
 
-/// Whether to skip the Native Assets compile (hook exits successfully as no-op).
-bool skipNativeAssetsHook() {
-  if (Platform.environment['DART_SYSINFO_SKIP_NATIVE_ASSETS_HOOK'] == '1') {
-    return true;
-  }
-  return !isRustToolchainAvailable();
+Future<void> _compileFromSource({
+  required BuildInput input,
+  required BuildOutputBuilder output,
+}) {
+  return const FlutterRustBridgeNativeAssetsBuilder(
+    cratePath: '../native',
+    assetName: 'src/bridge/frb_generated.io.dart',
+  ).run(input: input, output: output);
 }
 
 /// Detect rustup on PATH or under the default cargo home.

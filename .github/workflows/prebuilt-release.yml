@@ -1,0 +1,89 @@
+name: Prebuilt Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'prebuilt-v*'
+
+permissions:
+  contents: write
+  attestations: write
+  id-token: write
+
+jobs:
+  linux-x64:
+    name: Build and publish linux-x64 prebuilt
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Build linux-x64 prebuilt
+        run: bash tool/release/build_linux_prebuilt.sh dist/prebuilt/linux-x64
+
+      - name: Compute SHA256
+        id: hash
+        run: |
+          SHA256=$(shasum -a 256 dist/prebuilt/linux-x64/libdart_sysinfo_native.so | awk '{print tolower($1)}')
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+
+      - name: Extract semver from tag
+        id: version
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            TAG="${GITHUB_REF_NAME#prebuilt-v}"
+          else
+            TAG="0.1.0"
+          fi
+          echo "semver=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('prebuilt-v{0}', steps.version.outputs.semver) }}
+          files: dist/prebuilt/linux-x64/libdart_sysinfo_native.so
+          generate_release_notes: true
+
+      - name: Attest prebuilt artifact
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/prebuilt/linux-x64/libdart_sysinfo_native.so
+
+      - name: Verify attestation
+        run: |
+          gh attestation verify dist/prebuilt/linux-x64/libdart_sysinfo_native.so \
+            --repo "${{ github.repository }}"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: stable
+
+      - name: Update manifest.json
+        run: |
+          dart pub get
+          dart run tool/release/update_prebuilt_manifest.dart \
+            --target linux-x64 \
+            --file dist/prebuilt/linux-x64/libdart_sysinfo_native.so \
+            --url "https://github.com/${{ github.repository }}/releases/download/prebuilt-v${{ steps.version.outputs.semver }}/libdart_sysinfo_native.so" \
+            --repository "${{ github.repository }}" \
+            --package-version "${{ steps.version.outputs.semver }}" \
+            --abi 3
+
+      - name: Commit manifest update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/dart_sysinfo/prebuilt/manifest.json
+          if git diff --cached --quiet; then
+            echo "manifest unchanged"
+            exit 0
+          fi
+          git commit -m "chore(prebuilt): update linux-x64 manifest for prebuilt-v${{ steps.version.outputs.semver }}"
+          git push

@@ -139,6 +139,55 @@ jobs:
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .
 
+  prebuilt-e2e:
+    name: Prebuilt e2e (linux-x64, M3-06)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+          targets: x86_64-unknown-linux-gnu
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: stable
+          cache: true
+          cache-key: flutter-3.47.4
+
+      - name: Install Linux desktop build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Build prebuilt artifact
+        run: bash tool/release/build_linux_prebuilt.sh dist/prebuilt/linux-x64
+
+      - name: Attest prebuilt artifact
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/prebuilt/linux-x64/libdart_sysinfo_native.so
+
+      - name: Verify attestation
+        run: |
+          gh attestation verify dist/prebuilt/linux-x64/libdart_sysinfo_native.so \
+            --repo "${{ github.repository }}"
+
+      - name: Run prebuilt consumer e2e
+        env:
+          SKIP_PREBUILT_BUILD: '1'
+          SKIP_LINUX_DEPS: '1'
+          PREBUILT_DIST: dist/prebuilt/linux-x64
+          PREBUILT_REPOSITORY: ${{ github.repository }}
+        run: bash tool/ci/prebuilt_e2e.sh
+
   flutter-build:
     name: Flutter build (${{ matrix.platform }}, Flutter ${{ matrix.flutter-version }})
     runs-on: ${{ matrix.runs-on }}

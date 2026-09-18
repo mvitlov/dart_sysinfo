@@ -214,6 +214,11 @@ lands in **M3/M4**; until then these steps are manual.
   until M3.**
 - [ ] **FRB regen:** If the Rust public API surface changed, run
   `fvm dart run melos frb:generate` and commit generated bridge files.
+- [ ] **Prebuilt release (M3-06):** When native binaries change, run
+  [`.github/workflows/prebuilt-release.yml`](./.github/workflows/prebuilt-release.yml)
+  via tag `prebuilt-v<semver>` or `workflow_dispatch`; confirm
+  `packages/dart_sysinfo/prebuilt/manifest.json` updates and
+  `bash tool/ci/prebuilt_e2e.sh` passes locally on Linux.
 - [ ] **Verify:** Run `fvm dart run melos analyze`; `fvm dart test` in
   `packages/dart_sysinfo`; confirm platform smoke builds pass in CI.
 - [ ] **Tag:** Create a git tag (melos `workspaceTag: true` assists lockstep

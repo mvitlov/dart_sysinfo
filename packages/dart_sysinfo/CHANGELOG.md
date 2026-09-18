@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Prebuilt-binary distribution (M3-06): Native Assets hook downloads pinned
+  linux-x64 artifacts with SHA256 + GitHub Artifact Attestation verification;
+  see `prebuilt/manifest.json` and TDD §9.4.
 - Android permission lint (M3-05): `tool/ci/check_android_permissions.dart`
   enforces PRD §2.5 — example app must declare `ACCESS_NETWORK_STATE` and
   `ACCESS_WIFI_STATE` when exercising `network`; plugin manifest must not merge

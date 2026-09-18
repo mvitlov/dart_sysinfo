@@ -816,7 +816,7 @@ FRB mock method naming: `crateApi<Pascal><Pascal>Snapshot` /
 `crateApi<Pascal><Pascal><StreamMethodPascal>Stream` (e.g.
 `crateApiDisksDisksSnapshot`, `crateApiNetworkNetworkThroughputStream`).
 
-**Still deferred:** prebuilt-binary pipeline (M3-06), ABI-diff gate (M3-07).
+**Still deferred:** ABI-diff gate (M3-07).
 
 ### 9.2 Domain-completeness CI (M3-02, PRD §10.2)
 
@@ -864,6 +864,51 @@ enforces the declaration automatically.
 
 **CI:** `lint` (merge gate) and `dart-only-test` (latest Dart image) both run
 the checker after domain-completeness.
+
+### 9.4 Prebuilt distribution (M3-06, PRD §7.3)
+
+**Pilot target:** `linux-x64` only at M3-06; manifest schema supports future
+targets without redesign.
+
+**Manifest:** [`packages/dart_sysinfo/prebuilt/manifest.json`](../packages/dart_sysinfo/prebuilt/manifest.json)
+
+| Field | Purpose |
+|---|---|
+| `packageVersion` | Must match `pubspec.yaml` version for pinned rows |
+| `abi` | Must match [`AbiGuard.expectedAbi`](../packages/dart_sysinfo/lib/src/core/abi_guard.dart) |
+| `artifacts.<targetKey>` | One row per OS/ABI (`linux-x64`, …) |
+| `sha256` | Required digest of the downloaded bytes |
+| `url` | `https://`, `http://`, or `file://` source |
+| `attestation` | GitHub Artifact Attestation metadata (`repository`, `digest`) |
+
+**Target key mapping:** `{os}-{arch}` from `BuildInput.config.code` — e.g.
+`OS.linux` + `Architecture.x64` → `linux-x64`.
+
+**Hook decision tree** ([`hook/build.dart`](../packages/dart_sysinfo/hook/build.dart)):
+
+| Env var | Behavior |
+|---|---|
+| `DART_SYSINFO_SKIP_NATIVE_ASSETS_HOOK=1` | No-op |
+| `DART_SYSINFO_FROM_SOURCE=1` | Always compile via `FlutterRustBridgeNativeAssetsBuilder` |
+| (default) | Try prebuilt when manifest row exists and version/abi match |
+| prebuilt failure + Rust available | Fall back to compile (dev ergonomics) |
+| `DART_SYSINFO_PREBUILT=1` | Require prebuilt; fail if unavailable |
+| `DART_SYSINFO_PREBUILT_MANIFEST=<path>` | Override manifest location (CI e2e) |
+| `DART_SYSINFO_SKIP_ATTESTATION=1` | Skip `gh attestation verify` (local e2e only) |
+
+**Verification steps on prebuilt path:** download → SHA256 →
+`gh attestation verify --repo <owner/repo>` → register `CodeAsset` named
+`src/bridge/frb_generated.io.dart` (same as FRB compile path).
+
+**Release tooling:**
+
+- `bash tool/release/build_linux_prebuilt.sh` — build linux-x64 cdylib
+- `fvm dart run tool/release/update_prebuilt_manifest.dart` — pin sha256/url row
+- [`.github/workflows/prebuilt-release.yml`](../.github/workflows/prebuilt-release.yml) — tag `prebuilt-v*`, attest, upload, commit manifest
+- `bash tool/ci/prebuilt_e2e.sh` — self-contained linux-x64 consumer simulation
+
+Runtime ABI handshake remains M1-05 (`AbiGuard` on `init()`); M3-07 adds the
+CI gate for bumping `abi.rs` when native layout changes.
 
 ***
 
