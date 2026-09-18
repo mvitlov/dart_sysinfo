@@ -24,6 +24,11 @@ jobs:
           toolchain: 1.98.1
           targets: x86_64-unknown-linux-gnu
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/native
+          shared-key: prebuilt-release
+
       - name: Build linux-x64 prebuilt
         run: bash tool/release/build_linux_prebuilt.sh dist/prebuilt/linux-x64
 

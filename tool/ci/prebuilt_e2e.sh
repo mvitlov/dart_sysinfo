@@ -4,6 +4,9 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 DIST="${PREBUILT_DIST:-$ROOT/dist/prebuilt/linux-x64}"
+if [[ "$DIST" != /* ]]; then
+  DIST="$ROOT/$DIST"
+fi
 LIB="$DIST/libdart_sysinfo_native.so"
 MANIFEST="$ROOT/.tmp/prebuilt-e2e-manifest.json"
 REPO="${PREBUILT_REPOSITORY:-mvitlov/dart_sysinfo}"

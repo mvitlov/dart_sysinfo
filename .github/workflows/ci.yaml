@@ -80,25 +80,22 @@ jobs:
           cd packages/dart_sysinfo
           printf 'resolution:\n' > pubspec_overrides.yaml
           dart pub get
+          # Root-level `dart pub get` (Dart 3.13.3 only) requires every workspace
+          # member to keep `resolution: workspace`; this override must not leak.
+          rm -f pubspec_overrides.yaml
 
       - name: Run Dart tests in packages/dart_sysinfo
         run: |
           cd packages/dart_sysinfo
           dart test
 
-      - name: Run domain generator tests (M3-01)
+      - name: Run workspace checks and generator tests (Dart 3.13.3)
         if: matrix.dart-image == 'dart:3.13.3'
         run: |
           dart pub get
+          dart run tool/ci/check_domain_completeness.dart
+          dart run tool/ci/check_android_permissions.dart
           dart test tool/test
-
-      - name: Check domain completeness (M3-02)
-        if: matrix.dart-image == 'dart:3.13.3'
-        run: dart run tool/ci/check_domain_completeness.dart
-
-      - name: Check Android permissions (M3-05)
-        if: matrix.dart-image == 'dart:3.13.3'
-        run: dart run tool/ci/check_android_permissions.dart
 
       # Standalone pub.dev consumer sim is expensive; once on latest Dart is enough.
       - name: Verify standalone package resolution (pub.dev consumer simulation)
@@ -130,12 +127,6 @@ jobs:
       - name: Resolve workspace dependencies
         run: flutter pub get
 
-      - name: Check domain completeness (M3-02)
-        run: dart run tool/ci/check_domain_completeness.dart
-
-      - name: Check Android permissions (M3-05)
-        run: dart run tool/ci/check_android_permissions.dart
-
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .
 
@@ -154,6 +145,11 @@ jobs:
         with:
           toolchain: 1.98.1
           targets: x86_64-unknown-linux-gnu
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/native
+          shared-key: prebuilt-e2e
 
       - uses: subosito/flutter-action@v2
         with:
@@ -353,7 +349,7 @@ jobs:
   m0-exit-gate:
     name: M1 P1 CI gate (PRD §7.2)
     # native-assets is intentionally excluded: parallel track per PRD §7.2 / M2-02.
-    needs: [dart-only-test, lint, flutter-build, rust-test]
+    needs: [dart-only-test, lint, prebuilt-e2e, flutter-build, rust-test]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -362,12 +358,13 @@ jobs:
         env:
           DART_ONLY: ${{ needs.dart-only-test.result }}
           LINT: ${{ needs.lint.result }}
+          PREBUILT_E2E: ${{ needs.prebuilt-e2e.result }}
           FLUTTER_BUILD: ${{ needs.flutter-build.result }}
           RUST_TEST: ${{ needs.rust-test.result }}
         run: |
-          echo "dart-only-test=$DART_ONLY lint=$LINT flutter-build=$FLUTTER_BUILD rust-test=$RUST_TEST"
+          echo "dart-only-test=$DART_ONLY lint=$LINT prebuilt-e2e=$PREBUILT_E2E flutter-build=$FLUTTER_BUILD rust-test=$RUST_TEST"
           failed=false
-          for result in "$DART_ONLY" "$LINT" "$FLUTTER_BUILD" "$RUST_TEST"; do
+          for result in "$DART_ONLY" "$LINT" "$PREBUILT_E2E" "$FLUTTER_BUILD" "$RUST_TEST"; do
             if [ "$result" != "success" ]; then
               echo "Upstream job result: $result"
               failed=true

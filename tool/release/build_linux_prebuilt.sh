@@ -5,6 +5,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 NATIVE="$ROOT/packages/native"
 OUT_DIR="${1:-$ROOT/dist/prebuilt/linux-x64}"
+if [[ "$OUT_DIR" != /* ]]; then
+  OUT_DIR="$ROOT/$OUT_DIR"
+fi
 TARGET="x86_64-unknown-linux-gnu"
 LIB_NAME="libdart_sysinfo_native.so"
 
