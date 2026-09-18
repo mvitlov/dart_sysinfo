@@ -86,6 +86,12 @@ jobs:
           cd packages/dart_sysinfo
           dart test
 
+      - name: Run domain generator tests (M3-01)
+        if: matrix.dart-image == 'dart:3.13.3'
+        run: |
+          dart pub get
+          dart test tool/test
+
       # Standalone pub.dev consumer sim is expensive; once on latest Dart is enough.
       - name: Verify standalone package resolution (pub.dev consumer simulation)
         if: matrix.dart-image == 'dart:3.13.3'

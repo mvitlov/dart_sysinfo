@@ -1,0 +1,20 @@
+/// Fake {{name}} domain for unit tests (TDD §5.1).
+library;
+
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_domain.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_info.dart';
+
+/// Configurable [{{Pascal}}Domain] with no native calls.
+class Fake{{Pascal}}Domain implements {{Pascal}}Domain {
+  /// Creates a fake {{name}} domain with an optional canned [snapshot].
+  Fake{{Pascal}}Domain({{{Pascal}}Info? snapshot})
+      : _snapshot = snapshot ?? {{Pascal}}Info.allUnavailable();
+
+  {{Pascal}}Info _snapshot;
+
+  /// Test-only mutator — not part of [{{Pascal}}Domain].
+  void setSnapshot({{Pascal}}Info value) => _snapshot = value;
+
+  @override
+  Future<{{Pascal}}Info> snapshot({bool forceRefresh = false}) async => _snapshot;
+}

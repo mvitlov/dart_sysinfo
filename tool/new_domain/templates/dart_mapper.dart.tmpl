@@ -1,0 +1,13 @@
+/// Maps FRB {{name}} DTOs to public domain models (scaffold).
+library;
+
+import 'package:dart_sysinfo/src/bridge/api/{{name}}.dart';
+import 'package:dart_sysinfo/src/core/reading.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_info.dart';
+
+/// Maps a native [{{Pascal}}InfoDto] to the public [{{Pascal}}Info] model.
+{{Pascal}}Info map{{Pascal}}InfoDto({{Pascal}}InfoDto dto) {
+  return {{Pascal}}Info(
+    status: ReadingValue(dto.placeholder),
+  );
+}

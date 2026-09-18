@@ -11,6 +11,7 @@ workspace:
 
 dev_dependencies:
   melos: ^7.0.0
+  test: ^1.25.0
   very_good_analysis: ^7.0.0
 
 melos:
@@ -25,6 +26,10 @@ melos:
       run: dart run dart_sysinfo:doctor
     frb:generate:
       run: cd packages/dart_sysinfo && flutter_rust_bridge_codegen generate
+    new-domain:
+      run: dart run tool/new_domain.dart
+    test:generator:
+      run: dart test tool/test
 
   command:
     version:

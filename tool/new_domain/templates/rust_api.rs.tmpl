@@ -1,0 +1,14 @@
+//! {{Title}} domain API (scaffold — fill field table in domain story).
+
+/// {{Title}} snapshot DTO returned to Dart via FRB.
+#[flutter_rust_bridge::frb(non_opaque)]
+pub struct {{Pascal}}InfoDto {
+    /// Placeholder until the TDD field table is authored.
+    pub placeholder: String,
+}
+
+/// Returns a TTL-backed {{name}} snapshot.
+#[flutter_rust_bridge::frb(sync)]
+pub fn {{snapshotFnRust}}() -> {{Pascal}}InfoDto {
+    unimplemented!("TODO: implement {{name}} snapshot field mapping")
+}

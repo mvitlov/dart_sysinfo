@@ -1,0 +1,16 @@
+/// {{Title}} domain interface (scaffold).
+library;
+
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_info.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_stream_sample.dart';
+
+/// {{Title}} metrics: TTL-cached snapshot and {{streamMethod}} stream.
+abstract class {{Pascal}}Domain {
+  /// Returns a TTL-cached {{name}} snapshot.
+  Future<{{Pascal}}Info> snapshot({bool forceRefresh = false});
+
+  /// Broadcast {{name}} stream samples at the requested interval.
+  Stream<{{Pascal}}StreamSample> {{streamMethod}}({
+    Duration interval = const Duration(seconds: 1),
+  });
+}

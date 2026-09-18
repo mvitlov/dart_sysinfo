@@ -1,0 +1,10 @@
+/// {{Title}} domain interface (scaffold).
+library;
+
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_info.dart';
+
+/// {{Title}} metrics: TTL-cached snapshot.
+abstract class {{Pascal}}Domain {
+  /// Returns a TTL-cached {{name}} snapshot.
+  Future<{{Pascal}}Info> snapshot({bool forceRefresh = false});
+}

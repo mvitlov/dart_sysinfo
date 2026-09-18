@@ -1,0 +1,22 @@
+/// {{Title}} snapshot model (scaffold — replace in domain story).
+library;
+
+import 'package:dart_sysinfo/src/core/reading.dart';
+import 'package:meta/meta.dart';
+
+/// {{Title}} snapshot returned by [{{Pascal}}Domain.snapshot].
+@immutable
+class {{Pascal}}Info {
+  /// Creates a {{name}} snapshot with the given field readings.
+  const {{Pascal}}Info({
+    required this.status,
+  });
+
+  /// Placeholder field until the TDD field table is authored.
+  final Reading<String> status;
+
+  /// Safe default for unconfigured fakes (TDD §5.1).
+  factory {{Pascal}}Info.allUnavailable() => const {{Pascal}}Info(
+        status: ReadingUnavailable(reason: 'not configured'),
+      );
+}

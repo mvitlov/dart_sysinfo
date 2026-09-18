@@ -97,7 +97,7 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 | ID | Title | Status | Area | PRD § | TDD § | Acceptance criteria |
 |---|---|---|---|---|---|---|
-| M3-01 | Extract `tool/new_domain.dart` generator | ⬜ | Tooling | §10.2 | §9 | Generator produces a domain skeleton matching the M1 pattern (interface, model, fake, blank matrix rows) |
+| M3-01 | Extract `tool/new_domain.dart` generator | ✅ | Tooling | §10.2 | §9.1 | Generator produces a domain skeleton matching the M1 pattern (interface, model, fake, blank matrix rows) |
 | M3-02 | Domain-completeness CI check | ⬜ | CI | §10.2, §7.2 | §9 | A domain folder missing a capability-matrix/permission-matrix row or fake fails CI |
 | M3-03 | Disks domain | ⬜ | Rust/Dart | §6 | §9 (process) | Field table authored (`sysinfo::Disks` audit, à la TDD §4), then implemented; snapshot only |
 | M3-04 | Network domain + throughput stream | ⬜ | Rust/Dart | §6 | §9 (process) | Field table authored; snapshot + clamped broadcast stream |

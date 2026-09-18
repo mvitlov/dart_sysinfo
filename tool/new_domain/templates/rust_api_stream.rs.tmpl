@@ -1,0 +1,29 @@
+//! {{Title}} domain API (scaffold — fill field table in domain story).
+
+use crate::frb_generated::StreamSink;
+
+/// {{Title}} snapshot DTO returned to Dart via FRB.
+#[flutter_rust_bridge::frb(non_opaque)]
+pub struct {{Pascal}}InfoDto {
+    /// Placeholder until the TDD field table is authored.
+    pub placeholder: String,
+}
+
+/// One {{name}} stream tick (plain fields — no `Reading<T>` on streams).
+#[flutter_rust_bridge::frb(non_opaque)]
+pub struct {{Pascal}}StreamSampleDto {
+    pub placeholder: f32,
+}
+
+/// Returns a TTL-backed {{name}} snapshot.
+#[flutter_rust_bridge::frb(sync)]
+pub fn {{snapshotFnRust}}() -> {{Pascal}}InfoDto {
+    unimplemented!("TODO: implement {{name}} snapshot field mapping")
+}
+
+/// Spawns a worker that pushes {{name}} stream samples until cancelled.
+#[flutter_rust_bridge::frb(sync)]
+pub fn {{streamFnRust}}(sink: StreamSink<{{Pascal}}StreamSampleDto>, interval_ms: u64) {
+    let _ = (sink, interval_ms);
+    unimplemented!("TODO: implement {{name}} {{streamMethod}} stream")
+}

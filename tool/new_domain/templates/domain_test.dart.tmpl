@@ -1,0 +1,51 @@
+import 'package:dart_sysinfo/src/bridge/api/{{name}}.dart';
+import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_domain_impl.dart';
+import 'package:test/test.dart';
+
+import '../support/mock_rust_lib_api.dart';
+
+late MockRustLibApi mockRustLibApi;
+
+void main() {
+  setUpAll(() {
+    mockRustLibApi = MockRustLibApi();
+    RustLib.initMock(api: mockRustLibApi);
+  });
+
+  setUp(() {
+    mockRustLibApi
+      ..{{mockSnapshotCallsField}} = 0
+      ..{{mockSnapshotResultField}} = const {{Pascal}}InfoDto(placeholder: 'mock');
+  });
+
+  group('{{Pascal}}DomainImpl.snapshot', () {
+    test('snapshot_maps_placeholder_field', () async {
+      mockRustLibApi.{{mockSnapshotResultField}} =
+          const {{Pascal}}InfoDto(placeholder: 'ok');
+
+      final domain = {{Pascal}}DomainImpl();
+      final info = await domain.snapshot();
+
+      expect(info.status.valueOrNull, 'ok');
+    });
+
+    test('snapshot_caches_within_ttl', () async {
+      final domain = {{Pascal}}DomainImpl();
+
+      await domain.snapshot();
+      await domain.snapshot();
+
+      expect(mockRustLibApi.{{mockSnapshotCallsField}}, 1);
+    });
+
+    test('snapshot_forceRefresh_bypasses_cache', () async {
+      final domain = {{Pascal}}DomainImpl();
+
+      await domain.snapshot(forceRefresh: true);
+      await domain.snapshot(forceRefresh: true);
+
+      expect(mockRustLibApi.{{mockSnapshotCallsField}}, 2);
+    });
+  });
+}

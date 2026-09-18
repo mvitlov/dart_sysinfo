@@ -1,0 +1,36 @@
+/// Fake {{name}} domain for unit tests (TDD §5.1).
+library;
+
+import 'dart:async';
+
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_domain.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_info.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_stream_sample.dart';
+
+/// Configurable [{{Pascal}}Domain] with no native calls.
+class Fake{{Pascal}}Domain implements {{Pascal}}Domain {
+  /// Creates a fake {{name}} domain with optional canned values.
+  Fake{{Pascal}}Domain({
+    {{Pascal}}Info? snapshot,
+    Stream<{{Pascal}}StreamSample>? stream,
+  })  : _snapshot = snapshot ?? {{Pascal}}Info.allUnavailable(),
+        _stream = stream ?? const Stream.empty();
+
+  {{Pascal}}Info _snapshot;
+  Stream<{{Pascal}}StreamSample> _stream;
+
+  /// Test-only mutator — not part of [{{Pascal}}Domain].
+  void setSnapshot({{Pascal}}Info value) => _snapshot = value;
+
+  /// Test-only mutator for stream output.
+  void setStream(Stream<{{Pascal}}StreamSample> value) => _stream = value;
+
+  @override
+  Future<{{Pascal}}Info> snapshot({bool forceRefresh = false}) async => _snapshot;
+
+  @override
+  Stream<{{Pascal}}StreamSample> {{streamMethod}}({
+    Duration interval = const Duration(seconds: 1),
+  }) =>
+      _stream;
+}

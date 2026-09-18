@@ -1,0 +1,90 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:dart_sysinfo/src/bridge/api/{{name}}.dart';
+import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
+import 'package:dart_sysinfo/src/core/shared_stream_registry.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_domain_impl.dart';
+import 'package:test/test.dart';
+
+import '../support/mock_rust_lib_api.dart';
+
+late MockRustLibApi mockRustLibApi;
+
+void main() {
+  setUpAll(() {
+    mockRustLibApi = MockRustLibApi();
+    RustLib.initMock(api: mockRustLibApi);
+  });
+
+  setUp(() {
+    mockRustLibApi
+      ..{{mockSnapshotCallsField}} = 0
+      ..{{mockStreamCallsField}} = 0
+      ..{{mockLastIntervalField}} = null
+      ..{{mockSnapshotResultField}} = const {{Pascal}}InfoDto(placeholder: 'mock');
+  });
+
+  tearDown(() async {
+    await SharedStreamRegistry.instance.cancelAll();
+  });
+
+  group('{{Pascal}}DomainImpl.snapshot', () {
+    test('snapshot_maps_placeholder_field', () async {
+      mockRustLibApi.{{mockSnapshotResultField}} =
+          const {{Pascal}}InfoDto(placeholder: 'ok');
+
+      final domain = {{Pascal}}DomainImpl();
+      final info = await domain.snapshot();
+
+      expect(info.status.valueOrNull, 'ok');
+    });
+
+    test('snapshot_caches_within_ttl', () async {
+      final domain = {{Pascal}}DomainImpl();
+
+      await domain.snapshot();
+      await domain.snapshot();
+
+      expect(mockRustLibApi.{{mockSnapshotCallsField}}, 1);
+    });
+  });
+
+  group('{{Pascal}}DomainImpl.{{streamMethod}}', () {
+    test('{{streamMethod}}_clamps_interval_on_desktop_host', () async {
+      if (Platform.isAndroid || Platform.isIOS) {
+        return;
+      }
+
+      final domain = {{Pascal}}DomainImpl();
+      final sub = domain
+          .{{streamMethod}}(interval: const Duration(milliseconds: 10))
+          .listen((_) {});
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel();
+
+      expect(mockRustLibApi.{{mockLastIntervalField}}, BigInt.from(50));
+    });
+
+    test('{{streamMethod}}_delegates_to_shared_stream_registry', () async {
+      final domain = {{Pascal}}DomainImpl();
+      mockRustLibApi.{{mockStreamControllerField}}.add(
+        const {{Pascal}}StreamSampleDto(placeholder: 1.0),
+      );
+
+      final firstSub = domain
+          .{{streamMethod}}(interval: const Duration(milliseconds: 100))
+          .listen((_) {});
+      final secondSub = domain
+          .{{streamMethod}}(interval: const Duration(milliseconds: 100))
+          .listen((_) {});
+
+      await Future<void>.delayed(Duration.zero);
+
+      await firstSub.cancel();
+      await secondSub.cancel();
+
+      expect(mockRustLibApi.{{mockStreamCallsField}}, 1);
+    });
+  });
+}

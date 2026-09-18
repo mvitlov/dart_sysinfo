@@ -3,7 +3,7 @@
 **Document type:** Technical Design Document (v1.0, covers M0–M2 in full detail; M3–M5 stubbed)
 **Upstream:** [`PRD.md`](./PRD.md) v1.3 (Approved, §14). This document does not re-decide anything the PRD already settled — it takes each PRD decision and specifies exactly how it is implemented: module layout, concrete types, function signatures, and sequencing.
 **Scope:** Full implementation detail for **M0 (scaffolding), M1 (P1 domains: OS/CPU/memory), and M2 (Native Assets track)**. M3–M5 (§9) are intentionally stubbed — per PRD §10.2, the domain scaffolding generator and P2+ domains are deliberately not designed until the M1 pattern is proven, so writing their TDD now would be speculative.
-**Implementation status (repo):** M0–M2 implemented (Native Assets track complete through M2-03 sunset-clock automation). M3+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
+**Implementation status (repo):** M0–M2 implemented; M3-01 domain generator landed. P2 field tables and M3-02+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
 **Traceability convention:** every section cites the PRD section(s) it implements as `(PRD §x.x)`. §10 is a full traceability index.
 
 ***
@@ -58,7 +58,7 @@ dart_sysinfo/
 │           ├─ cpu.rs
 │           ├─ memory.rs
 │           └─ os.rs
-├─ tool/                        # empty at M0; new_domain.dart lands pre-M3 (PRD §10.2)
+├─ tool/                        # new_domain.dart domain generator (M3-01, PRD §10.2)
 ├─ example/
 ├─ pubspec.yaml                    # Dart pub workspace + Melos 7 config (lockstep versioning — PRD §10.3)
 ├─ analysis_options.yaml
@@ -684,16 +684,56 @@ CI job (`.github/workflows/native-assets-matrix.yml`, called from `ci.yaml` and 
 
 ***
 
-## 9. M3–M5 — stubbed, not designed yet
+## 9. M3–M5 — P2 domains and release hardening
 
-Per PRD §10.2, the domain scaffolding generator is deliberately extracted from the **proven** M1 pattern (TDD §2.2/§4), not designed ahead of it. Once that happens (pre-M3), this TDD gets a revision that adds:
+P2 field tables and several M3 deliverables remain stubbed until their stories
+land. The domain scaffolding generator (M3-01) is documented in §9.1.
 
-- **§4-style field tables** for disks (`sysinfo::Disks`), network (`sysinfo::Networks`), components (`sysinfo::Components`), GPU, users, battery, and processes — built the same way §4 was: read the crate docs for that feature, list every method, decide `Reading<T>` vs. plain per-field.
-- Per-domain stream minimum intervals and TTLs, added to the tables in TDD §3.3/§3.4.
-- The generator's own template files (what `tool/new_domain.dart <name>` actually writes), once extracted.
-- Prebuilt-binary hash/attestation pipeline implementation (PRD §7.3) and the CI ABI-diff gate (PRD §10.3).
+### 9.1 Domain generator (M3-01, PRD §10.2)
 
-This section is intentionally short — expanding it now would be exactly the speculative work the PRD's M1-first sequencing decision (§13.3, decision 2) was written to avoid.
+**CLI:** `fvm dart run tool/new_domain.dart <name> [options]` (alias:
+`fvm dart run melos new-domain -- <name>`).
+
+| Flag | Purpose |
+|---|---|
+| `--stream` | Add broadcast stream API (`SharedStreamRegistry`, CPU pattern) |
+| `--stream-method=<id>` | Stream method name (default `load`; use `throughput` for network) |
+| `--ttl-ms=<int>` | Snapshot cache TTL (default 500) |
+| `--dry-run` | Print planned writes without modifying files |
+| `--skip-post-steps` | Skip `melos frb:generate`, analyze, and domain test (tests/fixtures) |
+| `--fixture-root=<path>` | Override repo root (generator tests only) |
+
+**Templates** (`tool/new_domain/templates/`): extracted from the M1 memory
+(snapshot-only) and CPU (stream overlay) domains. Each run writes:
+
+| Output | Path |
+|---|---|
+| Dart interface + model + impl + mapper | `packages/dart_sysinfo/lib/src/domains/<name>/` |
+| Fake | `packages/dart_sysinfo/lib/src/testing/fake_<name>_domain.dart` |
+| Skeleton test | `packages/dart_sysinfo/test/domains/<name>_domain_test.dart` |
+| Rust API stub | `packages/native/src/api/<name>.rs` |
+| Matrix rows | `docs/capability-matrix.md` (P2 scaffold section) |
+
+**Patch targets** (marked `// GENERATOR:BEGIN …` / `// GENERATOR:END …`):
+
+- `packages/native/src/api/mod.rs`
+- `packages/dart_sysinfo/lib/dart_sysinfo.dart`, `lib/testing.dart`
+- `packages/dart_sysinfo/lib/src/core/sys_info.dart`
+- `packages/dart_sysinfo/lib/src/testing/fake_sys_info.dart`
+- `packages/dart_sysinfo/test/support/mock_rust_lib_api.dart`
+
+**Post-steps** (default, skipped with `--skip-post-steps`):
+
+1. `fvm dart run melos frb:generate`
+2. `fvm dart analyze --fatal-warnings packages/dart_sysinfo`
+3. `fvm dart test packages/dart_sysinfo/test/domains/<name>_domain_test.dart`
+
+FRB mock method naming: `crateApi<Pascal><Pascal>Snapshot` /
+`crateApi<Pascal><Pascal><StreamMethodPascal>Stream` (e.g.
+`crateApiDisksDisksSnapshot`, `crateApiNetworkNetworkThroughputStream`).
+
+**Still deferred:** §4-style P2 field tables, domain-completeness CI (M3-02),
+prebuilt-binary pipeline (M3-06), ABI-diff gate (M3-07).
 
 ***
 
@@ -715,6 +755,6 @@ This section is intentionally short — expanding it now would be exactly the sp
 | §8 | Testing tiers | TDD §5 |
 | §9.1 | `doctor` | TDD §6 |
 | §9.2 | Missing-package detection | TDD §2.1 (`created_fresh` signal), consumed in `dart_sysinfo_flutter` (not yet detailed — small enough to design in-line during M1, no separate TDD section needed) |
-| §10.2 | Domain scaffolding generator | TDD §9 (deferred) |
+| §10.2 | Domain scaffolding generator | TDD §9.1 |
 
 Every TDD section above cites its PRD source inline; this table is the reverse lookup.

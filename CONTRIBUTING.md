@@ -258,10 +258,28 @@ fvm flutter run -d macos
 Start the CPU load stream, hot restart (`R`), and confirm tick rate stays ~1/sec
 (not ~2/sec) after each cycle.
 
-## Domain checklist (deferred — PRD §10.2)
+## Adding a domain (M3-01, PRD §10.2)
 
-Domain completeness checks (capability-matrix row, permission row, testing fake,
-unit tests for every domain folder) and the `tool/new_domain.dart` generator are
-**not part of M0**. They land in **M3**, extracted from the hand-built M1 domain
-pattern. Do not add per-domain checklist rows here until that milestone — see
-[`EPICS.md`](./EPICS.md) EPIC-M3.
+Scaffold a new domain from the proven M1 pattern:
+
+```bash
+# Snapshot-only (e.g. disks in M3-03)
+fvm dart run tool/new_domain.dart disks
+
+# Snapshot + stream (e.g. network in M3-04)
+fvm dart run tool/new_domain.dart network --stream --stream-method=throughput
+
+# Melos alias
+fvm dart run melos new-domain -- disks
+```
+
+The generator writes Dart/Rust stubs, fakes, skeleton tests, and blank
+capability/permission matrix rows, then runs FRB codegen and validates analyze +
+domain test. See [TDD §9.1](./TDD.md) for templates, patch targets, and flags.
+
+**After scaffolding:** replace placeholder fields using a TDD §4-style field
+table, implement `packages/native/src/api/<name>.rs`, enable any required Cargo
+feature (`disk`, `network`, …), and re-run `fvm dart run melos frb:generate`.
+
+**Domain-completeness CI** (capability row, permission row, fake, tests enforced
+on every domain folder) lands in **M3-02** — not yet active.

@@ -1,0 +1,25 @@
+/// {{Title}} domain implementation (scaffold).
+library;
+
+import 'package:dart_sysinfo/src/bridge/api/{{name}}.dart';
+import 'package:dart_sysinfo/src/core/ttl_cache.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_domain.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_info.dart';
+import 'package:dart_sysinfo/src/domains/{{name}}/{{name}}_mapper.dart';
+
+/// Real {{name}} domain backed by the native bridge.
+class {{Pascal}}DomainImpl implements {{Pascal}}Domain {
+  /// Creates a {{name}} domain with optional test double for cache.
+  {{Pascal}}DomainImpl({TtlCache<{{Pascal}}Info>? snapshotCache})
+      : _cache = snapshotCache ?? TtlCache(const Duration(milliseconds: {{ttlMs}}));
+
+  final TtlCache<{{Pascal}}Info> _cache;
+
+  @override
+  Future<{{Pascal}}Info> snapshot({bool forceRefresh = false}) {
+    return _cache.read(
+      () async => map{{Pascal}}InfoDto({{snapshotFnDart}}()),
+      forceRefresh: forceRefresh,
+    );
+  }
+}

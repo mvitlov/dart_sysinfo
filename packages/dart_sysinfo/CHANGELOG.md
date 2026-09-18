@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Domain scaffolding generator `tool/new_domain.dart` (M3-01): templates,
+  integration patches, and `melos new-domain` script; see TDD §9.1.
 - Native Assets build hook (`hook/build.dart`) via `flutter_rust_bridge_hooks`
   (M2-01; compiles `packages/native` in parallel with Cargokit).
 - Parallel `native-assets` CI job (M2-02) mirroring the 9-cell `flutter-build`
