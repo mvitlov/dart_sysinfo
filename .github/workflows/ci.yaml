@@ -86,20 +86,6 @@ jobs:
           cd packages/dart_sysinfo
           dart test
 
-      # Root `dart pub get` (3.13.3 only) needs workspace resolution intact;
-      # package-level tests above rely on pubspec_overrides.yaml staying in place.
-      - name: Restore workspace resolution (Dart 3.13.3)
-        if: matrix.dart-image == 'dart:3.13.3'
-        run: rm -f packages/dart_sysinfo/pubspec_overrides.yaml
-
-      - name: Run workspace checks and generator tests (Dart 3.13.3)
-        if: matrix.dart-image == 'dart:3.13.3'
-        run: |
-          dart pub get
-          dart run tool/ci/check_domain_completeness.dart
-          dart run tool/ci/check_android_permissions.dart
-          dart test tool/test
-
       # Standalone pub.dev consumer sim is expensive; once on latest Dart is enough.
       - name: Verify standalone package resolution (pub.dev consumer simulation)
         if: matrix.dart-image == 'dart:3.13.3'
@@ -129,6 +115,15 @@ jobs:
 
       - name: Resolve workspace dependencies
         run: flutter pub get
+
+      - name: Check domain completeness (M3-02)
+        run: dart run tool/ci/check_domain_completeness.dart
+
+      - name: Check Android permissions (M3-05)
+        run: dart run tool/ci/check_android_permissions.dart
+
+      - name: Run domain generator tests (M3-01)
+        run: dart test tool/test
 
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .
