@@ -12,7 +12,8 @@ correctly.
 - FVM toolchain installed (see [`.fvmrc`](../.fvmrc))
 - Debug mode — hot restart is a development workflow
 - Primary target: **macOS desktop** (`fvm flutter run -d macos`)
-- Optional additional sign-off rows: Linux, Windows
+- Optional additional sign-off rows: Linux, Windows, **Android** (network
+  permissions — see below)
 
 ## Bootstrap order (must match example app)
 
@@ -35,8 +36,10 @@ await DartSysinfoFlutter.ensureInitialized();
    fvm flutter run -d macos --dart-define=QA_AUTO_START=true
    ```
    Tick events print as `[CPU_LOAD] tick N` in the debug console.
-2. Tap **Refresh** on OS, Memory, and CPU — confirm real data appears (not all
-   `unavailable`).
+2. Tap **Refresh** on OS, Memory, CPU, Disks, and Network — confirm real data
+   appears (not all `unavailable`). On Android, network requires
+   `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE` in the example app manifest
+   (M3-05); an empty interface list on a sandbox is still valid.
 3. Tap **Start** on the CPU load stream — confirm the tick counter increments
    about once per second.
 4. Note the tick count at T₀; wait 5 seconds; confirm roughly 5 new ticks (not
@@ -50,6 +53,8 @@ await DartSysinfoFlutter.ensureInitialized();
 9. Optional negative control (document only — do not ship): comment out
    `DartSysinfoFlutter.ensureInitialized()` in `example/lib/main.dart` and repeat
    step 7 to observe a doubled tick rate. Revert before committing.
+10. **Android optional:** tap **Start** on the Network throughput stream — confirm
+    ticks increment and `[NETWORK_THROUGHPUT]` logs appear in the debug console.
 
 ## Pass criteria
 

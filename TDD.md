@@ -634,7 +634,7 @@ Snapshot includes **cumulative totals only** — not per-interval deltas.
 
 **Snapshot TTL:** 2000 ms. **Stream min interval:** 200 ms mobile / 50 ms desktop (TDD §3.3).
 
-**Permissions (PRD §2.5):** no Android permissions merged by `dart_sysinfo`. Consumer apps must declare `ACCESS_NETWORK_STATE` (and `ACCESS_WIFI_STATE` where needed). M3-05 adds lint; matrix documents obligation here.
+**Permissions (PRD §2.5):** no Android permissions merged by `dart_sysinfo`. Consumer apps must declare `ACCESS_NETWORK_STATE` (interface enumeration and traffic counters) and `ACCESS_WIFI_STATE` (WiFi interface metadata on older Android) in the app manifest. The example app declares both because it exercises `network`; CI enforces via TDD §9.3.
 
 ***
 
@@ -841,6 +841,29 @@ fail (reverse sync). All violations are printed; exit `1` if any.
 
 **CI:** `lint` (merge gate) and `dart-only-test` (latest Dart image) both run
 the checker.
+
+### 9.3 Android permission lint (M3-05, PRD §2.5)
+
+**CLI:** `fvm dart run tool/ci/check_android_permissions.dart`
+(alias: `fvm dart run melos check:permissions`).
+
+Reads [`docs/capability-matrix.md`](../docs/capability-matrix.md) permission
+rows (P1 section + P2 `p2-permission-rows` markers). For each domain row,
+extracts `ACCESS_*` permission names from the consumer-obligation column and
+normalizes them to `android.permission.ACCESS_*`.
+
+| Rule | Behavior |
+|---|---|
+| Example exercise | Scan `example/lib/**/*.dart` for `.domain.(snapshot\|throughput\|load)(` and `SysInfo.instance.domain` |
+| Consumer manifest | Exercised domains with required permissions must declare **all** of them in `example/android/app/src/main/AndroidManifest.xml` (debug/profile overlays excluded) |
+| Plugin manifest | `packages/dart_sysinfo/android/src/main/AndroidManifest.xml` must contain **no** `<uses-permission>` entries (no silent merges) |
+
+At M3-05 only `network` has non-empty consumer requirements. Future domains add
+`ACCESS_*` names to the matrix row; if the example exercises that domain, lint
+enforces the declaration automatically.
+
+**CI:** `lint` (merge gate) and `dart-only-test` (latest Dart image) both run
+the checker after domain-completeness.
 
 ***
 

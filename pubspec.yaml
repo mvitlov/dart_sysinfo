@@ -32,6 +32,8 @@ melos:
       run: dart test tool/test
     check:domains:
       run: dart run tool/ci/check_domain_completeness.dart
+    check:permissions:
+      run: dart run tool/ci/check_android_permissions.dart
 
   command:
     version:

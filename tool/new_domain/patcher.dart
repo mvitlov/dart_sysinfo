@@ -366,7 +366,7 @@ class DomainPatcher {
       updated,
       permissionBegin,
       permissionEnd,
-      '| `$name` | **TBD** | TBD — fill when domain ships |',
+      '| `$name` | **TBD** | TBD — document consumer `ACCESS_*` if needed; run `melos check:permissions` |',
     );
 
     return updated;

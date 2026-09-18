@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Android permission lint (M3-05): `tool/ci/check_android_permissions.dart`
+  enforces PRD §2.5 — example app must declare `ACCESS_NETWORK_STATE` and
+  `ACCESS_WIFI_STATE` when exercising `network`; plugin manifest must not merge
+  permissions.
 - Network domain (M3-04): `SysInfo.network.snapshot()` with 2000 ms TTL,
   `NetworkInfo` / `NetworkInterface` models, and `network.throughput()` broadcast
   stream with diff-based warmup skip (TDD §4.5).

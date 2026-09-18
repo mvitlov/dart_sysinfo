@@ -291,3 +291,13 @@ fvm dart run melos check:domains
 # or
 fvm dart run tool/ci/check_domain_completeness.dart
 ```
+
+**Android permission lint** (M3-05) fails the build when the example app exercises
+a permission-gated domain without declaring required consumer permissions, or
+when the plugin manifest silently merges `<uses-permission>` entries:
+
+```bash
+fvm dart run melos check:permissions
+# or
+fvm dart run tool/ci/check_android_permissions.dart
+```

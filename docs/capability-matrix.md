@@ -45,9 +45,9 @@ update and consumer manifest declaration — never a silent plugin merge.
 | Package | Manifest | Permissions declared |
 |---|---|---|
 | `dart_sysinfo` | [`packages/dart_sysinfo/android/src/main/AndroidManifest.xml`](../packages/dart_sysinfo/android/src/main/AndroidManifest.xml) | Empty — no `<uses-permission>` entries |
-| Example app | [`example/android/app/src/main/AndroidManifest.xml`](../example/android/app/src/main/AndroidManifest.xml) | No sysinfo-related permissions |
+| Example app | [`example/android/app/src/main/AndroidManifest.xml`](../example/android/app/src/main/AndroidManifest.xml) | `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE` (example exercises `network`; M3-05) |
 
-Audited 2026-09-17 as part of M1-13.
+Audited 2026-09-17 (M1-13, P1). Updated 2026-09-18 (M3-05, network consumer permissions).
 
 ## P2 domains (scaffold)
 
@@ -58,14 +58,14 @@ generated. Replace **TBD** values when the domain story ships (M3-03+).
 |---|---|---|---|---|---|---|
 <!-- GENERATOR:BEGIN p2-capability-rows -->
 | `disks` | 2000 ms | none | — | Android, iOS, macOS, Linux, Windows (web excluded per PRD §1.6) | None — volume listing does not require prohibited APIs | `volumes` → plain `List<DiskVolume>`; empty list is valid on sandboxes/scoped storage (not `ReadingUnavailable`); see TDD §4.4 for path visibility limits |
-| `network` | 2000 ms | `network.throughput()` (broadcast, ref-counted) | 200 ms on Android/iOS; 50 ms on desktop | Android, iOS, macOS, Linux, Windows (web excluded per PRD §1.6) | None — interface listing does not require prohibited APIs | `interfaces` → plain `List<NetworkInterface>`; empty list is valid; throughput stream skips first diff-based tick after init; permission lint deferred to M3-05 |
+| `network` | 2000 ms | `network.throughput()` (broadcast, ref-counted) | 200 ms on Android/iOS; 50 ms on desktop | Android, iOS, macOS, Linux, Windows (web excluded per PRD §1.6) | None — interface listing does not require prohibited APIs | `interfaces` → plain `List<NetworkInterface>`; empty list is valid; throughput stream skips first diff-based tick after init; consumer must declare Android permissions per matrix below |
 <!-- GENERATOR:END p2-capability-rows -->
 
 | Domain | Permissions merged by `dart_sysinfo` | Consumer obligation |
 |---|---|---|
 <!-- GENERATOR:BEGIN p2-permission-rows -->
 | `disks` | **None** | None beyond normal app process; mobile sandboxes may return a subset of volumes or an empty list — never claim full-disk access |
-| `network` | **None** | Consumer app must declare `ACCESS_NETWORK_STATE` (and `ACCESS_WIFI_STATE` where needed) in the app manifest — never merged by `dart_sysinfo`; M3-05 adds lint |
+| `network` | **None** | Declare `ACCESS_NETWORK_STATE` (interface enumeration and traffic counters) and `ACCESS_WIFI_STATE` (WiFi interface metadata on older Android) in the **app** manifest — never merged by `dart_sysinfo`; enforced by `tool/ci/check_android_permissions.dart` (M3-05) |
 <!-- GENERATOR:END p2-permission-rows -->
 
 ## Future domains
@@ -75,3 +75,7 @@ above when they ship, per [PRD.md §6](../PRD.md) domain Definition of Done.
 [`tool/ci/check_domain_completeness.dart`](../tool/ci/check_domain_completeness.dart)
 (M3-02) fails CI when a domain folder is missing matching capability-matrix or
 permission-matrix rows (or fake/tests/SysInfo/Rust wiring).
+[`tool/ci/check_android_permissions.dart`](../tool/ci/check_android_permissions.dart)
+(M3-05) fails CI when the example app exercises a permission-gated domain
+without declaring required consumer permissions, or when the plugin manifest
+silently merges `<uses-permission>` entries.

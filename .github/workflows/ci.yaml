@@ -96,6 +96,10 @@ jobs:
         if: matrix.dart-image == 'dart:3.13.3'
         run: dart run tool/ci/check_domain_completeness.dart
 
+      - name: Check Android permissions (M3-05)
+        if: matrix.dart-image == 'dart:3.13.3'
+        run: dart run tool/ci/check_android_permissions.dart
+
       # Standalone pub.dev consumer sim is expensive; once on latest Dart is enough.
       - name: Verify standalone package resolution (pub.dev consumer simulation)
         if: matrix.dart-image == 'dart:3.13.3'
@@ -128,6 +132,9 @@ jobs:
 
       - name: Check domain completeness (M3-02)
         run: dart run tool/ci/check_domain_completeness.dart
+
+      - name: Check Android permissions (M3-05)
+        run: dart run tool/ci/check_android_permissions.dart
 
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .
