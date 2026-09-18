@@ -109,8 +109,23 @@ and then `tool/ci/verify_native_assets.sh` to assert a `dart_sysinfo_native`
 Native Assets artifact exists under `example/build/.../native_assets/`.
 
 **Merge policy:** `native-assets` is **not** wired into `m0-exit-gate` (PRD
-§7.2). A red Native Assets cell does not block merges; it pauses the §3.3
-sunset clock until M2-03 adds queryable tracking.
+§7.2). A red Native Assets cell on a PR does not block merges.
+
+## Sunset clock (M2-03)
+
+Weekly scheduled workflow
+[`Native Assets Sunset Clock (PRD §3.3)`](.github/workflows/native-assets-sunset-clock.yaml)
+runs the same 9-cell Native Assets matrix on `main` every Monday 06:00 UTC and
+records pass/fail in [`docs/sunset-clock/history.jsonl`](docs/sunset-clock/README.md).
+
+```bash
+bash tool/ci/sunset_clock_report.sh
+gh run list --workflow="Native Assets Sunset Clock (PRD §3.3)" --limit 20
+gh workflow run "Native Assets Sunset Clock (PRD §3.3)"
+```
+
+See [`docs/sunset-clock/README.md`](docs/sunset-clock/README.md) for streak
+semantics (scheduled samples only) and JSONL schema.
 
 ## CI / P1 merge gate (PRD §7.2)
 
@@ -124,7 +139,8 @@ Pull requests must pass the **`M1 P1 CI gate (PRD §7.2)`** check in
 - **Rust tests** — `rust-test` (`cargo test -- --test-threads=1`)
 
 Parallel (non-blocking): **`native-assets`** (9 cells; same matrix as
-`flutter-build` with post-build Native Assets verification).
+`flutter-build` with post-build Native Assets verification) and weekly
+**`Native Assets Sunset Clock`** (records §3.3 evidence; also non-blocking).
 
 **SDK matrix (PRD §7.2 / §1.5):**
 

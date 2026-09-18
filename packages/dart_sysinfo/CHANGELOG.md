@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (M2-01; compiles `packages/native` in parallel with Cargokit).
 - Parallel `native-assets` CI job (M2-02) mirroring the 9-cell `flutter-build`
   matrix with post-build artifact verification via `tool/ci/verify_native_assets.sh`.
+- Sunset-clock automation (M2-03): weekly scheduled workflow records Native Assets
+  matrix results to `docs/sunset-clock/history.jsonl`; `tool/ci/sunset_clock_report.sh`
+  reports consecutive green weeks for PRD §3.3.
 - P1 domains: OS, CPU, and memory snapshots with TTL caching.
 - CPU load stream (`cpu.load`) with broadcast, ref-count, and interval clamping.
 - `Reading<T>` sealed type and `SysInfoException` hierarchy.

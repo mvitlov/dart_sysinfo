@@ -1,0 +1,90 @@
+name: Native Assets Sunset Clock (PRD §3.3)
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sunset-clock-main
+  cancel-in-progress: false
+
+jobs:
+  matrix:
+    uses: ./.github/workflows/native-assets-matrix.yml
+    secrets: inherit
+
+  record:
+    name: Record sunset-clock sample
+    needs: matrix
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Upsert weekly history entry
+        env:
+          MATRIX_RESULT: ${{ needs.matrix.result }}
+        run: |
+          case "$MATRIX_RESULT" in
+            success) CONCLUSION=success ;;
+            cancelled) CONCLUSION=cancelled ;;
+            *) CONCLUSION=failure ;;
+          esac
+          bash tool/ci/record_sunset_clock.sh "$CONCLUSION"
+          bash tool/ci/sunset_clock_report.sh > docs/sunset-clock/latest-report.txt
+
+      - name: Commit history update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/sunset-clock/history.jsonl docs/sunset-clock/latest-report.txt
+          if git diff --staged --quiet; then
+            echo "No history changes to commit."
+            exit 0
+          fi
+          WEEK=$(python3 -c 'from datetime import datetime, timezone; print(datetime.now(timezone.utc).strftime("%G-W%V"))')
+          CONCLUSION=$(tail -1 docs/sunset-clock/history.jsonl | python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("matrix_conclusion","unknown"))')
+          git commit -m "chore(sunset-clock): record ${WEEK} ${CONCLUSION}"
+          git push
+
+      - name: Upload sunset-clock artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sunset-clock-${{ github.run_id }}
+          path: |
+            docs/sunset-clock/history.jsonl
+            docs/sunset-clock/latest-report.txt
+          if-no-files-found: warn
+
+  report:
+    name: Publish sunset-clock report
+    needs: [matrix, record]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Write workflow summary
+        run: |
+          {
+            echo '## Native Assets Sunset Clock'
+            echo
+            if [[ -f docs/sunset-clock/latest-report.txt ]]; then
+              cat docs/sunset-clock/latest-report.txt
+            else
+              bash tool/ci/sunset_clock_report.sh || true
+            fi
+            echo
+            echo "Matrix job result: \`${{ needs.matrix.result }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

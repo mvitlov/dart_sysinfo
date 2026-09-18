@@ -6,11 +6,13 @@ on:
     paths-ignore:
       - '**.md'
       - '.cursor/**'
+      - 'docs/sunset-clock/**'
   pull_request:
     branches: [main]
     paths-ignore:
       - '**.md'
       - '.cursor/**'
+      - 'docs/sunset-clock/**'
   workflow_dispatch:
 
 concurrency:
@@ -20,7 +22,8 @@ concurrency:
 permissions:
   contents: read
 
-# Shared 9-cell matrix for flutter-build (Cargokit gate) and native-assets (M2-02).
+# Shared 9-cell matrix for flutter-build (Cargokit gate).
+# Native Assets matrix lives in native-assets-matrix.yml — keep both in sync.
 x-flutter-build-matrix: &flutter-build-matrix
   include:
     # --- Latest (3.47.4): all 5 platforms ---
@@ -256,81 +259,8 @@ jobs:
         run: ${{ matrix.build }}
 
   native-assets:
-    name: Native Assets (${{ matrix.platform }}, Flutter ${{ matrix.flutter-version }})
-    runs-on: ${{ matrix.runs-on }}
-    timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix: *flutter-build-matrix
-    env:
-      ANDROID_HOME: /usr/local/lib/android/sdk
-      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install Linux desktop build dependencies
-        if: matrix.platform == 'linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
-
-      - name: Set up JDK 17 (Android)
-        if: matrix.platform == 'android'
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
-
-      - name: Set up Android NDK r28+
-        if: matrix.platform == 'android'
-        id: setup-ndk
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r28c
-          link-to-sdk: true
-
-      - name: Assert NDK r28+
-        if: matrix.platform == 'android'
-        run: |
-          NDK_MAJOR=$(grep '^Pkg.Revision' "${{ steps.setup-ndk.outputs.ndk-path }}/source.properties" | cut -d= -f2 | cut -d. -f1 | tr -d ' ')
-          if [ "$NDK_MAJOR" -lt 28 ]; then
-            echo "ERROR: NDK major version $NDK_MAJOR < 28"
-            exit 1
-          fi
-          echo "ANDROID_NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
-          echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
-          echo "Confirmed: NDK r${NDK_MAJOR} installed."
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: 1.98.1
-          targets: ${{ matrix.rust-targets }}
-
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: packages/native
-          shared-key: native-assets-${{ matrix.platform }}-${{ matrix.flutter-version }}
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ matrix.flutter-version }}
-          channel: stable
-          cache: true
-          cache-key: flutter-${{ matrix.flutter-version }}
-
-      - name: Resolve workspace dependencies
-        run: flutter pub get
-
-      - name: Materialize example ephemeral Flutter files
-        run: cd example && flutter pub get
-
-      - name: Build example app (Native Assets smoke)
-        run: ${{ matrix.build }}
-
-      - name: Verify Native Assets artifacts
-        shell: bash
-        run: bash tool/ci/verify_native_assets.sh ${{ matrix.platform }}
+    uses: ./.github/workflows/native-assets-matrix.yml
+    secrets: inherit
 
   rust-test:
     name: Rust tests (packages/native)

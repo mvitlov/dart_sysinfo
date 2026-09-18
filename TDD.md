@@ -3,7 +3,7 @@
 **Document type:** Technical Design Document (v1.0, covers M0–M2 in full detail; M3–M5 stubbed)
 **Upstream:** [`PRD.md`](./PRD.md) v1.3 (Approved, §14). This document does not re-decide anything the PRD already settled — it takes each PRD decision and specifies exactly how it is implemented: module layout, concrete types, function signatures, and sequencing.
 **Scope:** Full implementation detail for **M0 (scaffolding), M1 (P1 domains: OS/CPU/memory), and M2 (Native Assets track)**. M3–M5 (§9) are intentionally stubbed — per PRD §10.2, the domain scaffolding generator and P2+ domains are deliberately not designed until the M1 pattern is proven, so writing their TDD now would be speculative.
-**Implementation status (repo):** M0 and M1 sections implemented; M2-01 (Native Assets build hook) and M2-02 (parallel `native-assets` CI job) implemented; M2-03+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
+**Implementation status (repo):** M0–M2 implemented (Native Assets track complete through M2-03 sunset-clock automation). M3+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
 **Traceability convention:** every section cites the PRD section(s) it implements as `(PRD §x.x)`. §10 is a full traceability index.
 
 ***
@@ -665,7 +665,7 @@ Future<void> main(List<String> args) async {
 }
 ```
 
-CI job (`.github/workflows/ci.yaml`, `native-assets` job): runs the same 5-platform smoke test as the Cargokit job, but with `hook/build.dart` as the active backend and Cargokit wiring untouched/unused. Its pass/fail feeds directly into the §3.3 sunset-criterion tracking (a scheduled workflow tags each green/red run so "eight consecutive weeks" is a query over CI history, not a manual log).
+CI job (`.github/workflows/native-assets-matrix.yml`, called from `ci.yaml` and `native-assets-sunset-clock.yaml`): runs the same 5-platform smoke test as the Cargokit job, but with `hook/build.dart` as the active backend and Cargokit wiring untouched/unused. Scheduled weekly runs append to `docs/sunset-clock/history.jsonl`; `tool/ci/sunset_clock_report.sh` answers "eight consecutive weeks" from that file (M2-03).
 
 ***
 
@@ -679,6 +679,7 @@ CI job (`.github/workflows/ci.yaml`, `native-assets` job): runs the same 5-platf
 | `dart-only-test` | Flutter-free container | `dart pub get && dart test` on `packages/dart_sysinfo` — the literal M0 exit criterion (TDD §1.4) |
 | `flutter-build` | {android, ios, linux, macos, windows} × {min SDK, latest SDK} × {backend: cargokit} | `flutter build` / smoke-test app compiles and runs |
 | `native-assets` (M2) | same platform × SDK matrix × {backend: native-assets} | parallel, feeds §3.3 sunset clock; red does not block merge (excluded from `m0-exit-gate`) |
+| `Native Assets Sunset Clock` (M2-03) | weekly schedule + `workflow_dispatch` on `main` | records matrix pass/fail to `docs/sunset-clock/history.jsonl`; non-blocking |
 | `rust-test` | host runner | `cargo test -- --test-threads=1` (concurrency test excepted, TDD §2.4) |
 
 ***

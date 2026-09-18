@@ -1,0 +1,23 @@
+{
+  "description": "Maintainer-updated stable Flutter release dates for PRD §3.3 'two consecutive stable releases' review (M5-01). Not auto-detected.",
+  "releases": [
+    {
+      "flutter_version": "3.38.1",
+      "channel": "stable",
+      "released_on": "2025-01-01",
+      "notes": "Placeholder date — update when M5-01 sunset review begins."
+    },
+    {
+      "flutter_version": "3.44.0",
+      "channel": "stable",
+      "released_on": "2025-06-01",
+      "notes": "Placeholder date — update when M5-01 sunset review begins."
+    },
+    {
+      "flutter_version": "3.47.4",
+      "channel": "stable",
+      "released_on": "2025-09-01",
+      "notes": "Current CI latest tier — update with actual stable ship date."
+    }
+  ]
+}

@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | [EPIC-M0](#epic-m0--scaffolding) | M0 | §2.1, §2.5, §7.1, §9.1, §10.1, §12 | §1, §6, §8 | ✅ |
 | [EPIC-M1](#epic-m1--p1-domains-os-cpu-memory) | M1 | §3.4, §5.1–§5.6, §6, §8, §12 | §2, §3, §4, §5 | ✅ |
-| [EPIC-M2](#epic-m2--native-assets-track) | M2 | §3.3, §7.1, §12 | §7 | ⬜ |
+| [EPIC-M2](#epic-m2--native-assets-track) | M2 | §3.3, §7.1, §12 | §7 | ✅ |
 | [EPIC-M3](#epic-m3--p2-domains--tooling-hardening) | M3 | §6, §7.2, §7.3, §9.3, §10.2, §10.3, §12 | §9 (stub) | ⬜ |
 | [EPIC-M4](#epic-m4--store-hardening--10-release) | M4 | §2.4, §2.5, §3.3, §9.2, §9.3, §10.3, §12 | — | ⬜ |
 | [EPIC-M5](#epic-m5--native-assets-default) | M5 | §3.3, §7.4, §12 | — | ⬜ |
@@ -83,7 +83,7 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 |---|---|---|---|---|---|---|
 | M2-01 | `hook/build.dart` via `flutter_rust_bridge_hooks` | ✅ | Bridge | §3.3, §7.1 | §7 | Build hook compiles the Rust crate via `native_toolchain_rust` and registers it as a code asset |
 | M2-02 | Native Assets CI job (5-platform matrix) | ✅ | CI | §7.2 | §7, §8 | Parallel job runs the same smoke test as Cargokit; red does not block merges |
-| M2-03 | Sunset-clock tracking automation | ⬜ | CI/Release | §3.3 | §7 | Each scheduled CI run's pass/fail is queryable, so "green for ≥2 stable releases or ≥8 weeks" is answerable without manual log-keeping |
+| M2-03 | Sunset-clock tracking automation | ✅ | CI/Release | §3.3 | §7 | Each scheduled CI run's pass/fail is queryable, so "green for ≥2 stable releases or ≥8 weeks" is answerable without manual log-keeping |
 
 ***
 
@@ -136,10 +136,10 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 **Completed:** EPIC-M0 (scaffolding), EPIC-M1 (P1 domains).
 
-**Next (pick one or run M2 in parallel with M3 planning):**
+**Next (pick one):**
 
-- **EPIC-M2** — Native Assets track (M2-01/M2-02 done; remaining: sunset-clock automation). Does not block M3.
 - **EPIC-M3** — P2 domains (disks, network), domain generator, dartdoc/ABI CI gates.
+- **EPIC-M5** — Native Assets default (after §3.3 sunset criterion met; not a 1.0 blocker).
 
 **Known M1 deferrals (not gaps in story completion):**
 
