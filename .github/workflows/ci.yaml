@@ -80,14 +80,17 @@ jobs:
           cd packages/dart_sysinfo
           printf 'resolution:\n' > pubspec_overrides.yaml
           dart pub get
-          # Root-level `dart pub get` (Dart 3.13.3 only) requires every workspace
-          # member to keep `resolution: workspace`; this override must not leak.
-          rm -f pubspec_overrides.yaml
 
       - name: Run Dart tests in packages/dart_sysinfo
         run: |
           cd packages/dart_sysinfo
           dart test
+
+      # Root `dart pub get` (3.13.3 only) needs workspace resolution intact;
+      # package-level tests above rely on pubspec_overrides.yaml staying in place.
+      - name: Restore workspace resolution (Dart 3.13.3)
+        if: matrix.dart-image == 'dart:3.13.3'
+        run: rm -f packages/dart_sysinfo/pubspec_overrides.yaml
 
       - name: Run workspace checks and generator tests (Dart 3.13.3)
         if: matrix.dart-image == 'dart:3.13.3'
