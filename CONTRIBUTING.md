@@ -281,5 +281,11 @@ domain test. See [TDD §9.1](./TDD.md) for templates, patch targets, and flags.
 table, implement `packages/native/src/api/<name>.rs`, enable any required Cargo
 feature (`disk`, `network`, …), and re-run `fvm dart run melos frb:generate`.
 
-**Domain-completeness CI** (capability row, permission row, fake, tests enforced
-on every domain folder) lands in **M3-02** — not yet active.
+**Domain-completeness CI** (M3-02) fails the build if a domain folder is missing
+a capability row, permission row, fake, test, SysInfo getter, or Rust module:
+
+```bash
+fvm dart run melos check:domains
+# or
+fvm dart run tool/ci/check_domain_completeness.dart
+```

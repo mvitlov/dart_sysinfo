@@ -3,7 +3,7 @@
 **Document type:** Technical Design Document (v1.0, covers M0–M2 in full detail; M3–M5 stubbed)
 **Upstream:** [`PRD.md`](./PRD.md) v1.3 (Approved, §14). This document does not re-decide anything the PRD already settled — it takes each PRD decision and specifies exactly how it is implemented: module layout, concrete types, function signatures, and sequencing.
 **Scope:** Full implementation detail for **M0 (scaffolding), M1 (P1 domains: OS/CPU/memory), and M2 (Native Assets track)**. M3–M5 (§9) are intentionally stubbed — per PRD §10.2, the domain scaffolding generator and P2+ domains are deliberately not designed until the M1 pattern is proven, so writing their TDD now would be speculative.
-**Implementation status (repo):** M0–M2 implemented; M3-01 domain generator landed. P2 field tables and M3-02+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
+**Implementation status (repo):** M0–M2 implemented; M3-01 generator and M3-02 domain-completeness CI landed. P2 field tables and M3-03+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
 **Traceability convention:** every section cites the PRD section(s) it implements as `(PRD §x.x)`. §10 is a full traceability index.
 
 ***
@@ -671,12 +671,12 @@ CI job (`.github/workflows/native-assets-matrix.yml`, called from `ci.yaml` and 
 
 ## 8. CI pipeline structure (implements PRD §7.2, §10.1)
 
-`.github/workflows/ci.yaml` jobs (M0–M2 slice):
+`.github/workflows/ci.yaml` jobs (M0–M3-02 slice):
 
 | Job | Matrix axes | Gate |
 |---|---|---|
-| `lint` | single run | `dart analyze` (`very_good_analysis`), zero warnings — **from M0** |
-| `dart-only-test` | Flutter-free container | `dart pub get && dart test` on `packages/dart_sysinfo` — the literal M0 exit criterion (TDD §1.4) |
+| `lint` | single run | domain-completeness check (M3-02) then `dart analyze` (`very_good_analysis`), zero warnings — **from M0** |
+| `dart-only-test` | Flutter-free container | `dart pub get && dart test` on `packages/dart_sysinfo`; latest-tier also runs `tool/test` and the domain-completeness checker |
 | `flutter-build` | {android, ios, linux, macos, windows} × {min SDK, latest SDK} × {backend: cargokit} | `flutter build` / smoke-test app compiles and runs |
 | `native-assets` (M2) | same platform × SDK matrix × {backend: native-assets} | parallel, feeds §3.3 sunset clock; red does not block merge (excluded from `m0-exit-gate`) |
 | `Native Assets Sunset Clock` (M2-03) | weekly schedule + `workflow_dispatch` on `main` | records matrix pass/fail to `docs/sunset-clock/history.jsonl`; non-blocking |
@@ -687,7 +687,8 @@ CI job (`.github/workflows/native-assets-matrix.yml`, called from `ci.yaml` and 
 ## 9. M3–M5 — P2 domains and release hardening
 
 P2 field tables and several M3 deliverables remain stubbed until their stories
-land. The domain scaffolding generator (M3-01) is documented in §9.1.
+land. The domain scaffolding generator (M3-01) is documented in §9.1; the
+domain-completeness CI check (M3-02) is documented in §9.2.
 
 ### 9.1 Domain generator (M3-01, PRD §10.2)
 
@@ -717,7 +718,8 @@ land. The domain scaffolding generator (M3-01) is documented in §9.1.
 **Patch targets** (marked `// GENERATOR:BEGIN …` / `// GENERATOR:END …`):
 
 - `packages/native/src/api/mod.rs`
-- `packages/dart_sysinfo/lib/dart_sysinfo.dart`, `lib/testing.dart`
+- `packages/dart_sysinfo/lib/dart_sysinfo.dart` (one sorted `domain-exports`
+  block covering domain, info, and optional stream sample), `lib/testing.dart`
 - `packages/dart_sysinfo/lib/src/core/sys_info.dart`
 - `packages/dart_sysinfo/lib/src/testing/fake_sys_info.dart`
 - `packages/dart_sysinfo/test/support/mock_rust_lib_api.dart`
@@ -732,8 +734,32 @@ FRB mock method naming: `crateApi<Pascal><Pascal>Snapshot` /
 `crateApi<Pascal><Pascal><StreamMethodPascal>Stream` (e.g.
 `crateApiDisksDisksSnapshot`, `crateApiNetworkNetworkThroughputStream`).
 
-**Still deferred:** §4-style P2 field tables, domain-completeness CI (M3-02),
-prebuilt-binary pipeline (M3-06), ABI-diff gate (M3-07).
+**Still deferred:** §4-style P2 field tables, prebuilt-binary pipeline (M3-06),
+ABI-diff gate (M3-07).
+
+### 9.2 Domain-completeness CI (M3-02, PRD §10.2)
+
+**CLI:** `fvm dart run tool/ci/check_domain_completeness.dart`
+(alias: `fvm dart run melos check:domains`).
+
+Discovers directories under `packages/dart_sysinfo/lib/src/domains/` and
+requires each `{name}` to have:
+
+| Artifact | Location |
+|---|---|
+| Interface, model, impl, mapper | `lib/src/domains/{name}/` |
+| Fake + barrel export | `lib/src/testing/fake_{name}_domain.dart` and `lib/testing.dart` |
+| Unit test | `test/domains/{name}_domain_test.dart` |
+| Capability + permission rows | `docs/capability-matrix.md` (P1 table or P2 scaffold markers) |
+| Rust API + `pub mod` | `packages/native/src/api/{name}.rs` and `api/mod.rs` |
+| SysInfo getter | `{Pascal}Domain get {name};` in `sys_info.dart` |
+
+If `{name}_stream_sample.dart` exists, the checker also requires it to be
+exported from `lib/dart_sysinfo.dart`. P1 matrix rows without a matching folder
+fail (reverse sync). All violations are printed; exit `1` if any.
+
+**CI:** `lint` (merge gate) and `dart-only-test` (latest Dart image) both run
+the checker.
 
 ***
 
@@ -755,6 +781,6 @@ prebuilt-binary pipeline (M3-06), ABI-diff gate (M3-07).
 | §8 | Testing tiers | TDD §5 |
 | §9.1 | `doctor` | TDD §6 |
 | §9.2 | Missing-package detection | TDD §2.1 (`created_fresh` signal), consumed in `dart_sysinfo_flutter` (not yet detailed — small enough to design in-line during M1, no separate TDD section needed) |
-| §10.2 | Domain scaffolding generator | TDD §9.1 |
+| §10.2 | Domain scaffolding generator + completeness CI | TDD §9.1, §9.2 |
 
 Every TDD section above cites its PRD source inline; this table is the reverse lookup.

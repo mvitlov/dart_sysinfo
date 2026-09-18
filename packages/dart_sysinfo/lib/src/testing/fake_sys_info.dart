@@ -20,9 +20,8 @@ class FakeSysInfo extends SysInfo {
   })  // GENERATOR:BEGIN fake-ctor-init
       : cpu = cpu ?? FakeCpuDomain(),
         memory = memory ?? FakeMemoryDomain(),
-        os = os ?? FakeOsDomain()
+        os = os ?? FakeOsDomain();
       // GENERATOR:END fake-ctor-init
-      ;
 
   // GENERATOR:BEGIN fake-fields
   @override

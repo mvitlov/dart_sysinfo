@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Domain-completeness CI check (M3-02): `tool/ci/check_domain_completeness.dart`
+  fails the merge gate when a domain folder is missing matrix rows, a fake,
+  tests, SysInfo wiring, or a Rust API module.
 - Domain scaffolding generator `tool/new_domain.dart` (M3-01): templates,
   integration patches, and `melos new-domain` script; see TDD §9.1.
 - Native Assets build hook (`hook/build.dart`) via `flutter_rust_bridge_hooks`

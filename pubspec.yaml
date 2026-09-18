@@ -30,6 +30,8 @@ melos:
       run: dart run tool/new_domain.dart
     test:generator:
       run: dart test tool/test
+    check:domains:
+      run: dart run tool/ci/check_domain_completeness.dart
 
   command:
     version:

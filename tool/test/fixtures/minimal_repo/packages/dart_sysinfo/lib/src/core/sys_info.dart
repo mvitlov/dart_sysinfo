@@ -82,9 +82,8 @@ class _RealSysInfo extends SysInfo {
       // GENERATOR:BEGIN domain-impl-init
       : cpu = CpuDomainImpl(),
         memory = MemoryDomainImpl(),
-        os = OsDomainImpl(),
+        os = OsDomainImpl();
       // GENERATOR:END domain-impl-init
-      ;
 
   /// Production callers must call `initDartSysinfoBridge()` before the first
   /// [SysInfo.instance]; tests use `RustLib.initMock` instead.

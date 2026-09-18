@@ -92,6 +92,10 @@ jobs:
           dart pub get
           dart test tool/test
 
+      - name: Check domain completeness (M3-02)
+        if: matrix.dart-image == 'dart:3.13.3'
+        run: dart run tool/ci/check_domain_completeness.dart
+
       # Standalone pub.dev consumer sim is expensive; once on latest Dart is enough.
       - name: Verify standalone package resolution (pub.dev consumer simulation)
         if: matrix.dart-image == 'dart:3.13.3'
@@ -121,6 +125,9 @@ jobs:
 
       - name: Resolve workspace dependencies
         run: flutter pub get
+
+      - name: Check domain completeness (M3-02)
+        run: dart run tool/ci/check_domain_completeness.dart
 
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .

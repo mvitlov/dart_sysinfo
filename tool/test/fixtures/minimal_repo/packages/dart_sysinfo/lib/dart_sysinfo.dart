@@ -12,13 +12,9 @@ export 'src/core/sys_info.dart';
 export 'src/core/sys_info_exception.dart';
 // GENERATOR:BEGIN domain-exports
 export 'src/domains/cpu/cpu_domain.dart';
-export 'src/domains/memory/memory_domain.dart';
-export 'src/domains/os/os_domain.dart';
-// GENERATOR:END domain-exports
-// GENERATOR:BEGIN info-exports
 export 'src/domains/cpu/cpu_info.dart';
+export 'src/domains/memory/memory_domain.dart';
 export 'src/domains/memory/memory_info.dart';
+export 'src/domains/os/os_domain.dart';
 export 'src/domains/os/os_info.dart';
-// GENERATOR:END info-exports
-// GENERATOR:BEGIN stream-exports
-// GENERATOR:END stream-exports
+// GENERATOR:END domain-exports

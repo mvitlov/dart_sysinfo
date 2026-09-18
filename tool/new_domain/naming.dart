@@ -34,7 +34,8 @@ class DomainNaming {
 
   String get crateApiSnapshot => 'crateApi$pascal${pascal}Snapshot';
 
-  String get crateApiStream => 'crateApi$pascal${pascal}${streamMethodPascal}Stream';
+  String get crateApiStream =>
+      'crateApi$pascal$pascal${streamMethodPascal}Stream';
 
   String get mockSnapshotResultField => '${name}SnapshotResult';
   String get mockSnapshotCallsField => '${name}SnapshotCalls';
@@ -65,7 +66,7 @@ class DomainNaming {
     return DomainNaming(
       name: name,
       pascal: _pascalize(name),
-      title: _titleCase(name),
+      title: _pascalize(name),
       ttlMs: ttlMs,
       hasStream: hasStream,
       streamMethod: streamMethod,
@@ -101,7 +102,5 @@ class DomainNaming {
     return head + parts.skip(1).map(_pascalize).join();
   }
 
-  static String _titleCase(String value) {
-    return _pascalize(value);
-  }
+  static String pascalCase(String value) => _pascalize(value);
 }

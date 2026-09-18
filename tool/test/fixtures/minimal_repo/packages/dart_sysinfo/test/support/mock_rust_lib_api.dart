@@ -51,11 +51,9 @@ class MockRustLibApi implements RustLibApi {
             ),
       // GENERATOR:END mock-ctor-init
       // GENERATOR:BEGIN mock-stream-ctor-init
-      ,
         cpuLoadStreamController = cpuLoadStreamController ??
-            StreamController<CpuLoadSampleDto>.broadcast()
+            StreamController<CpuLoadSampleDto>.broadcast();
       // GENERATOR:END mock-stream-ctor-init
-      ;
 
   InitResult initResult;
   int initCalls = 0;

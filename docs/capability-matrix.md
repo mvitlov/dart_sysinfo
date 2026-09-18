@@ -67,6 +67,7 @@ generated. Replace **TBD** values when the domain story ships (M3-03+).
 ## Future domains
 
 P2+ domains (components, battery, processes, etc.) will add rows to the tables
-above when they ship, per [PRD.md §6](../PRD.md) domain Definition of Done. A
-domain-completeness CI check (M3-02) will enforce that every new domain folder
-has matching capability-matrix and permission-matrix rows before merge.
+above when they ship, per [PRD.md §6](../PRD.md) domain Definition of Done.
+[`tool/ci/check_domain_completeness.dart`](../tool/ci/check_domain_completeness.dart)
+(M3-02) fails CI when a domain folder is missing matching capability-matrix or
+permission-matrix rows (or fake/tests/SysInfo/Rust wiring).

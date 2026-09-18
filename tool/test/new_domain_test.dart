@@ -94,6 +94,19 @@ void main() {
       ).readAsStringSync();
       expect(sysInfo, contains('DisksDomain get disks;'));
       expect(sysInfo, contains('disks = DisksDomainImpl(),'));
+      expect(
+        sysInfo.contains(RegExp(r'// GENERATOR:END domain-impl-init\s*;')),
+        isFalse,
+        reason: 'semicolon must stay on the last initializer, not after END',
+      );
+
+      final mock = File(
+        '${temp.path}/packages/dart_sysinfo/test/support/mock_rust_lib_api.dart',
+      ).readAsStringSync();
+      expect(
+        mock.contains(RegExp(r'// GENERATOR:END mock-stream-ctor-init\s*;')),
+        isFalse,
+      );
 
       final matrix = File('${temp.path}/docs/capability-matrix.md').readAsStringSync();
       expect(matrix, contains('`disks`'));
