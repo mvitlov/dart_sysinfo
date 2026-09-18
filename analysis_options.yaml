@@ -8,6 +8,9 @@ analyzer:
     - packages/dart_sysinfo/lib/src/bridge/frb_generated.web.dart
     # Vendored Cargokit tooling — separate pubspec, not workspace-scoped
     - packages/dart_sysinfo/cargokit/**
+    # Generator / completeness fixtures are incomplete trees, not packages
+    - tool/test/fixtures/**
+    - tool/test/testdata/**
 
 linter:
   rules:
