@@ -87,17 +87,30 @@ cd packages/native && cargo test --features apple-app-store --test apple_app_sto
 
 The Native Assets build hook in `packages/dart_sysinfo/hook/build.dart` is **always-on**
 during Flutter builds: it compiles `packages/native` in parallel with Cargokit.
-Runtime loading still uses Cargokit until M2-02/M5.
+Runtime loading still uses Cargokit until M5.
 
 Verify locally (macOS or Linux):
 
 ```bash
 fvm dart pub get
 cd example && fvm flutter build macos --debug   # or linux --debug
+bash tool/ci/verify_native_assets.sh macos      # or linux / android / ...
 # Expect native_assets output, e.g.:
 # example/build/.../native_assets/dart_sysinfo_native.framework/...
 fvm dart run melos doctor   # Backend consistency: dual-backend OK
 ```
+
+## Native Assets CI (M2-02)
+
+[`.github/workflows/ci.yaml`](./.github/workflows/ci.yaml) defines a parallel
+**`native-assets`** job that mirrors the 9-cell `flutter-build` matrix (same
+Flutter SDK tiers and platforms). Each cell runs `flutter build` on `example/`
+and then `tool/ci/verify_native_assets.sh` to assert a `dart_sysinfo_native`
+Native Assets artifact exists under `example/build/.../native_assets/`.
+
+**Merge policy:** `native-assets` is **not** wired into `m0-exit-gate` (PRD
+§7.2). A red Native Assets cell does not block merges; it pauses the §3.3
+sunset clock until M2-03 adds queryable tracking.
 
 ## CI / P1 merge gate (PRD §7.2)
 
@@ -109,6 +122,9 @@ Pull requests must pass the **`M1 P1 CI gate (PRD §7.2)`** check in
 - **Lint** — `dart analyze --fatal-warnings` on latest Flutter (PRD §10.1)
 - **Flutter builds** — `flutter-build` (9 cells; see SDK matrix below)
 - **Rust tests** — `rust-test` (`cargo test -- --test-threads=1`)
+
+Parallel (non-blocking): **`native-assets`** (9 cells; same matrix as
+`flutter-build` with post-build Native Assets verification).
 
 **SDK matrix (PRD §7.2 / §1.5):**
 

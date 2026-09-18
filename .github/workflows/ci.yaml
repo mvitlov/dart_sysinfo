@@ -20,6 +20,68 @@ concurrency:
 permissions:
   contents: read
 
+# Shared 9-cell matrix for flutter-build (Cargokit gate) and native-assets (M2-02).
+x-flutter-build-matrix: &flutter-build-matrix
+  include:
+    # --- Latest (3.47.4): all 5 platforms ---
+    - flutter-version: '3.47.4'
+      sdk-tier: latest
+      platform: android
+      runs-on: ubuntu-latest
+      rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+      build: cd example && flutter build apk --debug
+    - flutter-version: '3.47.4'
+      sdk-tier: latest
+      platform: ios
+      runs-on: macos-latest
+      rust-targets: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+      build: cd example && flutter build ios --debug --no-codesign
+    - flutter-version: '3.47.4'
+      sdk-tier: latest
+      platform: linux
+      runs-on: ubuntu-latest
+      rust-targets: x86_64-unknown-linux-gnu
+      build: cd example && flutter build linux --debug
+    - flutter-version: '3.47.4'
+      sdk-tier: latest
+      platform: macos
+      runs-on: macos-latest
+      rust-targets: aarch64-apple-darwin x86_64-apple-darwin
+      build: cd example && flutter build macos --debug
+    - flutter-version: '3.47.4'
+      sdk-tier: latest
+      platform: windows
+      runs-on: windows-latest
+      rust-targets: x86_64-pc-windows-msvc
+      build: cd example; flutter build windows --debug
+    # --- Minimum (3.38.1): android + linux spot-check ---
+    # 3.38.0 shipped Dart 3.10.0-beta and fails pub get with sdk: >=3.10.0.
+    - flutter-version: '3.38.1'
+      sdk-tier: minimum
+      platform: android
+      runs-on: ubuntu-latest
+      rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+      build: cd example && flutter build apk --debug
+    - flutter-version: '3.38.1'
+      sdk-tier: minimum
+      platform: linux
+      runs-on: ubuntu-latest
+      rust-targets: x86_64-unknown-linux-gnu
+      build: cd example && flutter build linux --debug
+    # --- Intermediate (3.44.0): android + linux spot-check ---
+    - flutter-version: '3.44.0'
+      sdk-tier: intermediate
+      platform: android
+      runs-on: ubuntu-latest
+      rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+      build: cd example && flutter build apk --debug
+    - flutter-version: '3.44.0'
+      sdk-tier: intermediate
+      platform: linux
+      runs-on: ubuntu-latest
+      rust-targets: x86_64-unknown-linux-gnu
+      build: cd example && flutter build linux --debug
+
 jobs:
   dart-only-test:
     name: Flutter-free core (${{ matrix.dart-image }})
@@ -120,68 +182,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       fail-fast: false
-      # Explicit include avoids ambiguous matrix+include expansion and lets us
-      # spot-check min/intermediate SDKs on android+linux only (PRD §7.2).
-      matrix:
-        include:
-          # --- Latest (3.47.4): all 5 platforms ---
-          - flutter-version: '3.47.4'
-            sdk-tier: latest
-            platform: android
-            runs-on: ubuntu-latest
-            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-            build: cd example && flutter build apk --debug
-          - flutter-version: '3.47.4'
-            sdk-tier: latest
-            platform: ios
-            runs-on: macos-latest
-            rust-targets: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
-            build: cd example && flutter build ios --debug --no-codesign
-          - flutter-version: '3.47.4'
-            sdk-tier: latest
-            platform: linux
-            runs-on: ubuntu-latest
-            rust-targets: x86_64-unknown-linux-gnu
-            build: cd example && flutter build linux --debug
-          - flutter-version: '3.47.4'
-            sdk-tier: latest
-            platform: macos
-            runs-on: macos-latest
-            rust-targets: aarch64-apple-darwin x86_64-apple-darwin
-            build: cd example && flutter build macos --debug
-          - flutter-version: '3.47.4'
-            sdk-tier: latest
-            platform: windows
-            runs-on: windows-latest
-            rust-targets: x86_64-pc-windows-msvc
-            build: cd example; flutter build windows --debug
-          # --- Minimum (3.38.1): android + linux spot-check ---
-          # 3.38.0 shipped Dart 3.10.0-beta and fails pub get with sdk: >=3.10.0.
-          - flutter-version: '3.38.1'
-            sdk-tier: minimum
-            platform: android
-            runs-on: ubuntu-latest
-            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-            build: cd example && flutter build apk --debug
-          - flutter-version: '3.38.1'
-            sdk-tier: minimum
-            platform: linux
-            runs-on: ubuntu-latest
-            rust-targets: x86_64-unknown-linux-gnu
-            build: cd example && flutter build linux --debug
-          # --- Intermediate (3.44.0): android + linux spot-check ---
-          - flutter-version: '3.44.0'
-            sdk-tier: intermediate
-            platform: android
-            runs-on: ubuntu-latest
-            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-            build: cd example && flutter build apk --debug
-          - flutter-version: '3.44.0'
-            sdk-tier: intermediate
-            platform: linux
-            runs-on: ubuntu-latest
-            rust-targets: x86_64-unknown-linux-gnu
-            build: cd example && flutter build linux --debug
+      matrix: *flutter-build-matrix
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -254,6 +255,83 @@ jobs:
       - name: Build example app (Cargokit + FRB smoke)
         run: ${{ matrix.build }}
 
+  native-assets:
+    name: Native Assets (${{ matrix.platform }}, Flutter ${{ matrix.flutter-version }})
+    runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix: *flutter-build-matrix
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Linux desktop build dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Set up JDK 17 (Android)
+        if: matrix.platform == 'android'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android NDK r28+
+        if: matrix.platform == 'android'
+        id: setup-ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r28c
+          link-to-sdk: true
+
+      - name: Assert NDK r28+
+        if: matrix.platform == 'android'
+        run: |
+          NDK_MAJOR=$(grep '^Pkg.Revision' "${{ steps.setup-ndk.outputs.ndk-path }}/source.properties" | cut -d= -f2 | cut -d. -f1 | tr -d ' ')
+          if [ "$NDK_MAJOR" -lt 28 ]; then
+            echo "ERROR: NDK major version $NDK_MAJOR < 28"
+            exit 1
+          fi
+          echo "ANDROID_NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
+          echo "Confirmed: NDK r${NDK_MAJOR} installed."
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+          targets: ${{ matrix.rust-targets }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/native
+          shared-key: native-assets-${{ matrix.platform }}-${{ matrix.flutter-version }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter-version }}
+          channel: stable
+          cache: true
+          cache-key: flutter-${{ matrix.flutter-version }}
+
+      - name: Resolve workspace dependencies
+        run: flutter pub get
+
+      - name: Materialize example ephemeral Flutter files
+        run: cd example && flutter pub get
+
+      - name: Build example app (Native Assets smoke)
+        run: ${{ matrix.build }}
+
+      - name: Verify Native Assets artifacts
+        shell: bash
+        run: bash tool/ci/verify_native_assets.sh ${{ matrix.platform }}
+
   rust-test:
     name: Rust tests (packages/native)
     runs-on: ubuntu-latest
@@ -275,6 +353,7 @@ jobs:
 
   m0-exit-gate:
     name: M1 P1 CI gate (PRD §7.2)
+    # native-assets is intentionally excluded: parallel track per PRD §7.2 / M2-02.
     needs: [dart-only-test, lint, flutter-build, rust-test]
     if: always()
     runs-on: ubuntu-latest

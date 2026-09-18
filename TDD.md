@@ -3,7 +3,7 @@
 **Document type:** Technical Design Document (v1.0, covers M0–M2 in full detail; M3–M5 stubbed)
 **Upstream:** [`PRD.md`](./PRD.md) v1.3 (Approved, §14). This document does not re-decide anything the PRD already settled — it takes each PRD decision and specifies exactly how it is implemented: module layout, concrete types, function signatures, and sequencing.
 **Scope:** Full implementation detail for **M0 (scaffolding), M1 (P1 domains: OS/CPU/memory), and M2 (Native Assets track)**. M3–M5 (§9) are intentionally stubbed — per PRD §10.2, the domain scaffolding generator and P2+ domains are deliberately not designed until the M1 pattern is proven, so writing their TDD now would be speculative.
-**Implementation status (repo):** M0 and M1 sections implemented; M2-01 (Native Assets build hook) implemented; M2-02+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
+**Implementation status (repo):** M0 and M1 sections implemented; M2-01 (Native Assets build hook) and M2-02 (parallel `native-assets` CI job) implemented; M2-03+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
 **Traceability convention:** every section cites the PRD section(s) it implements as `(PRD §x.x)`. §10 is a full traceability index.
 
 ***
@@ -678,7 +678,7 @@ CI job (`.github/workflows/ci.yaml`, `native-assets` job): runs the same 5-platf
 | `lint` | single run | `dart analyze` (`very_good_analysis`), zero warnings — **from M0** |
 | `dart-only-test` | Flutter-free container | `dart pub get && dart test` on `packages/dart_sysinfo` — the literal M0 exit criterion (TDD §1.4) |
 | `flutter-build` | {android, ios, linux, macos, windows} × {min SDK, latest SDK} × {backend: cargokit} | `flutter build` / smoke-test app compiles and runs |
-| `native-assets` (M2) | same platform × SDK matrix × {backend: native-assets} | parallel, feeds §3.3 sunset clock; red does not block merge |
+| `native-assets` (M2) | same platform × SDK matrix × {backend: native-assets} | parallel, feeds §3.3 sunset clock; red does not block merge (excluded from `m0-exit-gate`) |
 | `rust-test` | host runner | `cargo test -- --test-threads=1` (concurrency test excepted, TDD §2.4) |
 
 ***
