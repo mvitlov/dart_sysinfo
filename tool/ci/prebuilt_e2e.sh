@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 # Self-contained prebuilt e2e for linux-x64 (M3-06).
+#
+# GitHub Actions assumptions:
+# - Flutter is on PATH via subosito/flutter-action (FLUTTER_ROOT is set).
+# - FVM is NOT installed on CI runners; resolve flutter/dart explicitly.
+# - Rust may be installed earlier in the same job; consumer phase must not
+#   compile from source (DART_SYSINFO_PREBUILT=1 + no Rust + hook guard).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -11,13 +17,47 @@ LIB="$DIST/libdart_sysinfo_native.so"
 MANIFEST="$ROOT/.tmp/prebuilt-e2e-manifest.json"
 REPO="${PREBUILT_REPOSITORY:-mvitlov/dart_sysinfo}"
 
-if command -v fvm >/dev/null 2>&1; then
-  FLUTTER=(fvm flutter)
-  DART=(fvm dart)
-else
-  FLUTTER=(flutter)
-  DART=(dart)
-fi
+_resolve_flutter_tools() {
+  if [[ -n "${FLUTTER_ROOT:-}" && -x "${FLUTTER_ROOT}/bin/flutter" ]]; then
+    FLUTTER=("${FLUTTER_ROOT}/bin/flutter")
+    DART=("${FLUTTER_ROOT}/bin/dart")
+  elif command -v fvm >/dev/null 2>&1; then
+    FLUTTER=(fvm flutter)
+    DART=(fvm dart)
+  elif command -v flutter >/dev/null 2>&1; then
+    FLUTTER=(flutter)
+    DART=(dart)
+  else
+    echo "ERROR: flutter not found (set FLUTTER_ROOT or add flutter to PATH)" >&2
+    exit 127
+  fi
+}
+
+_path_without_rust() {
+  local IFS=':'
+  local entry cleaned=""
+  for entry in ${PATH:-}; do
+    case "$entry" in
+      *cargo*|*rustup*|*/.cargo/bin*) continue ;;
+    esac
+    cleaned="${cleaned:+$cleaned:}$entry"
+  done
+  printf '%s' "$cleaned"
+}
+
+_prepare_consumer_env() {
+  export DART_SYSINFO_PREBUILT=1
+  export DART_SYSINFO_FROM_SOURCE=0
+  export DART_SYSINFO_PREBUILT_MANIFEST="$MANIFEST"
+  export DART_SYSINFO_SKIP_ATTESTATION=1
+  # Keep Flutter/Dart; drop Rust from PATH and probe locations.
+  export PATH="$(_path_without_rust)"
+  unset CARGO_HOME RUSTUP_HOME
+  export HOME="${PREBUILT_E2E_HOME:-/tmp/prebuilt-e2e-home}"
+  mkdir -p "$HOME"
+}
+
+_resolve_flutter_tools
 
 cd "$ROOT"
 
@@ -54,11 +94,7 @@ cat > "$MANIFEST" <<EOF
 }
 EOF
 
-export DART_SYSINFO_PREBUILT=1
-export DART_SYSINFO_FROM_SOURCE=0
-export DART_SYSINFO_PREBUILT_MANIFEST="$MANIFEST"
-export DART_SYSINFO_SKIP_ATTESTATION=1
-export PATH="/usr/bin:/bin:/usr/sbin:/sbin"
+_prepare_consumer_env
 
 if [[ "${SKIP_LINUX_DEPS:-0}" != "1" ]]; then
   if command -v apt-get >/dev/null 2>&1; then
@@ -70,7 +106,6 @@ fi
 cd "$ROOT"
 "${FLUTTER[@]}" pub get
 cd example
-"${FLUTTER[@]}" pub get
 "${FLUTTER[@]}" build linux --debug
 
 cd "$ROOT"

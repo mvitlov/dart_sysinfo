@@ -155,15 +155,14 @@ void main() {
       );
 
       final second = await Process.run(
-        'fvm',
-        [
-          'dart',
+        _dartRunner,
+        _dartArgs([
           'run',
           '${Directory.current.path}/tool/new_domain.dart',
           'sensors',
           '--skip-post-steps',
           '--fixture-root=${temp.path}',
-        ],
+        ]),
         runInShell: true,
       );
       expect(second.exitCode, 1);
@@ -171,26 +170,45 @@ void main() {
   });
 }
 
+String? _dartRunnerCache;
+
+String get _dartRunner {
+  if (_dartRunnerCache != null) {
+    return _dartRunnerCache!;
+  }
+  final locator = Platform.isWindows ? 'where' : 'which';
+  if (Process.runSync(locator, ['fvm']).exitCode == 0) {
+    return _dartRunnerCache = 'fvm';
+  }
+  return _dartRunnerCache = Platform.resolvedExecutable;
+}
+
+List<String> _dartArgs(List<String> args) {
+  if (_dartRunner == 'fvm') {
+    return ['dart', ...args];
+  }
+  return args;
+}
+
 Future<void> _runGenerator(
   List<String> args, {
   required String fixtureRoot,
 }) async {
   final result = await Process.run(
-    'fvm',
-    [
-      'dart',
+    _dartRunner,
+    _dartArgs([
       'run',
       '${Directory.current.path}/tool/new_domain.dart',
       ...args,
       '--fixture-root=$fixtureRoot',
-    ],
+    ]),
     runInShell: true,
   );
   stdout.write(result.stdout);
   stderr.write(result.stderr);
   if (result.exitCode != 0) {
     throw ProcessException(
-      'fvm',
+      _dartRunner,
       args,
       'Generator failed:\n${result.stderr}',
       result.exitCode,

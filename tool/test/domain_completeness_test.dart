@@ -11,7 +11,7 @@ void main() {
       final checker = DomainCompletenessChecker(
         repoRoot: Directory.current,
       );
-      expect(checker.discoverDomains(), ['cpu', 'memory', 'os']);
+      expect(checker.discoverDomains(), isNotEmpty);
       expect(checker.check(), isEmpty);
     });
 

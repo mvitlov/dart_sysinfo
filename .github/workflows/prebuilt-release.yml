@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: true
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -32,12 +34,6 @@ jobs:
       - name: Build linux-x64 prebuilt
         run: bash tool/release/build_linux_prebuilt.sh dist/prebuilt/linux-x64
 
-      - name: Compute SHA256
-        id: hash
-        run: |
-          SHA256=$(shasum -a 256 dist/prebuilt/linux-x64/libdart_sysinfo_native.so | awk '{print tolower($1)}')
-          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
-
       - name: Extract semver from tag
         id: version
         run: |
@@ -47,13 +43,6 @@ jobs:
             TAG="0.1.0"
           fi
           echo "semver=$TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('prebuilt-v{0}', steps.version.outputs.semver) }}
-          files: dist/prebuilt/linux-x64/libdart_sysinfo_native.so
-          generate_release_notes: true
 
       - name: Attest prebuilt artifact
         uses: actions/attest-build-provenance@v2
@@ -67,14 +56,23 @@ jobs:
           gh attestation verify dist/prebuilt/linux-x64/libdart_sysinfo_native.so \
             --repo "${{ github.repository }}"
 
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: dist/prebuilt/linux-x64/libdart_sysinfo_native.so
+          generate_release_notes: true
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.4'
           channel: stable
 
       - name: Update manifest.json
+        if: github.ref_type == 'tag'
         run: |
-          dart pub get
+          flutter pub get
           dart run tool/release/update_prebuilt_manifest.dart \
             --target linux-x64 \
             --file dist/prebuilt/linux-x64/libdart_sysinfo_native.so \
@@ -84,6 +82,7 @@ jobs:
             --abi 3
 
       - name: Commit manifest update
+        if: github.ref_type == 'tag'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

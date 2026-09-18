@@ -23,6 +23,8 @@ permissions:
   contents: read
 
 jobs:
+  # Flutter-free Dart containers: packages/dart_sysinfo only (pubspec_overrides sim).
+  # Workspace-wide checks (tool/test, domain lint) run in the lint job with Flutter.
   dart-only-test:
     name: Flutter-free core (${{ matrix.dart-image }})
     runs-on: ubuntu-latest
@@ -128,6 +130,8 @@ jobs:
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .
 
+  # Needs Flutter (linux build) + Rust (build .so) + gh (attestation verify).
+  # Consumer phase in prebuilt_e2e.sh uses FLUTTER_ROOT, not fvm; strips Rust.
   prebuilt-e2e:
     name: Prebuilt e2e (linux-x64, M3-06)
     runs-on: ubuntu-latest
@@ -180,8 +184,9 @@ jobs:
         env:
           SKIP_PREBUILT_BUILD: '1'
           SKIP_LINUX_DEPS: '1'
-          PREBUILT_DIST: dist/prebuilt/linux-x64
+          PREBUILT_DIST: ${{ github.workspace }}/dist/prebuilt/linux-x64
           PREBUILT_REPOSITORY: ${{ github.repository }}
+          PREBUILT_E2E_HOME: /tmp/prebuilt-e2e-home
         run: bash tool/ci/prebuilt_e2e.sh
 
   flutter-build:

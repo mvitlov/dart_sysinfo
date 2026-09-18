@@ -35,7 +35,7 @@ Future<void> main(List<String> args) async {
       }
     }
 
-    if (isRustToolchainAvailable()) {
+    if (!PrebuiltEnv.requirePrebuilt && isRustToolchainAvailable()) {
       await _compileFromSource(input: input, output: output);
       return;
     }
