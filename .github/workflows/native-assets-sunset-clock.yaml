@@ -15,6 +15,8 @@ concurrency:
 jobs:
   matrix:
     uses: ./.github/workflows/native-assets-matrix.yml
+    with:
+      git-ref: main
     secrets: inherit
 
   record:
@@ -40,20 +42,11 @@ jobs:
           esac
           bash tool/ci/record_sunset_clock.sh "$CONCLUSION"
           bash tool/ci/sunset_clock_report.sh > docs/sunset-clock/latest-report.txt
-
-      - name: Commit history update
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/sunset-clock/history.jsonl docs/sunset-clock/latest-report.txt
-          if git diff --staged --quiet; then
-            echo "No history changes to commit."
-            exit 0
-          fi
-          WEEK=$(python3 -c 'from datetime import datetime, timezone; print(datetime.now(timezone.utc).strftime("%G-W%V"))')
-          CONCLUSION=$(tail -1 docs/sunset-clock/history.jsonl | python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("matrix_conclusion","unknown"))')
-          git commit -m "chore(sunset-clock): record ${WEEK} ${CONCLUSION}"
-          git push
+          echo "## Native Assets Sunset Clock" >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          cat docs/sunset-clock/latest-report.txt >> "$GITHUB_STEP_SUMMARY"
+          echo >> "$GITHUB_STEP_SUMMARY"
+          echo "Matrix job result: \`${MATRIX_RESULT}\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload sunset-clock artifacts
         uses: actions/upload-artifact@v4
@@ -62,7 +55,22 @@ jobs:
           path: |
             docs/sunset-clock/history.jsonl
             docs/sunset-clock/latest-report.txt
-          if-no-files-found: warn
+          if-no-files-found: error
+
+      - name: Commit history update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add docs/sunset-clock/history.jsonl docs/sunset-clock/latest-report.txt
+          if git diff --staged --quiet; then
+            echo "No history changes to commit."
+            exit 0
+          fi
+          WEEK=$(python3 -c 'from datetime import datetime, timezone; print(datetime.now(timezone.utc).strftime("%G-W%V"))')
+          CONCLUSION=$(tail -1 docs/sunset-clock/history.jsonl | python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("matrix_conclusion","unknown"))')
+          git commit -m "chore(sunset-clock): record ${WEEK} ${CONCLUSION}"
+          git push origin HEAD:main
 
   report:
     name: Publish sunset-clock report
@@ -71,6 +79,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Download sunset-clock artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sunset-clock-${{ github.run_id }}
+        continue-on-error: true
+
       - uses: actions/checkout@v7
         with:
           ref: main
@@ -78,7 +92,7 @@ jobs:
       - name: Write workflow summary
         run: |
           {
-            echo '## Native Assets Sunset Clock'
+            echo '## Native Assets Sunset Clock (report job)'
             echo
             if [[ -f docs/sunset-clock/latest-report.txt ]]; then
               cat docs/sunset-clock/latest-report.txt
@@ -87,4 +101,5 @@ jobs:
             fi
             echo
             echo "Matrix job result: \`${{ needs.matrix.result }}\`"
+            echo "Record job result: \`${{ needs.record.result }}\`"
           } >> "$GITHUB_STEP_SUMMARY"

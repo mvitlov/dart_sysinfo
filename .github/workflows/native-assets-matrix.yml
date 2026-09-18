@@ -4,6 +4,12 @@ name: Native Assets Matrix
 
 on:
   workflow_call:
+    inputs:
+      git-ref:
+        description: 'Git ref to checkout (default: triggering ref)'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -79,6 +85,8 @@ jobs:
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.git-ref || github.ref }}
 
       - name: Install Linux desktop build dependencies
         if: matrix.platform == 'linux'
