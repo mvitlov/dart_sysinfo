@@ -1,0 +1,5 @@
+Native Assets sunset clock (PRD §3.3 bullet 2)
+Target: 8 consecutive scheduled green weeks
+Current streak: 1 week(s) (2026-W38)
+Last run: 2026-W38 success (run 35320257365)
+Status: IN PROGRESS (7 week(s) remaining)
