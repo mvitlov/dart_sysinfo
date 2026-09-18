@@ -1,8 +1,10 @@
 # Contributing to dart_sysinfo
 
-Thank you for contributing. This document covers contributor workflow stubs for
-the M0 scaffolding phase. Release automation and domain-checklist CI land in
-later milestones (see notes below).
+Thank you for contributing. **EPIC-M0 and EPIC-M1 are complete** — the repo ships
+P1 domains (OS, CPU, memory), lifecycle glue, testing fakes, and a P1 CI gate.
+Release automation, P2 domains, and domain-checklist CI land in M3/M4 (see notes
+below). Current milestone options: **M2** (Native Assets track, parallel) or
+**M3** (disks/network + generator).
 
 ## Governing documents
 
@@ -53,6 +55,20 @@ Flutter-free core tests (no Flutter SDK required):
 
 ```bash
 cd packages/dart_sysinfo && fvm dart test
+```
+
+Flutter lifecycle package tests:
+
+```bash
+cd packages/dart_sysinfo_flutter && fvm flutter test
+```
+
+Example app (P1 demo + optional hot-restart QA):
+
+```bash
+cd example && fvm flutter run -d macos
+# optional log-friendly QA mode — see docs/example-app-qa.md
+fvm flutter run -d macos --dart-define=QA_AUTO_START=true
 ```
 
 Rust integration tests (M1-15):

@@ -1,6 +1,5 @@
 import 'package:dart_sysinfo/dart_sysinfo.dart';
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
-import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
 import 'package:dart_sysinfo/src/core/abi_guard.dart';
 import 'package:dart_sysinfo_flutter/dart_sysinfo_flutter.dart';
 import 'package:flutter/widgets.dart';

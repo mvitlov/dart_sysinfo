@@ -5,7 +5,6 @@ import 'dart:async' show unawaited;
 
 import 'package:dart_sysinfo/dart_sysinfo.dart';
 import 'package:flutter/widgets.dart';
-import 'package:meta/meta.dart';
 
 /// Wires [SysInfo] teardown into Flutter hot-restart and app lifecycle.
 class DartSysinfoFlutter {

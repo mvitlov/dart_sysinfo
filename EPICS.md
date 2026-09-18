@@ -13,7 +13,7 @@
 | Epic | Milestone | PRD § | TDD § | Status |
 |---|---|---|---|---|
 | [EPIC-M0](#epic-m0--scaffolding) | M0 | §2.1, §2.5, §7.1, §9.1, §10.1, §12 | §1, §6, §8 | ✅ |
-| [EPIC-M1](#epic-m1--p1-domains-os-cpu-memory) | M1 | §3.4, §5.1–§5.6, §6, §8, §12 | §2, §3, §4, §5 | ⬜ |
+| [EPIC-M1](#epic-m1--p1-domains-os-cpu-memory) | M1 | §3.4, §5.1–§5.6, §6, §8, §12 | §2, §3, §4, §5 | ✅ |
 | [EPIC-M2](#epic-m2--native-assets-track) | M2 | §3.3, §7.1, §12 | §7 | ⬜ |
 | [EPIC-M3](#epic-m3--p2-domains--tooling-hardening) | M3 | §6, §7.2, §7.3, §9.3, §10.2, §10.3, §12 | §9 (stub) | ⬜ |
 | [EPIC-M4](#epic-m4--store-hardening--10-release) | M4 | §2.4, §2.5, §3.3, §9.2, §9.3, §10.3, §12 | — | ⬜ |
@@ -52,23 +52,25 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 **Definition of done:** `dart_sysinfo` 0.x publishable with OS/CPU/Memory snapshots, CPU load stream, full testing fakes, and CI green on min+intermediate+latest SDKs.
 
+**Status:** ✅ complete — all stories below are done; P1 CI gate green on min + intermediate + latest SDKs.
+
 | ID | Title | Status | Area | PRD § | TDD § | Acceptance criteria |
 |---|---|---|---|---|---|---|
-| M1-01 | `Reading<T>` sealed type | ⬜ | Dart | §5.2 | §3.1 | `ReadingValue`/`ReadingUnsupported`/`ReadingUnavailable` + `when`/`maybeWhen`/`orElse`, unit-tested exhaustively |
-| M1-02 | `SysInfoException` hierarchy | ⬜ | Dart | §5.3 | §3.1 | 4 sealed subtypes exist and are the *only* throwable public errors |
-| M1-03 | `SysInfo` base + singleton + testability hooks | ⬜ | Dart | §5.6 | §3.2 | `instance`, `resetForTesting()`, `overrideInstance()` implemented and unit-tested per TDD §3.2 |
-| M1-04 | Rust shared state (`Mutex<Option<Arc<SharedState>>>`) | ⬜ | Rust | §3.4 | §2.1 | `init()`/`dispose()` idempotent; `dispose()` → `init()` re-init verified by test |
-| M1-05 | ABI versioning + `AbiGuard` | ⬜ | Rust/Dart | §7.3, §5.3 | §2.5, §3.5 | Deliberate ABI mismatch in a test throws `SysInfoAbiMismatchException` with actionable message |
-| M1-06 | CPU domain: Rust snapshot + load stream | ⬜ | Rust | §6 | §2.2, §2.3, §4.1 | `cpu_snapshot()` and `cpu_load_stream()` implemented per TDD §4.1 field table |
-| M1-07 | CPU domain: Dart API | ⬜ | Dart | §6 | §3.3, §3.4, §4.1 | `CpuDomain`/`CpuInfo`/`CpuDomainImpl` with TTL cache (500 ms) and clamped stream (200 ms mobile / 50 ms desktop) |
-| M1-08 | Memory domain: Rust + Dart | ⬜ | Rust/Dart | §6 | §4.2 | All 7 plain fields + `cgroupLimits` (`Reading<CGroupLimits>`) per TDD §4.2 |
-| M1-09 | OS domain: Rust + Dart | ⬜ | Rust/Dart | §6 | §4.3 | All fields per TDD §4.3, including `loadAverage` `ReadingUnsupported` on Windows |
-| M1-10 | `SharedStreamRegistry` (broadcast/ref-count/clamp) | ⬜ | Dart | §5.4 | §3.3 | Two listeners on the same interval share one native poller (test asserts single underlying subscription); clamp logs once per domain |
-| M1-11 | Concurrency stress test | ⬜ | Rust | §3.4, §8 | §2.4 | 8-thread contention test on `RwLock<System>` passes with a 10s deadlock timeout in CI |
-| M1-12 | `testing.dart` fakes (cpu/memory/os) | ⬜ | Dart | §8 | §5.1 | `FakeSysInfo` + per-domain fakes; each field independently settable; no Flutter/native dependency |
-| M1-13 | Capability matrix + Android permission rows (P1) | ⬜ | Docs | §2.5, §6 | — | Table in repo docs lists OS/CPU/Memory rows (permissions: none) |
-| M1-14 | Apple store-profile stub | ⬜ | Rust | §2.4 | — | `apple-app-store` feature flag compiles; CI assertion deferred to M4 |
-| M1-15 | CI SDK matrix for P1 | ⬜ | CI | §7.2 | §8 | Min + one intermediate + latest Flutter/Dart pairs green |
+| M1-01 | `Reading<T>` sealed type | ✅ | Dart | §5.2 | §3.1 | `ReadingValue`/`ReadingUnsupported`/`ReadingUnavailable` + `when`/`maybeWhen`/`orElse`, unit-tested exhaustively |
+| M1-02 | `SysInfoException` hierarchy | ✅ | Dart | §5.3 | §3.1 | 4 sealed subtypes exist and are the *only* throwable public errors |
+| M1-03 | `SysInfo` base + singleton + testability hooks | ✅ | Dart | §5.6 | §3.2 | `instance`, `resetForTesting()`, `overrideInstance()` implemented and unit-tested per TDD §3.2 |
+| M1-04 | Rust shared state (`Mutex<Option<Arc<SharedState>>>`) | ✅ | Rust | §3.4 | §2.1 | `init()`/`dispose()` idempotent; `dispose()` → `init()` re-init verified by test |
+| M1-05 | ABI versioning + `AbiGuard` | ✅ | Rust/Dart | §7.3, §5.3 | §2.5, §3.5 | Deliberate ABI mismatch in a test throws `SysInfoAbiMismatchException` with actionable message |
+| M1-06 | CPU domain: Rust snapshot + load stream | ✅ | Rust | §6 | §2.2, §2.3, §4.1 | `cpu_snapshot()` and `cpu_load_stream()` implemented per TDD §4.1 field table |
+| M1-07 | CPU domain: Dart API | ✅ | Dart | §6 | §3.3, §3.4, §4.1 | `CpuDomain`/`CpuInfo`/`CpuDomainImpl` with TTL cache (500 ms) and clamped stream (200 ms mobile / 50 ms desktop) |
+| M1-08 | Memory domain: Rust + Dart | ✅ | Rust/Dart | §6 | §4.2 | All 7 plain fields + `cgroupLimits` (`Reading<CGroupLimits>`) per TDD §4.2 |
+| M1-09 | OS domain: Rust + Dart | ✅ | Rust/Dart | §6 | §4.3 | All fields per TDD §4.3, including `loadAverage` `ReadingUnsupported` on Windows |
+| M1-10 | `SharedStreamRegistry` (broadcast/ref-count/clamp) | ✅ | Dart | §5.4 | §3.3 | Two listeners on the same interval share one native poller (test asserts single underlying subscription); clamp logs once per domain |
+| M1-11 | Concurrency stress test | ✅ | Rust | §3.4, §8 | §2.4 | 8-thread contention test on `RwLock<System>` passes with a 10s deadlock timeout in CI |
+| M1-12 | `testing.dart` fakes (cpu/memory/os) | ✅ | Dart | §8 | §5.1 | `FakeSysInfo` + per-domain fakes; each field independently settable; no Flutter/native dependency |
+| M1-13 | Capability matrix + Android permission rows (P1) | ✅ | Docs | §2.5, §6 | — | Table in repo docs lists OS/CPU/Memory rows (permissions: none) |
+| M1-14 | Apple store-profile stub | ✅ | Rust | §2.4 | — | `apple-app-store` feature flag compiles; CI assertion deferred to M4 |
+| M1-15 | CI SDK matrix for P1 | ✅ | CI | §7.2 | §8 | Min + one intermediate + latest Flutter/Dart pairs green |
 | M1-16 | Example app: P1 domains + hot-restart manual QA | ✅ | Dart/QA | §3.4, §8 | §5.2 | Manual checklist executed: start `cpu.load` stream → hot restart → no duplicate workers |
 
 ***
@@ -129,6 +131,20 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 | M5-04 | Update `PRD.md` status/§3.3 text | ⬜ | Docs | §7.4 | PRD reflects the new default backend post-flip |
 
 ***
+
+## Current focus
+
+**Completed:** EPIC-M0 (scaffolding), EPIC-M1 (P1 domains).
+
+**Next (pick one or run M2 in parallel with M3 planning):**
+
+- **EPIC-M2** — Native Assets track (`hook/build.dart`, parallel CI job, sunset-clock automation). Does not block M3.
+- **EPIC-M3** — P2 domains (disks, network), domain generator, dartdoc/ABI CI gates.
+
+**Known M1 deferrals (not gaps in story completion):**
+
+- `lib/src/core/capability_registry.dart` — runtime-queryable registry stubbed; P1 capability data lives in [`docs/capability-matrix.md`](./docs/capability-matrix.md) (M1-13). Runtime registry lands with M3 domain-completeness work unless a new story is added.
+- M4-04 — missing-`dart_sysinfo_flutter` debug warning not implemented in M1 (explicitly EPIC-M4).
 
 ## How this doc evolves
 

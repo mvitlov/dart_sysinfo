@@ -47,7 +47,7 @@ Expect `404` while names remain available.
 
 Before the first consumer-facing pub.dev release:
 
-1. M0 exit gate green; M1 P1 domains shipped and API shape stable toward 1.0.
+1. M0 exit gate green; M1 P1 domains shipped and API shape stable toward 1.0. *(M1 complete in repo — see EPICS.md.)*
 2. Native layout consumable from pub.dev (in-package Rust tree and/or prebuilt binaries per M3/M4).
 3. Package metadata: `README.md`, `LICENSE`, `repository` / `homepage` / `issue_tracker` in pubspec.
 4. Re-verify both names unclaimed on pub.dev.

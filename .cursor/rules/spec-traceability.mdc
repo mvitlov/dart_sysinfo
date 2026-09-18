@@ -5,6 +5,11 @@ alwaysApply: true
 
 # Spec-first workflow
 
+**Repo milestone state:** M0 and M1 are complete (`EPICS.md`). Next work is M2
+(Native Assets, parallel) and/or M3 (P2 domains + generator). Do not implement
+M3+ domain field tables or M4/M5 deliverables unless the matching Epic story
+is active.
+
 Three governing docs, in order of authority:
 
 1. `PRD.md` — approved requirements/architecture (what & why, see §14 sign-off).

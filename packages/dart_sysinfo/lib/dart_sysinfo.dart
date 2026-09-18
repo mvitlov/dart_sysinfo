@@ -1,4 +1,7 @@
-/// Public facade for `dart_sysinfo`. Implemented in M1 (see EPICS.md).
+/// Cross-platform system information for Dart (Flutter-free core).
+///
+/// P1 domains: OS, CPU, memory. Flutter apps should also depend on
+/// `dart_sysinfo_flutter` for hot-restart lifecycle glue.
 library;
 
 export 'src/bridge/api/smoke.dart';

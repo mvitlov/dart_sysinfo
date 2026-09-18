@@ -3,6 +3,7 @@
 **Document type:** Technical Design Document (v1.0, covers M0–M2 in full detail; M3–M5 stubbed)
 **Upstream:** [`PRD.md`](./PRD.md) v1.3 (Approved, §14). This document does not re-decide anything the PRD already settled — it takes each PRD decision and specifies exactly how it is implemented: module layout, concrete types, function signatures, and sequencing.
 **Scope:** Full implementation detail for **M0 (scaffolding), M1 (P1 domains: OS/CPU/memory), and M2 (Native Assets track)**. M3–M5 (§9) are intentionally stubbed — per PRD §10.2, the domain scaffolding generator and P2+ domains are deliberately not designed until the M1 pattern is proven, so writing their TDD now would be speculative.
+**Implementation status (repo):** M0 and M1 sections implemented; M2+ not started. `capability_registry.dart` remains a stub (P1 matrix is documented in `docs/capability-matrix.md`).
 **Traceability convention:** every section cites the PRD section(s) it implements as `(PRD §x.x)`. §10 is a full traceability index.
 
 ***
