@@ -27,6 +27,9 @@ jobs:
     name: Flutter-free core (${{ matrix.dart-image }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # Flutter-free containers have no Rust; hook/build.dart no-ops (M0/M2).
+      DART_SYSINFO_SKIP_NATIVE_ASSETS_HOOK: '1'
     container:
       image: ${{ matrix.dart-image }}
     strategy:

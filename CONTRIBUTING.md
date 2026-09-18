@@ -89,6 +89,10 @@ The Native Assets build hook in `packages/dart_sysinfo/hook/build.dart` is **alw
 during Flutter builds: it compiles `packages/native` in parallel with Cargokit.
 Runtime loading still uses Cargokit until M5.
 
+The hook **no-ops** when `rustup` is not available (Flutter-free `dart pub get` /
+`dart test`) or when `DART_SYSINFO_SKIP_NATIVE_ASSETS_HOOK=1` is set. CI sets the
+latter in `dart-only-test`.
+
 Verify locally (macOS or Linux):
 
 ```bash
