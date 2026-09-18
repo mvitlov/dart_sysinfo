@@ -4,8 +4,9 @@
 # GitHub Actions assumptions:
 # - Flutter is on PATH via subosito/flutter-action (FLUTTER_ROOT is set).
 # - FVM is NOT installed on CI runners; resolve flutter/dart explicitly.
-# - Rust may be installed earlier in the same job; consumer phase must not
-#   compile from source (DART_SYSINFO_PREBUILT=1 + no Rust + hook guard).
+# - Rust stays available: linux still builds Cargokit via CMake until M5.
+#   This job validates the Native Assets *hook* prebuilt path (PREBUILT=1);
+#   hook/build.dart must not compile from source when prebuilt is required.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -33,28 +34,11 @@ _resolve_flutter_tools() {
   fi
 }
 
-_path_without_rust() {
-  local IFS=':'
-  local entry cleaned=""
-  for entry in ${PATH:-}; do
-    case "$entry" in
-      *cargo*|*rustup*|*/.cargo/bin*) continue ;;
-    esac
-    cleaned="${cleaned:+$cleaned:}$entry"
-  done
-  printf '%s' "$cleaned"
-}
-
 _prepare_consumer_env() {
   export DART_SYSINFO_PREBUILT=1
   export DART_SYSINFO_FROM_SOURCE=0
   export DART_SYSINFO_PREBUILT_MANIFEST="$MANIFEST"
   export DART_SYSINFO_SKIP_ATTESTATION=1
-  # Keep Flutter/Dart; drop Rust from PATH and probe locations.
-  export PATH="$(_path_without_rust)"
-  unset CARGO_HOME RUSTUP_HOME
-  export HOME="${PREBUILT_E2E_HOME:-/tmp/prebuilt-e2e-home}"
-  mkdir -p "$HOME"
 }
 
 _resolve_flutter_tools
@@ -106,7 +90,12 @@ fi
 cd "$ROOT"
 "${FLUTTER[@]}" pub get
 cd example
-"${FLUTTER[@]}" build linux --debug
+"${FLUTTER[@]}" pub get
+if ! "${FLUTTER[@]}" build linux --debug; then
+  echo "ERROR: flutter build linux failed; re-running with -v for hook/cmake logs" >&2
+  "${FLUTTER[@]}" build linux --debug -v
+  exit 1
+fi
 
 cd "$ROOT"
 bash tool/ci/verify_native_assets.sh linux

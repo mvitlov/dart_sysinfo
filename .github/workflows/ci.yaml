@@ -130,8 +130,8 @@ jobs:
       - name: Analyze workspace (zero warnings)
         run: dart analyze --fatal-warnings .
 
-  # Needs Flutter (linux build) + Rust (build .so) + gh (attestation verify).
-  # Consumer phase in prebuilt_e2e.sh uses FLUTTER_ROOT, not fvm; strips Rust.
+  # Needs Flutter (linux build) + Rust (Cargokit CMake + build .so) + gh (attest).
+  # Consumer phase uses FLUTTER_ROOT (not fvm); hook prebuilt path via PREBUILT=1.
   prebuilt-e2e:
     name: Prebuilt e2e (linux-x64, M3-06)
     runs-on: ubuntu-latest
@@ -186,7 +186,6 @@ jobs:
           SKIP_LINUX_DEPS: '1'
           PREBUILT_DIST: ${{ github.workspace }}/dist/prebuilt/linux-x64
           PREBUILT_REPOSITORY: ${{ github.repository }}
-          PREBUILT_E2E_HOME: /tmp/prebuilt-e2e-home
         run: bash tool/ci/prebuilt_e2e.sh
 
   flutter-build:

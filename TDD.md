@@ -905,7 +905,10 @@ targets without redesign.
 - `bash tool/release/build_linux_prebuilt.sh` — build linux-x64 cdylib
 - `fvm dart run tool/release/update_prebuilt_manifest.dart` — pin sha256/url row
 - [`.github/workflows/prebuilt-release.yml`](../.github/workflows/prebuilt-release.yml) — tag `prebuilt-v*`, attest, upload, commit manifest
-- `bash tool/ci/prebuilt_e2e.sh` — self-contained linux-x64 consumer simulation
+- `bash tool/ci/prebuilt_e2e.sh` — linux-x64 hook prebuilt smoke (`PREBUILT=1` +
+  Native Assets verify). Rust remains on PATH until M5 because Cargokit still
+  runs in linux CMake; the hook must not compile-from-source when prebuilt is
+  required.
 
 Runtime ABI handshake remains M1-05 (`AbiGuard` on `init()`); M3-07 adds the
 CI gate for bumping `abi.rs` when native layout changes.
