@@ -4,6 +4,8 @@ import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
 import 'package:dart_sysinfo/src/core/abi_guard.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_info.dart';
+import 'package:dart_sysinfo/src/domains/disks/disks_domain.dart';
+import 'package:dart_sysinfo/src/domains/disks/disks_info.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_info.dart';
 import 'package:dart_sysinfo/src/domains/os/os_domain.dart';
@@ -135,6 +137,7 @@ void main() {
 class _TestSysInfo extends SysInfo {
   _TestSysInfo()
       : cpu = _TestCpuDomain(),
+        disks = _TestDisksDomain(),
         memory = _TestMemoryDomain(),
         os = _TestOsDomain();
 
@@ -142,6 +145,9 @@ class _TestSysInfo extends SysInfo {
 
   @override
   final _TestCpuDomain cpu;
+
+  @override
+  final _TestDisksDomain disks;
 
   @override
   final _TestMemoryDomain memory;
@@ -168,6 +174,12 @@ class _TestCpuDomain implements CpuDomain {
     Duration interval = const Duration(seconds: 1),
   }) =>
       Stream<CpuLoadSample>.empty();
+}
+
+class _TestDisksDomain implements DisksDomain {
+  @override
+  Future<DisksInfo> snapshot({bool forceRefresh = false}) async =>
+      DisksInfo.allUnavailable();
 }
 
 class _TestMemoryDomain implements MemoryDomain {

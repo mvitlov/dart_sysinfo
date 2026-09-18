@@ -8,28 +8,33 @@ import 'package:dart_sysinfo/src/core/abi_guard.dart';
 import 'package:dart_sysinfo/src/core/shared_stream_registry.dart';
 // GENERATOR:BEGIN domain-imports
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain.dart';
+import 'package:dart_sysinfo/src/domains/disks/disks_domain.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
 import 'package:dart_sysinfo/src/domains/os/os_domain.dart';
 // GENERATOR:END domain-imports
 // GENERATOR:BEGIN domain-impl-imports
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain_impl.dart';
+import 'package:dart_sysinfo/src/domains/disks/disks_domain_impl.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain_impl.dart';
 import 'package:dart_sysinfo/src/domains/os/os_domain_impl.dart';
 // GENERATOR:END domain-impl-imports
 import 'package:meta/meta.dart';
 
-/// Public facade for OS, CPU, and memory domains.
+/// Public facade for OS, CPU, memory, and disks domains.
 abstract class SysInfo {
   // GENERATOR:BEGIN domain-getters
   /// CPU metrics namespace.
   CpuDomain get cpu;
+
+  /// Disks metrics namespace.
+  DisksDomain get disks;
 
   /// Memory metrics namespace.
   MemoryDomain get memory;
 
   /// OS metrics namespace.
   OsDomain get os;
-  // GENERATOR:END domain-getters
+// GENERATOR:END domain-getters
 
   /// True if native state existed before this call created its binding.
   ///
@@ -81,9 +86,10 @@ class _RealSysInfo extends SysInfo {
   _RealSysInfo._(this._initResult)
       // GENERATOR:BEGIN domain-impl-init
       : cpu = CpuDomainImpl(),
+        disks = DisksDomainImpl(),
         memory = MemoryDomainImpl(),
         os = OsDomainImpl();
-      // GENERATOR:END domain-impl-init
+// GENERATOR:END domain-impl-init
 
   /// Production callers must call `initDartSysinfoBridge()` before the first
   /// [SysInfo.instance]; tests use `RustLib.initMock` instead.
@@ -100,11 +106,14 @@ class _RealSysInfo extends SysInfo {
   final CpuDomainImpl cpu;
 
   @override
+  final DisksDomainImpl disks;
+
+  @override
   final MemoryDomainImpl memory;
 
   @override
   final OsDomainImpl os;
-  // GENERATOR:END domain-impl-fields
+// GENERATOR:END domain-impl-fields
 
   @override
   bool get nativeStateWasPreExisting => !_initResult.createdFresh;

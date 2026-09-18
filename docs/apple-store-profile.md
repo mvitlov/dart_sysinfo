@@ -22,6 +22,12 @@ OS, CPU, and Memory snapshots remain available under the store profile. No P1
 field is restricted at this milestone — see the capability matrix for per-field
 `Reading<T>` platform notes that apply regardless of store profile.
 
+## P2 impact (disks, M3-03)
+
+The disks snapshot domain (`SysInfo.disks.snapshot()`) also remains available
+under the store profile. Volume listing does not require prohibited APIs; mobile
+sandboxes may still return a subset of volumes or an empty list.
+
 ## Local verification
 
 From the repository root:

@@ -65,6 +65,42 @@ void main() {
     });
   });
 
+  group('FakeDisksDomain', () {
+    test('fake_disks_defaults_and_setSnapshot', () async {
+      final domain = FakeDisksDomain();
+      final defaultInfo = await domain.snapshot();
+
+      expect(defaultInfo.volumes, isEmpty);
+
+      domain.setSnapshot(
+        DisksInfo(
+          volumes: [
+            DiskVolume(
+              name: 'Data',
+              kind: DiskKind.ssd,
+              fileSystem: 'ext4',
+              mountPoint: '/data',
+              totalSpaceBytes: 1024,
+              availableSpaceBytes: 512,
+              isRemovable: false,
+              isReadOnly: false,
+              ioUsage: const DiskIoUsage(
+                readBytes: 1,
+                writtenBytes: 2,
+                totalReadBytes: 3,
+                totalWrittenBytes: 4,
+              ),
+            ),
+          ],
+        ),
+      );
+
+      final updated = await domain.snapshot();
+      expect(updated.volumes, hasLength(1));
+      expect(updated.volumes.single.mountPoint, '/data');
+    });
+  });
+
   group('FakeMemoryDomain', () {
     test('fake_memory_defaults_and_setSnapshot', () async {
       final domain = FakeMemoryDomain();
@@ -173,6 +209,7 @@ void main() {
       expect(identical(SysInfo.instance, fake), isTrue);
       expect(identical(SysInfo.instance.cpu, cpu), isTrue);
       expect(SysInfo.instance.memory, isA<FakeMemoryDomain>());
+      expect(SysInfo.instance.disks, isA<FakeDisksDomain>());
       expect(SysInfo.instance.os, isA<FakeOsDomain>());
     });
 

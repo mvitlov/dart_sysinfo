@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dart_sysinfo/src/bridge/api/cpu.dart';
+import 'package:dart_sysinfo/src/bridge/api/disks.dart';
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
 import 'package:dart_sysinfo/src/bridge/api/memory.dart';
 import 'package:dart_sysinfo/src/bridge/api/os.dart';
@@ -68,4 +69,7 @@ class MockRustLibApi implements RustLibApi {
         bootTimeSeconds: BigInt.zero,
         loadAverage: const LoadAverageReadingDto(supported: false),
       );
+
+  @override
+  DisksInfoDto crateApiDisksDisksSnapshot() => const DisksInfoDto(volumes: []);
 }

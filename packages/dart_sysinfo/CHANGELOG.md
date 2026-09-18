@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Disks snapshot domain (M3-03): `SysInfo.disks.snapshot()` with 2000 ms TTL,
+  `DisksInfo` / `DiskVolume` models, and TDD §4.4 field mapping.
 - Domain-completeness CI check (M3-02): `tool/ci/check_domain_completeness.dart`
   fails the merge gate when a domain folder is missing matrix rows, a fake,
   tests, SysInfo wiring, or a Rust API module.
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Native ABI bumped to `2` for the disks FRB surface and `SharedState` layout.
 - Example app upgraded from FFI smoke test to P1 domain demo with hot-restart QA.
 
 ### Documentation

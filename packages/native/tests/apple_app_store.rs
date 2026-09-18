@@ -5,7 +5,7 @@
 //! cd packages/native && cargo test --features apple-app-store --test apple_app_store -- --test-threads=1
 //! ```
 
-use dart_sysinfo_native::api::{cpu, memory, os};
+use dart_sysinfo_native::api::{cpu, disks, memory, os};
 use dart_sysinfo_native::shim::state;
 
 fn reset_state() {
@@ -25,6 +25,8 @@ fn p1_snapshots_compile_and_run_with_apple_app_store_feature() {
 
     let os_snapshot = os::os_snapshot();
     assert!(!os_snapshot.distribution_id.is_empty());
+
+    let _disks_snapshot = disks::disks_snapshot();
 
     state::dispose();
 }

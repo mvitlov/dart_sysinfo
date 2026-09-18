@@ -57,11 +57,13 @@ generated. Replace **TBD** values when the domain story ships (M3-03+).
 | Domain | Snapshot TTL | Stream | Min stream interval | Platforms | Apple store-profile impact | Notable `Reading<T>` fields |
 |---|---|---|---|---|---|---|
 <!-- GENERATOR:BEGIN p2-capability-rows -->
+| `disks` | 2000 ms | none | — | Android, iOS, macOS, Linux, Windows (web excluded per PRD §1.6) | None — volume listing does not require prohibited APIs | `volumes` → plain `List<DiskVolume>`; empty list is valid on sandboxes/scoped storage (not `ReadingUnavailable`); see TDD §4.4 for path visibility limits |
 <!-- GENERATOR:END p2-capability-rows -->
 
 | Domain | Permissions merged by `dart_sysinfo` | Consumer obligation |
 |---|---|---|
 <!-- GENERATOR:BEGIN p2-permission-rows -->
+| `disks` | **None** | None beyond normal app process; mobile sandboxes may return a subset of volumes or an empty list — never claim full-disk access |
 <!-- GENERATOR:END p2-permission-rows -->
 
 ## Future domains

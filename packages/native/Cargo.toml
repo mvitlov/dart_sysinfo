@@ -12,7 +12,7 @@ sysinfo = { version = "0.39", default-features = false }
 flutter_rust_bridge = "=2.13.0"
 
 [features]
-default = ["system"]
+default = ["system", "disk"]
 system = ["sysinfo/system"]
 disk = ["sysinfo/disk"]
 network = ["sysinfo/network"]

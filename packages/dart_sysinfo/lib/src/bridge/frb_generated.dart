@@ -5,6 +5,7 @@
 
 import 'api/abi.dart';
 import 'api/cpu.dart';
+import 'api/disks.dart';
 import 'api/lifecycle.dart';
 import 'api/memory.dart';
 import 'api/os.dart';
@@ -69,7 +70,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -749307456;
+  int get rustContentHash => 2075512725;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -86,6 +87,8 @@ abstract class RustLibApi extends BaseApi {
   });
 
   CpuInfoDto crateApiCpuCpuSnapshot();
+
+  DisksInfoDto crateApiDisksDisksSnapshot();
 
   void crateApiLifecycleDispose();
 
@@ -161,12 +164,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "cpu_snapshot", argNames: []);
 
   @override
-  void crateApiLifecycleDispose() {
+  DisksInfoDto crateApiDisksDisksSnapshot() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_disks_info_dto,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiDisksDisksSnapshotConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiDisksDisksSnapshotConstMeta =>
+      const TaskConstMeta(debugName: "disks_snapshot", argNames: []);
+
+  @override
+  void crateApiLifecycleDispose() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
@@ -188,7 +213,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_i_32,
@@ -210,7 +235,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_init_result,
@@ -232,7 +257,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_memory_info_dto,
@@ -254,7 +279,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -276,7 +301,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_os_info_dto,
@@ -409,6 +434,54 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  DiskIoUsageDto dco_decode_disk_io_usage_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return DiskIoUsageDto(
+      readBytes: dco_decode_u_64(arr[0]),
+      writtenBytes: dco_decode_u_64(arr[1]),
+      totalReadBytes: dco_decode_u_64(arr[2]),
+      totalWrittenBytes: dco_decode_u_64(arr[3]),
+    );
+  }
+
+  @protected
+  DiskKindDto dco_decode_disk_kind_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return DiskKindDto.values[raw as int];
+  }
+
+  @protected
+  DiskVolumeDto dco_decode_disk_volume_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
+    return DiskVolumeDto(
+      name: dco_decode_String(arr[0]),
+      kind: dco_decode_disk_kind_dto(arr[1]),
+      fileSystem: dco_decode_String(arr[2]),
+      mountPoint: dco_decode_String(arr[3]),
+      totalSpaceBytes: dco_decode_u_64(arr[4]),
+      availableSpaceBytes: dco_decode_u_64(arr[5]),
+      isRemovable: dco_decode_bool(arr[6]),
+      isReadOnly: dco_decode_bool(arr[7]),
+      ioUsage: dco_decode_disk_io_usage_dto(arr[8]),
+    );
+  }
+
+  @protected
+  DisksInfoDto dco_decode_disks_info_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return DisksInfoDto(volumes: dco_decode_list_disk_volume_dto(arr[0]));
+  }
+
+  @protected
   double dco_decode_f_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
@@ -448,6 +521,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<CpuCoreDto> dco_decode_list_cpu_core_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_cpu_core_dto).toList();
+  }
+
+  @protected
+  List<DiskVolumeDto> dco_decode_list_disk_volume_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_disk_volume_dto).toList();
   }
 
   @protected
@@ -714,6 +793,60 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  DiskIoUsageDto sse_decode_disk_io_usage_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_readBytes = sse_decode_u_64(deserializer);
+    var var_writtenBytes = sse_decode_u_64(deserializer);
+    var var_totalReadBytes = sse_decode_u_64(deserializer);
+    var var_totalWrittenBytes = sse_decode_u_64(deserializer);
+    return DiskIoUsageDto(
+      readBytes: var_readBytes,
+      writtenBytes: var_writtenBytes,
+      totalReadBytes: var_totalReadBytes,
+      totalWrittenBytes: var_totalWrittenBytes,
+    );
+  }
+
+  @protected
+  DiskKindDto sse_decode_disk_kind_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return DiskKindDto.values[inner];
+  }
+
+  @protected
+  DiskVolumeDto sse_decode_disk_volume_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_kind = sse_decode_disk_kind_dto(deserializer);
+    var var_fileSystem = sse_decode_String(deserializer);
+    var var_mountPoint = sse_decode_String(deserializer);
+    var var_totalSpaceBytes = sse_decode_u_64(deserializer);
+    var var_availableSpaceBytes = sse_decode_u_64(deserializer);
+    var var_isRemovable = sse_decode_bool(deserializer);
+    var var_isReadOnly = sse_decode_bool(deserializer);
+    var var_ioUsage = sse_decode_disk_io_usage_dto(deserializer);
+    return DiskVolumeDto(
+      name: var_name,
+      kind: var_kind,
+      fileSystem: var_fileSystem,
+      mountPoint: var_mountPoint,
+      totalSpaceBytes: var_totalSpaceBytes,
+      availableSpaceBytes: var_availableSpaceBytes,
+      isRemovable: var_isRemovable,
+      isReadOnly: var_isReadOnly,
+      ioUsage: var_ioUsage,
+    );
+  }
+
+  @protected
+  DisksInfoDto sse_decode_disks_info_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_volumes = sse_decode_list_disk_volume_dto(deserializer);
+    return DisksInfoDto(volumes: var_volumes);
+  }
+
+  @protected
   double sse_decode_f_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getFloat32();
@@ -762,6 +895,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var ans_ = <CpuCoreDto>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_cpu_core_dto(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<DiskVolumeDto> sse_decode_list_disk_volume_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <DiskVolumeDto>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_disk_volume_dto(deserializer));
     }
     return ans_;
   }
@@ -1066,6 +1213,47 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_disk_io_usage_dto(
+    DiskIoUsageDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.readBytes, serializer);
+    sse_encode_u_64(self.writtenBytes, serializer);
+    sse_encode_u_64(self.totalReadBytes, serializer);
+    sse_encode_u_64(self.totalWrittenBytes, serializer);
+  }
+
+  @protected
+  void sse_encode_disk_kind_dto(DiskKindDto self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_disk_volume_dto(
+    DiskVolumeDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_disk_kind_dto(self.kind, serializer);
+    sse_encode_String(self.fileSystem, serializer);
+    sse_encode_String(self.mountPoint, serializer);
+    sse_encode_u_64(self.totalSpaceBytes, serializer);
+    sse_encode_u_64(self.availableSpaceBytes, serializer);
+    sse_encode_bool(self.isRemovable, serializer);
+    sse_encode_bool(self.isReadOnly, serializer);
+    sse_encode_disk_io_usage_dto(self.ioUsage, serializer);
+  }
+
+  @protected
+  void sse_encode_disks_info_dto(DisksInfoDto self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_disk_volume_dto(self.volumes, serializer);
+  }
+
+  @protected
   void sse_encode_f_32(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putFloat32(self);
@@ -1108,6 +1296,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_cpu_core_dto(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_disk_volume_dto(
+    List<DiskVolumeDto> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_disk_volume_dto(item, serializer);
     }
   }
 

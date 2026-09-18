@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -749307456;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 2075512725;
 
 // Section: executor
 
@@ -107,6 +107,35 @@ fn wire__crate__api__cpu__cpu_snapshot_impl(
             deserializer.end();
             transform_result_sse::<_, ()>((move || {
                 let output_ok = Ok::<_, ()>(crate::api::cpu::cpu_snapshot())?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__disks__disks_snapshot_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "disks_snapshot",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>(crate::api::disks::disks_snapshot())?;
                 std::result::Result::Ok(output_ok)
             })())
         },
@@ -398,6 +427,71 @@ impl SseDecode for crate::api::cpu::CpuLoadSampleDto {
     }
 }
 
+impl SseDecode for crate::api::disks::DiskIoUsageDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_readBytes = <u64>::sse_decode(deserializer);
+        let mut var_writtenBytes = <u64>::sse_decode(deserializer);
+        let mut var_totalReadBytes = <u64>::sse_decode(deserializer);
+        let mut var_totalWrittenBytes = <u64>::sse_decode(deserializer);
+        return crate::api::disks::DiskIoUsageDto {
+            read_bytes: var_readBytes,
+            written_bytes: var_writtenBytes,
+            total_read_bytes: var_totalReadBytes,
+            total_written_bytes: var_totalWrittenBytes,
+        };
+    }
+}
+
+impl SseDecode for crate::api::disks::DiskKindDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::disks::DiskKindDto::Hdd,
+            1 => crate::api::disks::DiskKindDto::Ssd,
+            2 => crate::api::disks::DiskKindDto::Unknown,
+            _ => unreachable!("Invalid variant for DiskKindDto: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::disks::DiskVolumeDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_kind = <crate::api::disks::DiskKindDto>::sse_decode(deserializer);
+        let mut var_fileSystem = <String>::sse_decode(deserializer);
+        let mut var_mountPoint = <String>::sse_decode(deserializer);
+        let mut var_totalSpaceBytes = <u64>::sse_decode(deserializer);
+        let mut var_availableSpaceBytes = <u64>::sse_decode(deserializer);
+        let mut var_isRemovable = <bool>::sse_decode(deserializer);
+        let mut var_isReadOnly = <bool>::sse_decode(deserializer);
+        let mut var_ioUsage = <crate::api::disks::DiskIoUsageDto>::sse_decode(deserializer);
+        return crate::api::disks::DiskVolumeDto {
+            name: var_name,
+            kind: var_kind,
+            file_system: var_fileSystem,
+            mount_point: var_mountPoint,
+            total_space_bytes: var_totalSpaceBytes,
+            available_space_bytes: var_availableSpaceBytes,
+            is_removable: var_isRemovable,
+            is_read_only: var_isReadOnly,
+            io_usage: var_ioUsage,
+        };
+    }
+}
+
+impl SseDecode for crate::api::disks::DisksInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_volumes = <Vec<crate::api::disks::DiskVolumeDto>>::sse_decode(deserializer);
+        return crate::api::disks::DisksInfoDto {
+            volumes: var_volumes,
+        };
+    }
+}
+
 impl SseDecode for f32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -450,6 +544,18 @@ impl SseDecode for Vec<crate::api::cpu::CpuCoreDto> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::api::cpu::CpuCoreDto>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::disks::DiskVolumeDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::disks::DiskVolumeDto>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -677,12 +783,13 @@ fn pde_ffi_dispatcher_sync_impl(
     match func_id {
         1 => wire__crate__api__cpu__cpu_load_stream_impl(ptr, rust_vec_len, data_len),
         2 => wire__crate__api__cpu__cpu_snapshot_impl(ptr, rust_vec_len, data_len),
-        3 => wire__crate__api__lifecycle__dispose_impl(ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__smoke__frb_platform_smoke_ping_impl(ptr, rust_vec_len, data_len),
-        5 => wire__crate__api__lifecycle__init_impl(ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__memory__memory_snapshot_impl(ptr, rust_vec_len, data_len),
-        7 => wire__crate__api__abi__native_crate_version_impl(ptr, rust_vec_len, data_len),
-        8 => wire__crate__api__os__os_snapshot_impl(ptr, rust_vec_len, data_len),
+        3 => wire__crate__api__disks__disks_snapshot_impl(ptr, rust_vec_len, data_len),
+        4 => wire__crate__api__lifecycle__dispose_impl(ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__smoke__frb_platform_smoke_ping_impl(ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__lifecycle__init_impl(ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__memory__memory_snapshot_impl(ptr, rust_vec_len, data_len),
+        8 => wire__crate__api__abi__native_crate_version_impl(ptr, rust_vec_len, data_len),
+        9 => wire__crate__api__os__os_snapshot_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -792,6 +899,96 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::cpu::CpuLoadSampleDto>
     for crate::api::cpu::CpuLoadSampleDto
 {
     fn into_into_dart(self) -> crate::api::cpu::CpuLoadSampleDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::disks::DiskIoUsageDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.read_bytes.into_into_dart().into_dart(),
+            self.written_bytes.into_into_dart().into_dart(),
+            self.total_read_bytes.into_into_dart().into_dart(),
+            self.total_written_bytes.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::disks::DiskIoUsageDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::disks::DiskIoUsageDto>
+    for crate::api::disks::DiskIoUsageDto
+{
+    fn into_into_dart(self) -> crate::api::disks::DiskIoUsageDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::disks::DiskKindDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Hdd => 0.into_dart(),
+            Self::Ssd => 1.into_dart(),
+            Self::Unknown => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::disks::DiskKindDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::disks::DiskKindDto>
+    for crate::api::disks::DiskKindDto
+{
+    fn into_into_dart(self) -> crate::api::disks::DiskKindDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::disks::DiskVolumeDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.file_system.into_into_dart().into_dart(),
+            self.mount_point.into_into_dart().into_dart(),
+            self.total_space_bytes.into_into_dart().into_dart(),
+            self.available_space_bytes.into_into_dart().into_dart(),
+            self.is_removable.into_into_dart().into_dart(),
+            self.is_read_only.into_into_dart().into_dart(),
+            self.io_usage.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::disks::DiskVolumeDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::disks::DiskVolumeDto>
+    for crate::api::disks::DiskVolumeDto
+{
+    fn into_into_dart(self) -> crate::api::disks::DiskVolumeDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::disks::DisksInfoDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [self.volumes.into_into_dart().into_dart()].into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::disks::DisksInfoDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::disks::DisksInfoDto>
+    for crate::api::disks::DisksInfoDto
+{
+    fn into_into_dart(self) -> crate::api::disks::DisksInfoDto {
         self
     }
 }
@@ -989,6 +1186,55 @@ impl SseEncode for crate::api::cpu::CpuLoadSampleDto {
     }
 }
 
+impl SseEncode for crate::api::disks::DiskIoUsageDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.read_bytes, serializer);
+        <u64>::sse_encode(self.written_bytes, serializer);
+        <u64>::sse_encode(self.total_read_bytes, serializer);
+        <u64>::sse_encode(self.total_written_bytes, serializer);
+    }
+}
+
+impl SseEncode for crate::api::disks::DiskKindDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::disks::DiskKindDto::Hdd => 0,
+                crate::api::disks::DiskKindDto::Ssd => 1,
+                crate::api::disks::DiskKindDto::Unknown => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::disks::DiskVolumeDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <crate::api::disks::DiskKindDto>::sse_encode(self.kind, serializer);
+        <String>::sse_encode(self.file_system, serializer);
+        <String>::sse_encode(self.mount_point, serializer);
+        <u64>::sse_encode(self.total_space_bytes, serializer);
+        <u64>::sse_encode(self.available_space_bytes, serializer);
+        <bool>::sse_encode(self.is_removable, serializer);
+        <bool>::sse_encode(self.is_read_only, serializer);
+        <crate::api::disks::DiskIoUsageDto>::sse_encode(self.io_usage, serializer);
+    }
+}
+
+impl SseEncode for crate::api::disks::DisksInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::disks::DiskVolumeDto>>::sse_encode(self.volumes, serializer);
+    }
+}
+
 impl SseEncode for f32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1034,6 +1280,16 @@ impl SseEncode for Vec<crate::api::cpu::CpuCoreDto> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::api::cpu::CpuCoreDto>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::disks::DiskVolumeDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::disks::DiskVolumeDto>::sse_encode(item, serializer);
         }
     }
 }

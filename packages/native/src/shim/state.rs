@@ -3,12 +3,14 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 
-use sysinfo::System;
+use sysinfo::{Disks, System};
 
 /// Shared long-lived `sysinfo::System` guarded for concurrent domain reads.
 pub struct SharedState {
     /// Inner system handle contended by domain snapshot and stream workers.
     pub system: RwLock<System>,
+    /// Disk enumeration handle — independent of [`System`] (TDD §4.4).
+    pub disks: RwLock<Disks>,
     /// Whether at least one CPU usage refresh has completed (TDD §4.1 first-sample).
     pub cpu_usage_ready: AtomicBool,
 }
@@ -17,6 +19,7 @@ impl SharedState {
     fn new() -> Self {
         Self {
             system: RwLock::new(System::new()),
+            disks: RwLock::new(Disks::new()),
             cpu_usage_ready: AtomicBool::new(false),
         }
     }

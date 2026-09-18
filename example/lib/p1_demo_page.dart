@@ -26,6 +26,7 @@ class _P1DemoPageState extends State<P1DemoPage> {
   OsInfo? _osInfo;
   MemoryInfo? _memoryInfo;
   CpuInfo? _cpuInfo;
+  DisksInfo? _disksInfo;
   String? _errorMessage;
   bool _loadingSnapshots = false;
 
@@ -63,6 +64,7 @@ class _P1DemoPageState extends State<P1DemoPage> {
         sysInfo.os.snapshot(forceRefresh: true),
         sysInfo.memory.snapshot(forceRefresh: true),
         sysInfo.cpu.snapshot(forceRefresh: true),
+        sysInfo.disks.snapshot(forceRefresh: true),
       ]);
 
       if (!mounted) {
@@ -73,6 +75,7 @@ class _P1DemoPageState extends State<P1DemoPage> {
         _osInfo = results[0] as OsInfo;
         _memoryInfo = results[1] as MemoryInfo;
         _cpuInfo = results[2] as CpuInfo;
+        _disksInfo = results[3] as DisksInfo;
         _loadingSnapshots = false;
       });
     } on SysInfoException catch (error) {
@@ -197,6 +200,14 @@ class _P1DemoPageState extends State<P1DemoPage> {
                 ? const ['Tap Refresh to load CPU snapshot.']
                 : _cpuLines(),
           ),
+          _SnapshotSection(
+            title: 'Disks',
+            onRefresh: _refreshSnapshots,
+            loading: _loadingSnapshots,
+            lines: _disksInfo == null
+                ? const ['Tap Refresh to load disks snapshot.']
+                : _disksLines(),
+          ),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -258,6 +269,18 @@ class _P1DemoPageState extends State<P1DemoPage> {
       'architecture: ${cpu.architecture}',
       'physical cores: ${formatReading(cpu.physicalCoreCount)}',
       'global usage: ${formatReading(cpu.globalUsagePercent)}',
+    ];
+  }
+
+  List<String> _disksLines() {
+    final disks = _disksInfo!;
+    if (disks.volumes.isEmpty) {
+      return const ['volumes: 0 (empty list is valid on sandboxes)'];
+    }
+    final first = disks.volumes.first;
+    return [
+      'volumes: ${disks.volumes.length}',
+      'first mount: ${first.mountPoint}',
     ];
   }
 

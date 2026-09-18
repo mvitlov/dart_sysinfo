@@ -5,6 +5,7 @@
 
 import 'api/abi.dart';
 import 'api/cpu.dart';
+import 'api/disks.dart';
 import 'api/lifecycle.dart';
 import 'api/memory.dart';
 import 'api/os.dart';
@@ -64,6 +65,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CpuLoadSampleDto dco_decode_cpu_load_sample_dto(dynamic raw);
 
   @protected
+  DiskIoUsageDto dco_decode_disk_io_usage_dto(dynamic raw);
+
+  @protected
+  DiskKindDto dco_decode_disk_kind_dto(dynamic raw);
+
+  @protected
+  DiskVolumeDto dco_decode_disk_volume_dto(dynamic raw);
+
+  @protected
+  DisksInfoDto dco_decode_disks_info_dto(dynamic raw);
+
+  @protected
   double dco_decode_f_32(dynamic raw);
 
   @protected
@@ -80,6 +93,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<CpuCoreDto> dco_decode_list_cpu_core_dto(dynamic raw);
+
+  @protected
+  List<DiskVolumeDto> dco_decode_list_disk_volume_dto(dynamic raw);
 
   @protected
   Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
@@ -176,6 +192,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CpuLoadSampleDto sse_decode_cpu_load_sample_dto(SseDeserializer deserializer);
 
   @protected
+  DiskIoUsageDto sse_decode_disk_io_usage_dto(SseDeserializer deserializer);
+
+  @protected
+  DiskKindDto sse_decode_disk_kind_dto(SseDeserializer deserializer);
+
+  @protected
+  DiskVolumeDto sse_decode_disk_volume_dto(SseDeserializer deserializer);
+
+  @protected
+  DisksInfoDto sse_decode_disks_info_dto(SseDeserializer deserializer);
+
+  @protected
   double sse_decode_f_32(SseDeserializer deserializer);
 
   @protected
@@ -192,6 +220,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<CpuCoreDto> sse_decode_list_cpu_core_dto(SseDeserializer deserializer);
+
+  @protected
+  List<DiskVolumeDto> sse_decode_list_disk_volume_dto(
+    SseDeserializer deserializer,
+  );
 
   @protected
   Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer);
@@ -310,6 +343,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_disk_io_usage_dto(
+    DiskIoUsageDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_disk_kind_dto(DiskKindDto self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_disk_volume_dto(DiskVolumeDto self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_disks_info_dto(DisksInfoDto self, SseSerializer serializer);
+
+  @protected
   void sse_encode_f_32(double self, SseSerializer serializer);
 
   @protected
@@ -327,6 +375,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_cpu_core_dto(
     List<CpuCoreDto> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_disk_volume_dto(
+    List<DiskVolumeDto> self,
     SseSerializer serializer,
   );
 

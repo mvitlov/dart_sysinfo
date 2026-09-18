@@ -2,6 +2,7 @@ import 'dart:async';
 
 // GENERATOR:BEGIN mock-imports
 import 'package:dart_sysinfo/src/bridge/api/cpu.dart';
+import 'package:dart_sysinfo/src/bridge/api/disks.dart';
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
 import 'package:dart_sysinfo/src/bridge/api/memory.dart';
 import 'package:dart_sysinfo/src/bridge/api/os.dart';
@@ -18,15 +19,38 @@ class MockRustLibApi implements RustLibApi {
     ),
     // GENERATOR:BEGIN mock-ctor-params
     CpuInfoDto? cpuSnapshotResult,
+    DisksInfoDto? disksSnapshotResult,
     MemoryInfoDto? memorySnapshotResult,
     OsInfoDto? osSnapshotResult,
-    // GENERATOR:END mock-ctor-params
+// GENERATOR:END mock-ctor-params
     // GENERATOR:BEGIN mock-stream-ctor-params
     StreamController<CpuLoadSampleDto>? cpuLoadStreamController,
     // GENERATOR:END mock-stream-ctor-params
   })  // GENERATOR:BEGIN mock-ctor-init
       : cpuSnapshotResult =
             cpuSnapshotResult ?? const CpuInfoDto(architecture: 'mock'),
+        disksSnapshotResult =
+            disksSnapshotResult ??
+            DisksInfoDto(
+              volumes: [
+                DiskVolumeDto(
+                  name: 'mock',
+                  kind: DiskKindDto.ssd,
+                  fileSystem: 'APFS',
+                  mountPoint: '/',
+                  totalSpaceBytes: BigInt.from(512 * 1024 * 1024 * 1024),
+                  availableSpaceBytes: BigInt.from(256 * 1024 * 1024 * 1024),
+                  isRemovable: false,
+                  isReadOnly: false,
+                  ioUsage: DiskIoUsageDto(
+                    readBytes: BigInt.zero,
+                    writtenBytes: BigInt.zero,
+                    totalReadBytes: BigInt.zero,
+                    totalWrittenBytes: BigInt.zero,
+                  ),
+                ),
+              ],
+            ),
         memorySnapshotResult =
             memorySnapshotResult ??
             MemoryInfoDto(
@@ -49,11 +73,11 @@ class MockRustLibApi implements RustLibApi {
               bootTimeSeconds: BigInt.zero,
               loadAverage: const LoadAverageReadingDto(supported: false),
             ),
-      // GENERATOR:END mock-ctor-init
-      // GENERATOR:BEGIN mock-stream-ctor-init
+        // GENERATOR:BEGIN mock-stream-ctor-init
         cpuLoadStreamController = cpuLoadStreamController ??
             StreamController<CpuLoadSampleDto>.broadcast();
-      // GENERATOR:END mock-stream-ctor-init
+        // GENERATOR:END mock-stream-ctor-init
+// GENERATOR:END mock-ctor-init
 
   InitResult initResult;
   int initCalls = 0;
@@ -61,14 +85,14 @@ class MockRustLibApi implements RustLibApi {
 
   // GENERATOR:BEGIN mock-fields
   CpuInfoDto cpuSnapshotResult;
-  int cpuSnapshotCalls = 0;
-
+  DisksInfoDto disksSnapshotResult;
+  int disksSnapshotCalls = 0;
   MemoryInfoDto memorySnapshotResult;
-  int memorySnapshotCalls = 0;
-
   OsInfoDto osSnapshotResult;
+  int cpuSnapshotCalls = 0;
+  int memorySnapshotCalls = 0;
   int osSnapshotCalls = 0;
-  // GENERATOR:END mock-fields
+// GENERATOR:END mock-fields
 
   // GENERATOR:BEGIN mock-stream-fields
   final StreamController<CpuLoadSampleDto> cpuLoadStreamController;
@@ -111,7 +135,13 @@ class MockRustLibApi implements RustLibApi {
     osSnapshotCalls++;
     return osSnapshotResult;
   }
-  // GENERATOR:END mock-methods
+
+  @override
+  DisksInfoDto crateApiDisksDisksSnapshot() {
+    disksSnapshotCalls++;
+    return disksSnapshotResult;
+  }
+// GENERATOR:END mock-methods
 
   // GENERATOR:BEGIN mock-stream-methods
   @override

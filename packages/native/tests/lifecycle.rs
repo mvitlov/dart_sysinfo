@@ -47,10 +47,10 @@ fn dispose_then_init_recreates_fresh() {
 fn abi_version_is_constant() {
     state::dispose();
     let first = state::init();
-    assert_eq!(first.abi_version, 1);
+    assert_eq!(first.abi_version, 2);
 
     let second = state::init();
-    assert_eq!(second.abi_version, 1);
+    assert_eq!(second.abi_version, 2);
 
     state::dispose();
 }

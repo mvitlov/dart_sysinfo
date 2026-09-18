@@ -3,6 +3,7 @@
 pub mod abi;
 // GENERATOR:BEGIN api-mod
 pub mod cpu;
+pub mod disks;
 pub mod lifecycle;
 pub mod memory;
 pub mod os;

@@ -1,7 +1,7 @@
 /// Domain name normalization for the M3-01 scaffolding generator.
 library;
 
-const existingDomains = {'cpu', 'memory', 'os'};
+const existingDomains = {'cpu', 'disks', 'memory', 'os'};
 
 /// Validated domain naming derived from CLI input.
 class DomainNaming {

@@ -171,6 +171,7 @@ mod tests {
     fn next_cpu_load_sample_warmup_skips_first_emit() {
         let state = SharedState {
             system: std::sync::RwLock::new(System::new()),
+            disks: std::sync::RwLock::new(sysinfo::Disks::new()),
             cpu_usage_ready: std::sync::atomic::AtomicBool::new(false),
         };
         let mut sys = state.system.write().unwrap();

@@ -56,7 +56,7 @@ void main() {
     test('renders template tokens', () {
       final context = TemplateContext(
         DomainNaming.parse(
-          rawName: 'disks',
+          rawName: 'widgets',
           ttlMs: 500,
           hasStream: false,
           streamMethod: 'load',
@@ -64,7 +64,7 @@ void main() {
       );
       expect(
         context.render('class {{Pascal}}Domain {}'),
-        'class DisksDomain {}',
+        'class WidgetsDomain {}',
       );
     });
   });
@@ -75,25 +75,25 @@ void main() {
       addTearDown(() => temp.deleteSync(recursive: true));
 
       await _runGenerator(
-        ['disks', '--skip-post-steps'],
+        ['sensors', '--skip-post-steps'],
         fixtureRoot: temp.path,
       );
 
       expect(
-        File('${temp.path}/packages/dart_sysinfo/lib/src/domains/disks/disks_domain.dart')
+        File('${temp.path}/packages/dart_sysinfo/lib/src/domains/sensors/sensors_domain.dart')
             .existsSync(),
         isTrue,
       );
       expect(
-        File('${temp.path}/packages/native/src/api/disks.rs').existsSync(),
+        File('${temp.path}/packages/native/src/api/sensors.rs').existsSync(),
         isTrue,
       );
 
       final sysInfo = File(
         '${temp.path}/packages/dart_sysinfo/lib/src/core/sys_info.dart',
       ).readAsStringSync();
-      expect(sysInfo, contains('DisksDomain get disks;'));
-      expect(sysInfo, contains('disks = DisksDomainImpl(),'));
+      expect(sysInfo, contains('SensorsDomain get sensors;'));
+      expect(sysInfo, contains('sensors = SensorsDomainImpl()'));
       expect(
         sysInfo.contains(RegExp(r'// GENERATOR:END domain-impl-init\s*;')),
         isFalse,
@@ -109,7 +109,7 @@ void main() {
       );
 
       final matrix = File('${temp.path}/docs/capability-matrix.md').readAsStringSync();
-      expect(matrix, contains('`disks`'));
+      expect(matrix, contains('`sensors`'));
       expect(matrix, contains('TBD — scaffold placeholder'));
     });
 
@@ -150,7 +150,7 @@ void main() {
       addTearDown(() => temp.deleteSync(recursive: true));
 
       await _runGenerator(
-        ['disks', '--skip-post-steps'],
+        ['sensors', '--skip-post-steps'],
         fixtureRoot: temp.path,
       );
 
@@ -160,7 +160,7 @@ void main() {
           'dart',
           'run',
           '${Directory.current.path}/tool/new_domain.dart',
-          'disks',
+          'sensors',
           '--skip-post-steps',
           '--fixture-root=${temp.path}',
         ],
