@@ -281,6 +281,7 @@ domain test. See [TDD §9.1](./TDD.md) for templates, patch targets, and flags.
 table, implement `packages/native/src/api/<name>.rs`, enable any required Cargo
 feature (`disk`, `network`, …), and re-run `fvm dart run melos frb:generate`.
 Disks (M3-03) is the reference P2 snapshot implementation — see TDD §4.4.
+Network (M3-04) is the reference P2 snapshot + stream implementation — see TDD §4.5.
 
 **Domain-completeness CI** (M3-02) fails the build if a domain folder is missing
 a capability row, permission row, fake, test, SysInfo getter, or Rust module:

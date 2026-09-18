@@ -7,7 +7,7 @@ import 'package:dart_sysinfo/src/core/sys_info_exception.dart';
 class AbiGuard {
   /// Hand-kept in lockstep with `native/src/abi.rs` — CI ABI gate (PRD §10.3)
   /// enforces this.
-  static const expectedAbi = 2;
+  static const expectedAbi = 3;
 
   /// Throws [SysInfoAbiMismatchException] when [actual] does not match
   /// [expectedAbi].

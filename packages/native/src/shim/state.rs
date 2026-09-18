@@ -3,7 +3,7 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 
-use sysinfo::{Disks, System};
+use sysinfo::{Disks, Networks, System};
 
 /// Shared long-lived `sysinfo::System` guarded for concurrent domain reads.
 pub struct SharedState {
@@ -11,8 +11,12 @@ pub struct SharedState {
     pub system: RwLock<System>,
     /// Disk enumeration handle — independent of [`System`] (TDD §4.4).
     pub disks: RwLock<Disks>,
+    /// Network interface handle — independent of [`System`] (TDD §4.5).
+    pub networks: RwLock<Networks>,
     /// Whether at least one CPU usage refresh has completed (TDD §4.1 first-sample).
     pub cpu_usage_ready: AtomicBool,
+    /// Whether at least one network throughput refresh has completed (TDD §4.5).
+    pub network_throughput_ready: AtomicBool,
 }
 
 impl SharedState {
@@ -20,7 +24,9 @@ impl SharedState {
         Self {
             system: RwLock::new(System::new()),
             disks: RwLock::new(Disks::new()),
+            networks: RwLock::new(Networks::new()),
             cpu_usage_ready: AtomicBool::new(false),
+            network_throughput_ready: AtomicBool::new(false),
         }
     }
 }
@@ -34,6 +40,16 @@ impl SharedState {
     /// Returns whether a diff-based CPU usage sample is available.
     pub fn is_cpu_usage_ready(&self) -> bool {
         self.cpu_usage_ready.load(Ordering::Acquire)
+    }
+
+    /// Marks network throughput as ready after the warm-up refresh.
+    pub fn mark_network_throughput_ready(&self) {
+        self.network_throughput_ready.store(true, Ordering::Release);
+    }
+
+    /// Returns whether a diff-based network throughput sample is available.
+    pub fn is_network_throughput_ready(&self) -> bool {
+        self.network_throughput_ready.load(Ordering::Acquire)
     }
 }
 

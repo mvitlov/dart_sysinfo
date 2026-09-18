@@ -5,6 +5,7 @@ import 'package:dart_sysinfo/src/bridge/api/cpu.dart';
 import 'package:dart_sysinfo/src/bridge/api/disks.dart';
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
 import 'package:dart_sysinfo/src/bridge/api/memory.dart';
+import 'package:dart_sysinfo/src/bridge/api/network.dart';
 import 'package:dart_sysinfo/src/bridge/api/os.dart';
 // GENERATOR:END mock-imports
 import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
@@ -21,10 +22,13 @@ class MockRustLibApi implements RustLibApi {
     CpuInfoDto? cpuSnapshotResult,
     DisksInfoDto? disksSnapshotResult,
     MemoryInfoDto? memorySnapshotResult,
+    NetworkInfoDto? networkSnapshotResult,
     OsInfoDto? osSnapshotResult,
-// GENERATOR:END mock-ctor-params
+    // GENERATOR:END mock-ctor-params
     // GENERATOR:BEGIN mock-stream-ctor-params
     StreamController<CpuLoadSampleDto>? cpuLoadStreamController,
+    StreamController<NetworkThroughputSampleDto>?
+        networkThroughputStreamController,
     // GENERATOR:END mock-stream-ctor-params
   })  // GENERATOR:BEGIN mock-ctor-init
       : cpuSnapshotResult =
@@ -63,6 +67,29 @@ class MockRustLibApi implements RustLibApi {
               usedSwapBytes: BigInt.zero,
               cgroupLimits: const CGroupLimitsReadingDto(supported: false),
             ),
+        networkSnapshotResult =
+            networkSnapshotResult ??
+            NetworkInfoDto(
+              interfaces: [
+                NetworkInterfaceDto(
+                  name: 'mock0',
+                  macAddress: '00:11:22:33:44:55',
+                  ipNetworks: const [
+                    IpNetworkEntryDto(address: '192.168.1.10', prefixLength: 24),
+                  ],
+                  mtu: BigInt.from(1500),
+                  operationalState: NetworkOperationalStateDto.up,
+                  cumulative: NetworkCumulativeStatsDto(
+                    totalReceivedBytes: BigInt.from(1024),
+                    totalTransmittedBytes: BigInt.from(2048),
+                    totalPacketsReceived: BigInt.from(10),
+                    totalPacketsTransmitted: BigInt.from(20),
+                    totalErrorsOnReceived: BigInt.zero,
+                    totalErrorsOnTransmitted: BigInt.zero,
+                  ),
+                ),
+              ],
+            ),
         osSnapshotResult =
             osSnapshotResult ??
             OsInfoDto(
@@ -73,11 +100,11 @@ class MockRustLibApi implements RustLibApi {
               bootTimeSeconds: BigInt.zero,
               loadAverage: const LoadAverageReadingDto(supported: false),
             ),
-        // GENERATOR:BEGIN mock-stream-ctor-init
         cpuLoadStreamController = cpuLoadStreamController ??
-            StreamController<CpuLoadSampleDto>.broadcast();
-        // GENERATOR:END mock-stream-ctor-init
-// GENERATOR:END mock-ctor-init
+            StreamController<CpuLoadSampleDto>.broadcast(),
+        networkThroughputStreamController = networkThroughputStreamController ??
+            StreamController<NetworkThroughputSampleDto>.broadcast();
+  // GENERATOR:END mock-ctor-init
 
   InitResult initResult;
   int initCalls = 0;
@@ -88,16 +115,23 @@ class MockRustLibApi implements RustLibApi {
   DisksInfoDto disksSnapshotResult;
   int disksSnapshotCalls = 0;
   MemoryInfoDto memorySnapshotResult;
+  NetworkInfoDto networkSnapshotResult;
+  int networkSnapshotCalls = 0;
   OsInfoDto osSnapshotResult;
   int cpuSnapshotCalls = 0;
   int memorySnapshotCalls = 0;
   int osSnapshotCalls = 0;
-// GENERATOR:END mock-fields
+  // GENERATOR:END mock-fields
 
   // GENERATOR:BEGIN mock-stream-fields
   final StreamController<CpuLoadSampleDto> cpuLoadStreamController;
   int cpuLoadStreamCalls = 0;
   BigInt? lastLoadIntervalMs;
+
+  final StreamController<NetworkThroughputSampleDto>
+      networkThroughputStreamController;
+  int networkThroughputStreamCalls = 0;
+  BigInt? lastThroughputIntervalMs;
   // GENERATOR:END mock-stream-fields
 
   @override
@@ -141,7 +175,13 @@ class MockRustLibApi implements RustLibApi {
     disksSnapshotCalls++;
     return disksSnapshotResult;
   }
-// GENERATOR:END mock-methods
+
+  @override
+  NetworkInfoDto crateApiNetworkNetworkSnapshot() {
+    networkSnapshotCalls++;
+    return networkSnapshotResult;
+  }
+  // GENERATOR:END mock-methods
 
   // GENERATOR:BEGIN mock-stream-methods
   @override
@@ -151,6 +191,15 @@ class MockRustLibApi implements RustLibApi {
     cpuLoadStreamCalls++;
     lastLoadIntervalMs = intervalMs;
     return cpuLoadStreamController.stream;
+  }
+
+  @override
+  Stream<NetworkThroughputSampleDto> crateApiNetworkNetworkThroughputStream({
+    required BigInt intervalMs,
+  }) {
+    networkThroughputStreamCalls++;
+    lastThroughputIntervalMs = intervalMs;
+    return networkThroughputStreamController.stream;
   }
   // GENERATOR:END mock-stream-methods
 }

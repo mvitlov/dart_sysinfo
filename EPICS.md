@@ -100,7 +100,7 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 | M3-01 | Extract `tool/new_domain.dart` generator | ✅ | Tooling | §10.2 | §9.1 | Generator produces a domain skeleton matching the M1 pattern (interface, model, fake, blank matrix rows) |
 | M3-02 | Domain-completeness CI check | ✅ | CI | §10.2, §7.2 | §9.2 | A domain folder missing a capability-matrix/permission-matrix row or fake fails CI |
 | M3-03 | Disks domain | ✅ | Rust/Dart | §6 | §4.4 | Field table authored (`sysinfo::Disks` audit, à la TDD §4), then implemented; snapshot only |
-| M3-04 | Network domain + throughput stream | ⬜ | Rust/Dart | §6 | §9 (process) | Field table authored; snapshot + clamped broadcast stream |
+| M3-04 | Network domain + throughput stream | ✅ | Rust/Dart | §6 | §9 (process) | Field table authored; snapshot + clamped broadcast stream |
 | M3-05 | Android permission rows for network | ⬜ | Docs/CI | §2.5 | — | `ACCESS_NETWORK_STATE`/`ACCESS_WIFI_STATE` documented; lint fails if undeclared in example app |
 | M3-06 | Prebuilt-binary distribution (hash + attestation + ABI) | ⬜ | Release | §7.3 | — | Build hook downloads, hash-verifies, and attestation-verifies a real artifact end-to-end |
 | M3-07 | CI ABI diff/bump gate | ⬜ | CI | §10.3 | — | A native-layout change without an `abi.rs` bump fails release automation |
@@ -142,7 +142,7 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 **Next (pick one):**
 
-- **EPIC-M3** — P2 domains (M3-03 disks ✅; network next), domain generator ✅, dartdoc/ABI CI gates.
+- **EPIC-M3** — P2 domains (M3-03 disks ✅; M3-04 network ✅), domain generator ✅, dartdoc/ABI CI gates.
 - **EPIC-M5** — Native Assets default (after PRD §3.3 sunset criterion met; not a 1.0 blocker). Sunset clock runs weekly on `main`; query with `bash tool/ci/sunset_clock_report.sh`.
 
 **Known M1 deferrals (not gaps in story completion):**

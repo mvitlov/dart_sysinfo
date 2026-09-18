@@ -1,7 +1,8 @@
 /// Cross-platform system information for Dart (Flutter-free core).
 ///
-/// P1 domains: OS, CPU, memory. P2 disks snapshot. Flutter apps should also
-/// depend on `dart_sysinfo_flutter` for hot-restart lifecycle glue.
+/// P1 domains: OS, CPU, memory. P2 disks snapshot and network throughput
+/// stream. Flutter apps should also depend on `dart_sysinfo_flutter` for
+/// hot-restart lifecycle glue.
 library;
 
 export 'src/bridge/api/smoke.dart';
@@ -17,6 +18,9 @@ export 'src/domains/disks/disks_domain.dart';
 export 'src/domains/disks/disks_info.dart';
 export 'src/domains/memory/memory_domain.dart';
 export 'src/domains/memory/memory_info.dart';
+export 'src/domains/network/network_domain.dart';
+export 'src/domains/network/network_info.dart';
+export 'src/domains/network/network_throughput_sample.dart';
 export 'src/domains/os/os_domain.dart';
 export 'src/domains/os/os_info.dart';
 // GENERATOR:END domain-exports

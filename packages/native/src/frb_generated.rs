@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 2075512725;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1710395181;
 
 // Section: executor
 
@@ -288,6 +288,71 @@ fn wire__crate__api__abi__native_crate_version_impl(
         },
     )
 }
+fn wire__crate__api__network__network_snapshot_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "network_snapshot",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>(crate::api::network::network_snapshot())?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__network__network_throughput_stream_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "network_throughput_stream",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_sink = <StreamSink<
+                crate::api::network::NetworkThroughputSampleDto,
+                flutter_rust_bridge::for_generated::SseCodec,
+            >>::sse_decode(&mut deserializer);
+            let api_interval_ms = <u64>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>({
+                    crate::api::network::network_throughput_stream(api_sink, api_interval_ms);
+                })?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__os__os_snapshot_impl(
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -330,6 +395,19 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
 
 impl SseDecode
     for StreamSink<crate::api::cpu::CpuLoadSampleDto, flutter_rust_bridge::for_generated::SseCodec>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <String>::sse_decode(deserializer);
+        return StreamSink::deserialize(inner);
+    }
+}
+
+impl SseDecode
+    for StreamSink<
+        crate::api::network::NetworkThroughputSampleDto,
+        flutter_rust_bridge::for_generated::SseCodec,
+    >
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -525,6 +603,18 @@ impl SseDecode for crate::api::lifecycle::InitResult {
     }
 }
 
+impl SseDecode for crate::api::network::IpNetworkEntryDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_address = <String>::sse_decode(deserializer);
+        let mut var_prefixLength = <u8>::sse_decode(deserializer);
+        return crate::api::network::IpNetworkEntryDto {
+            address: var_address,
+            prefix_length: var_prefixLength,
+        };
+    }
+}
+
 impl SseDecode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -556,6 +646,48 @@ impl SseDecode for Vec<crate::api::disks::DiskVolumeDto> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::api::disks::DiskVolumeDto>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::network::IpNetworkEntryDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::network::IpNetworkEntryDto>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::network::NetworkInterfaceDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::network::NetworkInterfaceDto>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::network::NetworkThroughputInterfaceDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(
+                <crate::api::network::NetworkThroughputInterfaceDto>::sse_decode(deserializer),
+            );
         }
         return ans_;
     }
@@ -632,6 +764,110 @@ impl SseDecode for crate::api::memory::MemoryInfoDto {
             free_swap_bytes: var_freeSwapBytes,
             used_swap_bytes: var_usedSwapBytes,
             cgroup_limits: var_cgroupLimits,
+        };
+    }
+}
+
+impl SseDecode for crate::api::network::NetworkCumulativeStatsDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_totalReceivedBytes = <u64>::sse_decode(deserializer);
+        let mut var_totalTransmittedBytes = <u64>::sse_decode(deserializer);
+        let mut var_totalPacketsReceived = <u64>::sse_decode(deserializer);
+        let mut var_totalPacketsTransmitted = <u64>::sse_decode(deserializer);
+        let mut var_totalErrorsOnReceived = <u64>::sse_decode(deserializer);
+        let mut var_totalErrorsOnTransmitted = <u64>::sse_decode(deserializer);
+        return crate::api::network::NetworkCumulativeStatsDto {
+            total_received_bytes: var_totalReceivedBytes,
+            total_transmitted_bytes: var_totalTransmittedBytes,
+            total_packets_received: var_totalPacketsReceived,
+            total_packets_transmitted: var_totalPacketsTransmitted,
+            total_errors_on_received: var_totalErrorsOnReceived,
+            total_errors_on_transmitted: var_totalErrorsOnTransmitted,
+        };
+    }
+}
+
+impl SseDecode for crate::api::network::NetworkInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_interfaces =
+            <Vec<crate::api::network::NetworkInterfaceDto>>::sse_decode(deserializer);
+        return crate::api::network::NetworkInfoDto {
+            interfaces: var_interfaces,
+        };
+    }
+}
+
+impl SseDecode for crate::api::network::NetworkInterfaceDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_macAddress = <String>::sse_decode(deserializer);
+        let mut var_ipNetworks =
+            <Vec<crate::api::network::IpNetworkEntryDto>>::sse_decode(deserializer);
+        let mut var_mtu = <u64>::sse_decode(deserializer);
+        let mut var_operationalState =
+            <crate::api::network::NetworkOperationalStateDto>::sse_decode(deserializer);
+        let mut var_cumulative =
+            <crate::api::network::NetworkCumulativeStatsDto>::sse_decode(deserializer);
+        return crate::api::network::NetworkInterfaceDto {
+            name: var_name,
+            mac_address: var_macAddress,
+            ip_networks: var_ipNetworks,
+            mtu: var_mtu,
+            operational_state: var_operationalState,
+            cumulative: var_cumulative,
+        };
+    }
+}
+
+impl SseDecode for crate::api::network::NetworkOperationalStateDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::network::NetworkOperationalStateDto::Up,
+            1 => crate::api::network::NetworkOperationalStateDto::Down,
+            2 => crate::api::network::NetworkOperationalStateDto::Testing,
+            3 => crate::api::network::NetworkOperationalStateDto::Unknown,
+            4 => crate::api::network::NetworkOperationalStateDto::Dormant,
+            5 => crate::api::network::NetworkOperationalStateDto::NotPresent,
+            6 => crate::api::network::NetworkOperationalStateDto::LowerLayerDown,
+            _ => unreachable!("Invalid variant for NetworkOperationalStateDto: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::network::NetworkThroughputInterfaceDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_receivedBytes = <u64>::sse_decode(deserializer);
+        let mut var_transmittedBytes = <u64>::sse_decode(deserializer);
+        let mut var_packetsReceived = <u64>::sse_decode(deserializer);
+        let mut var_packetsTransmitted = <u64>::sse_decode(deserializer);
+        let mut var_errorsOnReceived = <u64>::sse_decode(deserializer);
+        let mut var_errorsOnTransmitted = <u64>::sse_decode(deserializer);
+        return crate::api::network::NetworkThroughputInterfaceDto {
+            name: var_name,
+            received_bytes: var_receivedBytes,
+            transmitted_bytes: var_transmittedBytes,
+            packets_received: var_packetsReceived,
+            packets_transmitted: var_packetsTransmitted,
+            errors_on_received: var_errorsOnReceived,
+            errors_on_transmitted: var_errorsOnTransmitted,
+        };
+    }
+}
+
+impl SseDecode for crate::api::network::NetworkThroughputSampleDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_interfaces =
+            <Vec<crate::api::network::NetworkThroughputInterfaceDto>>::sse_decode(deserializer);
+        return crate::api::network::NetworkThroughputSampleDto {
+            interfaces: var_interfaces,
         };
     }
 }
@@ -789,7 +1025,11 @@ fn pde_ffi_dispatcher_sync_impl(
         6 => wire__crate__api__lifecycle__init_impl(ptr, rust_vec_len, data_len),
         7 => wire__crate__api__memory__memory_snapshot_impl(ptr, rust_vec_len, data_len),
         8 => wire__crate__api__abi__native_crate_version_impl(ptr, rust_vec_len, data_len),
-        9 => wire__crate__api__os__os_snapshot_impl(ptr, rust_vec_len, data_len),
+        9 => wire__crate__api__network__network_snapshot_impl(ptr, rust_vec_len, data_len),
+        10 => {
+            wire__crate__api__network__network_throughput_stream_impl(ptr, rust_vec_len, data_len)
+        }
+        11 => wire__crate__api__os__os_snapshot_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1014,6 +1254,27 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::lifecycle::InitResult>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::network::IpNetworkEntryDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.address.into_into_dart().into_dart(),
+            self.prefix_length.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::network::IpNetworkEntryDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::network::IpNetworkEntryDto>
+    for crate::api::network::IpNetworkEntryDto
+{
+    fn into_into_dart(self) -> crate::api::network::IpNetworkEntryDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::os::LoadAverageDto {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -1084,6 +1345,144 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::memory::MemoryInfoDto>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::network::NetworkCumulativeStatsDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.total_received_bytes.into_into_dart().into_dart(),
+            self.total_transmitted_bytes.into_into_dart().into_dart(),
+            self.total_packets_received.into_into_dart().into_dart(),
+            self.total_packets_transmitted.into_into_dart().into_dart(),
+            self.total_errors_on_received.into_into_dart().into_dart(),
+            self.total_errors_on_transmitted
+                .into_into_dart()
+                .into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::network::NetworkCumulativeStatsDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::network::NetworkCumulativeStatsDto>
+    for crate::api::network::NetworkCumulativeStatsDto
+{
+    fn into_into_dart(self) -> crate::api::network::NetworkCumulativeStatsDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::network::NetworkInfoDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [self.interfaces.into_into_dart().into_dart()].into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::network::NetworkInfoDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::network::NetworkInfoDto>
+    for crate::api::network::NetworkInfoDto
+{
+    fn into_into_dart(self) -> crate::api::network::NetworkInfoDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::network::NetworkInterfaceDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.mac_address.into_into_dart().into_dart(),
+            self.ip_networks.into_into_dart().into_dart(),
+            self.mtu.into_into_dart().into_dart(),
+            self.operational_state.into_into_dart().into_dart(),
+            self.cumulative.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::network::NetworkInterfaceDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::network::NetworkInterfaceDto>
+    for crate::api::network::NetworkInterfaceDto
+{
+    fn into_into_dart(self) -> crate::api::network::NetworkInterfaceDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::network::NetworkOperationalStateDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Up => 0.into_dart(),
+            Self::Down => 1.into_dart(),
+            Self::Testing => 2.into_dart(),
+            Self::Unknown => 3.into_dart(),
+            Self::Dormant => 4.into_dart(),
+            Self::NotPresent => 5.into_dart(),
+            Self::LowerLayerDown => 6.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::network::NetworkOperationalStateDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::network::NetworkOperationalStateDto>
+    for crate::api::network::NetworkOperationalStateDto
+{
+    fn into_into_dart(self) -> crate::api::network::NetworkOperationalStateDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::network::NetworkThroughputInterfaceDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.received_bytes.into_into_dart().into_dart(),
+            self.transmitted_bytes.into_into_dart().into_dart(),
+            self.packets_received.into_into_dart().into_dart(),
+            self.packets_transmitted.into_into_dart().into_dart(),
+            self.errors_on_received.into_into_dart().into_dart(),
+            self.errors_on_transmitted.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::network::NetworkThroughputInterfaceDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::network::NetworkThroughputInterfaceDto>
+    for crate::api::network::NetworkThroughputInterfaceDto
+{
+    fn into_into_dart(self) -> crate::api::network::NetworkThroughputInterfaceDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::network::NetworkThroughputSampleDto {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [self.interfaces.into_into_dart().into_dart()].into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::network::NetworkThroughputSampleDto
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::network::NetworkThroughputSampleDto>
+    for crate::api::network::NetworkThroughputSampleDto
+{
+    fn into_into_dart(self) -> crate::api::network::NetworkThroughputSampleDto {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::os::OsInfoDto {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -1118,6 +1517,18 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
 
 impl SseEncode
     for StreamSink<crate::api::cpu::CpuLoadSampleDto, flutter_rust_bridge::for_generated::SseCodec>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        unimplemented!("")
+    }
+}
+
+impl SseEncode
+    for StreamSink<
+        crate::api::network::NetworkThroughputSampleDto,
+        flutter_rust_bridge::for_generated::SseCodec,
+    >
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1264,6 +1675,14 @@ impl SseEncode for crate::api::lifecycle::InitResult {
     }
 }
 
+impl SseEncode for crate::api::network::IpNetworkEntryDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.address, serializer);
+        <u8>::sse_encode(self.prefix_length, serializer);
+    }
+}
+
 impl SseEncode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1290,6 +1709,36 @@ impl SseEncode for Vec<crate::api::disks::DiskVolumeDto> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::api::disks::DiskVolumeDto>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::network::IpNetworkEntryDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::network::IpNetworkEntryDto>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::network::NetworkInterfaceDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::network::NetworkInterfaceDto>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::network::NetworkThroughputInterfaceDto> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::network::NetworkThroughputInterfaceDto>::sse_encode(item, serializer);
         }
     }
 }
@@ -1342,6 +1791,84 @@ impl SseEncode for crate::api::memory::MemoryInfoDto {
         <u64>::sse_encode(self.free_swap_bytes, serializer);
         <u64>::sse_encode(self.used_swap_bytes, serializer);
         <crate::api::memory::CGroupLimitsReadingDto>::sse_encode(self.cgroup_limits, serializer);
+    }
+}
+
+impl SseEncode for crate::api::network::NetworkCumulativeStatsDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.total_received_bytes, serializer);
+        <u64>::sse_encode(self.total_transmitted_bytes, serializer);
+        <u64>::sse_encode(self.total_packets_received, serializer);
+        <u64>::sse_encode(self.total_packets_transmitted, serializer);
+        <u64>::sse_encode(self.total_errors_on_received, serializer);
+        <u64>::sse_encode(self.total_errors_on_transmitted, serializer);
+    }
+}
+
+impl SseEncode for crate::api::network::NetworkInfoDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::network::NetworkInterfaceDto>>::sse_encode(self.interfaces, serializer);
+    }
+}
+
+impl SseEncode for crate::api::network::NetworkInterfaceDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <String>::sse_encode(self.mac_address, serializer);
+        <Vec<crate::api::network::IpNetworkEntryDto>>::sse_encode(self.ip_networks, serializer);
+        <u64>::sse_encode(self.mtu, serializer);
+        <crate::api::network::NetworkOperationalStateDto>::sse_encode(
+            self.operational_state,
+            serializer,
+        );
+        <crate::api::network::NetworkCumulativeStatsDto>::sse_encode(self.cumulative, serializer);
+    }
+}
+
+impl SseEncode for crate::api::network::NetworkOperationalStateDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::network::NetworkOperationalStateDto::Up => 0,
+                crate::api::network::NetworkOperationalStateDto::Down => 1,
+                crate::api::network::NetworkOperationalStateDto::Testing => 2,
+                crate::api::network::NetworkOperationalStateDto::Unknown => 3,
+                crate::api::network::NetworkOperationalStateDto::Dormant => 4,
+                crate::api::network::NetworkOperationalStateDto::NotPresent => 5,
+                crate::api::network::NetworkOperationalStateDto::LowerLayerDown => 6,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::network::NetworkThroughputInterfaceDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <u64>::sse_encode(self.received_bytes, serializer);
+        <u64>::sse_encode(self.transmitted_bytes, serializer);
+        <u64>::sse_encode(self.packets_received, serializer);
+        <u64>::sse_encode(self.packets_transmitted, serializer);
+        <u64>::sse_encode(self.errors_on_received, serializer);
+        <u64>::sse_encode(self.errors_on_transmitted, serializer);
+    }
+}
+
+impl SseEncode for crate::api::network::NetworkThroughputSampleDto {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::network::NetworkThroughputInterfaceDto>>::sse_encode(
+            self.interfaces,
+            serializer,
+        );
     }
 }
 

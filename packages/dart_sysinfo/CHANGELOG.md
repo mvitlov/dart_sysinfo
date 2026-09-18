@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Network domain (M3-04): `SysInfo.network.snapshot()` with 2000 ms TTL,
+  `NetworkInfo` / `NetworkInterface` models, and `network.throughput()` broadcast
+  stream with diff-based warmup skip (TDD §4.5).
 - Disks snapshot domain (M3-03): `SysInfo.disks.snapshot()` with 2000 ms TTL,
   `DisksInfo` / `DiskVolume` models, and TDD §4.4 field mapping.
 - Domain-completeness CI check (M3-02): `tool/ci/check_domain_completeness.dart`
@@ -32,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Native ABI bumped to `2` for the disks FRB surface and `SharedState` layout.
+- Native ABI bumped to `3` for the network FRB surface and `SharedState` layout
+  (was `2` for disks in M3-03).
 - Example app upgraded from FFI smoke test to P1 domain demo with hot-restart QA.
 
 ### Documentation

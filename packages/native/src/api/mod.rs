@@ -6,6 +6,7 @@ pub mod cpu;
 pub mod disks;
 pub mod lifecycle;
 pub mod memory;
+pub mod network;
 pub mod os;
 // GENERATOR:END api-mod
 pub mod smoke;

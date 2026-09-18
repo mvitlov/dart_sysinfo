@@ -8,6 +8,7 @@ import 'api/cpu.dart';
 import 'api/disks.dart';
 import 'api/lifecycle.dart';
 import 'api/memory.dart';
+import 'api/network.dart';
 import 'api/os.dart';
 import 'api/smoke.dart';
 import 'dart:async';
@@ -70,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 2075512725;
+  int get rustContentHash => 1710395181;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -99,6 +100,12 @@ abstract class RustLibApi extends BaseApi {
   MemoryInfoDto crateApiMemoryMemorySnapshot();
 
   String crateApiAbiNativeCrateVersion();
+
+  NetworkInfoDto crateApiNetworkNetworkSnapshot();
+
+  Stream<NetworkThroughputSampleDto> crateApiNetworkNetworkThroughputStream({
+    required BigInt intervalMs,
+  });
 
   OsInfoDto crateApiOsOsSnapshot();
 }
@@ -296,12 +303,68 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "native_crate_version", argNames: []);
 
   @override
-  OsInfoDto crateApiOsOsSnapshot() {
+  NetworkInfoDto crateApiNetworkNetworkSnapshot() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_network_info_dto,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiNetworkNetworkSnapshotConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiNetworkNetworkSnapshotConstMeta =>
+      const TaskConstMeta(debugName: "network_snapshot", argNames: []);
+
+  @override
+  Stream<NetworkThroughputSampleDto> crateApiNetworkNetworkThroughputStream({
+    required BigInt intervalMs,
+  }) {
+    final sink = RustStreamSink<NetworkThroughputSampleDto>();
+    handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_StreamSink_network_throughput_sample_dto_Sse(
+            sink,
+            serializer,
+          );
+          sse_encode_u_64(intervalMs, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 10)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiNetworkNetworkThroughputStreamConstMeta,
+        argValues: [sink, intervalMs],
+        apiImpl: this,
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateApiNetworkNetworkThroughputStreamConstMeta =>
+      const TaskConstMeta(
+        debugName: "network_throughput_stream",
+        argNames: ["sink", "intervalMs"],
+      );
+
+  @override
+  OsInfoDto crateApiOsOsSnapshot() {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_os_info_dto,
@@ -326,6 +389,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   RustStreamSink<CpuLoadSampleDto>
   dco_decode_StreamSink_cpu_load_sample_dto_Sse(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
+  RustStreamSink<NetworkThroughputSampleDto>
+  dco_decode_StreamSink_network_throughput_sample_dto_Sse(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     throw UnimplementedError();
   }
@@ -512,6 +582,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  IpNetworkEntryDto dco_decode_ip_network_entry_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return IpNetworkEntryDto(
+      address: dco_decode_String(arr[0]),
+      prefixLength: dco_decode_u_8(arr[1]),
+    );
+  }
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_String).toList();
@@ -527,6 +609,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<DiskVolumeDto> dco_decode_list_disk_volume_dto(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_disk_volume_dto).toList();
+  }
+
+  @protected
+  List<IpNetworkEntryDto> dco_decode_list_ip_network_entry_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_ip_network_entry_dto).toList();
+  }
+
+  @protected
+  List<NetworkInterfaceDto> dco_decode_list_network_interface_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>)
+        .map(dco_decode_network_interface_dto)
+        .toList();
+  }
+
+  @protected
+  List<NetworkThroughputInterfaceDto>
+  dco_decode_list_network_throughput_interface_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>)
+        .map(dco_decode_network_throughput_interface_dto)
+        .toList();
   }
 
   @protected
@@ -581,6 +686,91 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       freeSwapBytes: dco_decode_u_64(arr[5]),
       usedSwapBytes: dco_decode_u_64(arr[6]),
       cgroupLimits: dco_decode_c_group_limits_reading_dto(arr[7]),
+    );
+  }
+
+  @protected
+  NetworkCumulativeStatsDto dco_decode_network_cumulative_stats_dto(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return NetworkCumulativeStatsDto(
+      totalReceivedBytes: dco_decode_u_64(arr[0]),
+      totalTransmittedBytes: dco_decode_u_64(arr[1]),
+      totalPacketsReceived: dco_decode_u_64(arr[2]),
+      totalPacketsTransmitted: dco_decode_u_64(arr[3]),
+      totalErrorsOnReceived: dco_decode_u_64(arr[4]),
+      totalErrorsOnTransmitted: dco_decode_u_64(arr[5]),
+    );
+  }
+
+  @protected
+  NetworkInfoDto dco_decode_network_info_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return NetworkInfoDto(
+      interfaces: dco_decode_list_network_interface_dto(arr[0]),
+    );
+  }
+
+  @protected
+  NetworkInterfaceDto dco_decode_network_interface_dto(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return NetworkInterfaceDto(
+      name: dco_decode_String(arr[0]),
+      macAddress: dco_decode_String(arr[1]),
+      ipNetworks: dco_decode_list_ip_network_entry_dto(arr[2]),
+      mtu: dco_decode_u_64(arr[3]),
+      operationalState: dco_decode_network_operational_state_dto(arr[4]),
+      cumulative: dco_decode_network_cumulative_stats_dto(arr[5]),
+    );
+  }
+
+  @protected
+  NetworkOperationalStateDto dco_decode_network_operational_state_dto(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return NetworkOperationalStateDto.values[raw as int];
+  }
+
+  @protected
+  NetworkThroughputInterfaceDto dco_decode_network_throughput_interface_dto(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return NetworkThroughputInterfaceDto(
+      name: dco_decode_String(arr[0]),
+      receivedBytes: dco_decode_u_64(arr[1]),
+      transmittedBytes: dco_decode_u_64(arr[2]),
+      packetsReceived: dco_decode_u_64(arr[3]),
+      packetsTransmitted: dco_decode_u_64(arr[4]),
+      errorsOnReceived: dco_decode_u_64(arr[5]),
+      errorsOnTransmitted: dco_decode_u_64(arr[6]),
+    );
+  }
+
+  @protected
+  NetworkThroughputSampleDto dco_decode_network_throughput_sample_dto(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return NetworkThroughputSampleDto(
+      interfaces: dco_decode_list_network_throughput_interface_dto(arr[0]),
     );
   }
 
@@ -675,6 +865,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   RustStreamSink<CpuLoadSampleDto>
   sse_decode_StreamSink_cpu_load_sample_dto_Sse(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
+  RustStreamSink<NetworkThroughputSampleDto>
+  sse_decode_StreamSink_network_throughput_sample_dto_Sse(
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     throw UnimplementedError('Unreachable ()');
   }
@@ -876,6 +1075,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  IpNetworkEntryDto sse_decode_ip_network_entry_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_address = sse_decode_String(deserializer);
+    var var_prefixLength = sse_decode_u_8(deserializer);
+    return IpNetworkEntryDto(
+      address: var_address,
+      prefixLength: var_prefixLength,
+    );
+  }
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -909,6 +1121,49 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var ans_ = <DiskVolumeDto>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_disk_volume_dto(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<IpNetworkEntryDto> sse_decode_list_ip_network_entry_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <IpNetworkEntryDto>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_ip_network_entry_dto(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<NetworkInterfaceDto> sse_decode_list_network_interface_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <NetworkInterfaceDto>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_network_interface_dto(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<NetworkThroughputInterfaceDto>
+  sse_decode_list_network_throughput_interface_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <NetworkThroughputInterfaceDto>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_network_throughput_interface_dto(deserializer));
     }
     return ans_;
   }
@@ -967,6 +1222,100 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       usedSwapBytes: var_usedSwapBytes,
       cgroupLimits: var_cgroupLimits,
     );
+  }
+
+  @protected
+  NetworkCumulativeStatsDto sse_decode_network_cumulative_stats_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_totalReceivedBytes = sse_decode_u_64(deserializer);
+    var var_totalTransmittedBytes = sse_decode_u_64(deserializer);
+    var var_totalPacketsReceived = sse_decode_u_64(deserializer);
+    var var_totalPacketsTransmitted = sse_decode_u_64(deserializer);
+    var var_totalErrorsOnReceived = sse_decode_u_64(deserializer);
+    var var_totalErrorsOnTransmitted = sse_decode_u_64(deserializer);
+    return NetworkCumulativeStatsDto(
+      totalReceivedBytes: var_totalReceivedBytes,
+      totalTransmittedBytes: var_totalTransmittedBytes,
+      totalPacketsReceived: var_totalPacketsReceived,
+      totalPacketsTransmitted: var_totalPacketsTransmitted,
+      totalErrorsOnReceived: var_totalErrorsOnReceived,
+      totalErrorsOnTransmitted: var_totalErrorsOnTransmitted,
+    );
+  }
+
+  @protected
+  NetworkInfoDto sse_decode_network_info_dto(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_interfaces = sse_decode_list_network_interface_dto(deserializer);
+    return NetworkInfoDto(interfaces: var_interfaces);
+  }
+
+  @protected
+  NetworkInterfaceDto sse_decode_network_interface_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_macAddress = sse_decode_String(deserializer);
+    var var_ipNetworks = sse_decode_list_ip_network_entry_dto(deserializer);
+    var var_mtu = sse_decode_u_64(deserializer);
+    var var_operationalState = sse_decode_network_operational_state_dto(
+      deserializer,
+    );
+    var var_cumulative = sse_decode_network_cumulative_stats_dto(deserializer);
+    return NetworkInterfaceDto(
+      name: var_name,
+      macAddress: var_macAddress,
+      ipNetworks: var_ipNetworks,
+      mtu: var_mtu,
+      operationalState: var_operationalState,
+      cumulative: var_cumulative,
+    );
+  }
+
+  @protected
+  NetworkOperationalStateDto sse_decode_network_operational_state_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return NetworkOperationalStateDto.values[inner];
+  }
+
+  @protected
+  NetworkThroughputInterfaceDto sse_decode_network_throughput_interface_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_receivedBytes = sse_decode_u_64(deserializer);
+    var var_transmittedBytes = sse_decode_u_64(deserializer);
+    var var_packetsReceived = sse_decode_u_64(deserializer);
+    var var_packetsTransmitted = sse_decode_u_64(deserializer);
+    var var_errorsOnReceived = sse_decode_u_64(deserializer);
+    var var_errorsOnTransmitted = sse_decode_u_64(deserializer);
+    return NetworkThroughputInterfaceDto(
+      name: var_name,
+      receivedBytes: var_receivedBytes,
+      transmittedBytes: var_transmittedBytes,
+      packetsReceived: var_packetsReceived,
+      packetsTransmitted: var_packetsTransmitted,
+      errorsOnReceived: var_errorsOnReceived,
+      errorsOnTransmitted: var_errorsOnTransmitted,
+    );
+  }
+
+  @protected
+  NetworkThroughputSampleDto sse_decode_network_throughput_sample_dto(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_interfaces = sse_decode_list_network_throughput_interface_dto(
+      deserializer,
+    );
+    return NetworkThroughputSampleDto(interfaces: var_interfaces);
   }
 
   @protected
@@ -1112,6 +1461,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       self.setupAndSerialize(
         codec: SseCodec(
           decodeSuccessData: sse_decode_cpu_load_sample_dto,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
+  void sse_encode_StreamSink_network_throughput_sample_dto_Sse(
+    RustStreamSink<NetworkThroughputSampleDto> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_network_throughput_sample_dto,
           decodeErrorData: sse_decode_AnyhowException,
         ),
       ),
@@ -1279,6 +1645,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_ip_network_entry_dto(
+    IpNetworkEntryDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.address, serializer);
+    sse_encode_u_8(self.prefixLength, serializer);
+  }
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
@@ -1308,6 +1684,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_disk_volume_dto(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_ip_network_entry_dto(
+    List<IpNetworkEntryDto> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_ip_network_entry_dto(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_network_interface_dto(
+    List<NetworkInterfaceDto> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_network_interface_dto(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_network_throughput_interface_dto(
+    List<NetworkThroughputInterfaceDto> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_network_throughput_interface_dto(item, serializer);
     }
   }
 
@@ -1366,6 +1778,79 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_u_64(self.freeSwapBytes, serializer);
     sse_encode_u_64(self.usedSwapBytes, serializer);
     sse_encode_c_group_limits_reading_dto(self.cgroupLimits, serializer);
+  }
+
+  @protected
+  void sse_encode_network_cumulative_stats_dto(
+    NetworkCumulativeStatsDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.totalReceivedBytes, serializer);
+    sse_encode_u_64(self.totalTransmittedBytes, serializer);
+    sse_encode_u_64(self.totalPacketsReceived, serializer);
+    sse_encode_u_64(self.totalPacketsTransmitted, serializer);
+    sse_encode_u_64(self.totalErrorsOnReceived, serializer);
+    sse_encode_u_64(self.totalErrorsOnTransmitted, serializer);
+  }
+
+  @protected
+  void sse_encode_network_info_dto(
+    NetworkInfoDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_network_interface_dto(self.interfaces, serializer);
+  }
+
+  @protected
+  void sse_encode_network_interface_dto(
+    NetworkInterfaceDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_String(self.macAddress, serializer);
+    sse_encode_list_ip_network_entry_dto(self.ipNetworks, serializer);
+    sse_encode_u_64(self.mtu, serializer);
+    sse_encode_network_operational_state_dto(self.operationalState, serializer);
+    sse_encode_network_cumulative_stats_dto(self.cumulative, serializer);
+  }
+
+  @protected
+  void sse_encode_network_operational_state_dto(
+    NetworkOperationalStateDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_network_throughput_interface_dto(
+    NetworkThroughputInterfaceDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_u_64(self.receivedBytes, serializer);
+    sse_encode_u_64(self.transmittedBytes, serializer);
+    sse_encode_u_64(self.packetsReceived, serializer);
+    sse_encode_u_64(self.packetsTransmitted, serializer);
+    sse_encode_u_64(self.errorsOnReceived, serializer);
+    sse_encode_u_64(self.errorsOnTransmitted, serializer);
+  }
+
+  @protected
+  void sse_encode_network_throughput_sample_dto(
+    NetworkThroughputSampleDto self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_network_throughput_interface_dto(
+      self.interfaces,
+      serializer,
+    );
   }
 
   @protected

@@ -8,6 +8,9 @@ import 'package:dart_sysinfo/src/domains/disks/disks_domain.dart';
 import 'package:dart_sysinfo/src/domains/disks/disks_info.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_info.dart';
+import 'package:dart_sysinfo/src/domains/network/network_domain.dart';
+import 'package:dart_sysinfo/src/domains/network/network_info.dart';
+import 'package:dart_sysinfo/src/domains/network/network_throughput_sample.dart';
 import 'package:dart_sysinfo/src/domains/os/os_domain.dart';
 import 'package:dart_sysinfo/src/domains/os/os_info.dart';
 import '../support/mock_rust_lib_api.dart';
@@ -139,6 +142,7 @@ class _TestSysInfo extends SysInfo {
       : cpu = _TestCpuDomain(),
         disks = _TestDisksDomain(),
         memory = _TestMemoryDomain(),
+        network = _TestNetworkDomain(),
         os = _TestOsDomain();
 
   int disposeCalls = 0;
@@ -151,6 +155,9 @@ class _TestSysInfo extends SysInfo {
 
   @override
   final _TestMemoryDomain memory;
+
+  @override
+  final _TestNetworkDomain network;
 
   @override
   final _TestOsDomain os;
@@ -186,6 +193,18 @@ class _TestMemoryDomain implements MemoryDomain {
   @override
   Future<MemoryInfo> snapshot({bool forceRefresh = false}) async =>
       MemoryInfo.allUnavailable();
+}
+
+class _TestNetworkDomain implements NetworkDomain {
+  @override
+  Future<NetworkInfo> snapshot({bool forceRefresh = false}) async =>
+      NetworkInfo.allUnavailable();
+
+  @override
+  Stream<NetworkThroughputSample> throughput({
+    Duration interval = const Duration(seconds: 1),
+  }) =>
+      Stream<NetworkThroughputSample>.empty();
 }
 
 class _TestOsDomain implements OsDomain {

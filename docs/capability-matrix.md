@@ -58,12 +58,14 @@ generated. Replace **TBD** values when the domain story ships (M3-03+).
 |---|---|---|---|---|---|---|
 <!-- GENERATOR:BEGIN p2-capability-rows -->
 | `disks` | 2000 ms | none | — | Android, iOS, macOS, Linux, Windows (web excluded per PRD §1.6) | None — volume listing does not require prohibited APIs | `volumes` → plain `List<DiskVolume>`; empty list is valid on sandboxes/scoped storage (not `ReadingUnavailable`); see TDD §4.4 for path visibility limits |
+| `network` | 2000 ms | `network.throughput()` (broadcast, ref-counted) | 200 ms on Android/iOS; 50 ms on desktop | Android, iOS, macOS, Linux, Windows (web excluded per PRD §1.6) | None — interface listing does not require prohibited APIs | `interfaces` → plain `List<NetworkInterface>`; empty list is valid; throughput stream skips first diff-based tick after init; permission lint deferred to M3-05 |
 <!-- GENERATOR:END p2-capability-rows -->
 
 | Domain | Permissions merged by `dart_sysinfo` | Consumer obligation |
 |---|---|---|
 <!-- GENERATOR:BEGIN p2-permission-rows -->
 | `disks` | **None** | None beyond normal app process; mobile sandboxes may return a subset of volumes or an empty list — never claim full-disk access |
+| `network` | **None** | Consumer app must declare `ACCESS_NETWORK_STATE` (and `ACCESS_WIFI_STATE` where needed) in the app manifest — never merged by `dart_sysinfo`; M3-05 adds lint |
 <!-- GENERATOR:END p2-permission-rows -->
 
 ## Future domains

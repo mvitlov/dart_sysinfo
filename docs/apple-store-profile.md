@@ -28,6 +28,13 @@ The disks snapshot domain (`SysInfo.disks.snapshot()`) also remains available
 under the store profile. Volume listing does not require prohibited APIs; mobile
 sandboxes may still return a subset of volumes or an empty list.
 
+## P2 impact (network, M3-04)
+
+The network snapshot domain (`SysInfo.network.snapshot()`) and throughput stream
+(`SysInfo.network.throughput()`) also remain available under the store profile.
+Interface listing does not require prohibited APIs; mobile sandboxes may return
+an empty interface list.
+
 ## Local verification
 
 From the repository root:

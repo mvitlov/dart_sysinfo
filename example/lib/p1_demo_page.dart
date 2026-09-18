@@ -27,6 +27,7 @@ class _P1DemoPageState extends State<P1DemoPage> {
   MemoryInfo? _memoryInfo;
   CpuInfo? _cpuInfo;
   DisksInfo? _disksInfo;
+  NetworkInfo? _networkInfo;
   String? _errorMessage;
   bool _loadingSnapshots = false;
 
@@ -35,6 +36,12 @@ class _P1DemoPageState extends State<P1DemoPage> {
   CpuLoadSample? _lastSample;
   DateTime? _lastTickAt;
   bool _streamActive = false;
+
+  StreamSubscription<NetworkThroughputSample>? _throughputSubscription;
+  int _throughputTickCount = 0;
+  NetworkThroughputSample? _lastThroughputSample;
+  DateTime? _lastThroughputTickAt;
+  bool _throughputStreamActive = false;
 
   @override
   void initState() {
@@ -49,6 +56,7 @@ class _P1DemoPageState extends State<P1DemoPage> {
   @override
   void dispose() {
     unawaited(_loadSubscription?.cancel());
+    unawaited(_throughputSubscription?.cancel());
     super.dispose();
   }
 
@@ -65,6 +73,7 @@ class _P1DemoPageState extends State<P1DemoPage> {
         sysInfo.memory.snapshot(forceRefresh: true),
         sysInfo.cpu.snapshot(forceRefresh: true),
         sysInfo.disks.snapshot(forceRefresh: true),
+        sysInfo.network.snapshot(forceRefresh: true),
       ]);
 
       if (!mounted) {
@@ -76,6 +85,7 @@ class _P1DemoPageState extends State<P1DemoPage> {
         _memoryInfo = results[1] as MemoryInfo;
         _cpuInfo = results[2] as CpuInfo;
         _disksInfo = results[3] as DisksInfo;
+        _networkInfo = results[4] as NetworkInfo;
         _loadingSnapshots = false;
       });
     } on SysInfoException catch (error) {
@@ -154,6 +164,63 @@ class _P1DemoPageState extends State<P1DemoPage> {
     });
   }
 
+  Future<void> _startThroughputStream() async {
+    await _throughputSubscription?.cancel();
+    setState(() {
+      _errorMessage = null;
+      _throughputTickCount = 0;
+      _lastThroughputSample = null;
+      _lastThroughputTickAt = null;
+      _throughputStreamActive = true;
+    });
+
+    try {
+      _throughputSubscription = SysInfo.instance.network.throughput().listen(
+        (sample) {
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            _throughputTickCount++;
+            _lastThroughputSample = sample;
+            _lastThroughputTickAt = DateTime.now();
+          });
+          debugPrint('[NETWORK_THROUGHPUT] tick $_throughputTickCount');
+        },
+        onError: (Object error) {
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            _throughputStreamActive = false;
+            _errorMessage = error is SysInfoException
+                ? error.message
+                : error.toString();
+          });
+        },
+      );
+    } on SysInfoException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _throughputStreamActive = false;
+        _errorMessage = error.message;
+      });
+    }
+  }
+
+  Future<void> _stopThroughputStream() async {
+    await _throughputSubscription?.cancel();
+    _throughputSubscription = null;
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _throughputStreamActive = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,6 +275,14 @@ class _P1DemoPageState extends State<P1DemoPage> {
                 ? const ['Tap Refresh to load disks snapshot.']
                 : _disksLines(),
           ),
+          _SnapshotSection(
+            title: 'Network',
+            onRefresh: _refreshSnapshots,
+            loading: _loadingSnapshots,
+            lines: _networkInfo == null
+                ? const ['Tap Refresh to load network snapshot.']
+                : _networkLines(),
+          ),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -232,6 +307,45 @@ class _P1DemoPageState extends State<P1DemoPage> {
                       ),
                       OutlinedButton(
                         onPressed: _streamActive ? _stopLoadStream : null,
+                        child: const Text('Stop'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Network throughput stream',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Status: '
+                    '${_throughputStreamActive ? 'running' : 'stopped'}',
+                  ),
+                  Text('Ticks: $_throughputTickCount'),
+                  Text(_lastThroughputSampleText()),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      FilledButton(
+                        onPressed: _throughputStreamActive
+                            ? null
+                            : _startThroughputStream,
+                        child: const Text('Start'),
+                      ),
+                      OutlinedButton(
+                        onPressed: _throughputStreamActive
+                            ? _stopThroughputStream
+                            : null,
                         child: const Text('Stop'),
                       ),
                     ],
@@ -284,12 +398,37 @@ class _P1DemoPageState extends State<P1DemoPage> {
     ];
   }
 
+  List<String> _networkLines() {
+    final network = _networkInfo!;
+    if (network.interfaces.isEmpty) {
+      return const ['interfaces: 0 (empty list is valid)'];
+    }
+    final first = network.interfaces.first;
+    return [
+      'interfaces: ${network.interfaces.length}',
+      'first name: ${first.name}',
+    ];
+  }
+
   String _lastSampleText() {
     if (_lastSample == null) {
       return 'Last sample: none';
     }
     final usage = _lastSample!.globalUsagePercent.toStringAsFixed(1);
     return 'Last: $usage% at ${_formatTime(_lastTickAt)}';
+  }
+
+  String _lastThroughputSampleText() {
+    if (_lastThroughputSample == null) {
+      return 'Last sample: none';
+    }
+    final interfaces = _lastThroughputSample!.interfaces;
+    if (interfaces.isEmpty) {
+      return 'Last: 0 interfaces at ${_formatTime(_lastThroughputTickAt)}';
+    }
+    final first = interfaces.first;
+    return 'Last: ${first.name} rx=${first.receivedBytes} tx='
+        '${first.transmittedBytes} at ${_formatTime(_lastThroughputTickAt)}';
   }
 
   String _smokePingText() {

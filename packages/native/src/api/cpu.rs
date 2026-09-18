@@ -172,7 +172,9 @@ mod tests {
         let state = SharedState {
             system: std::sync::RwLock::new(System::new()),
             disks: std::sync::RwLock::new(sysinfo::Disks::new()),
+            networks: std::sync::RwLock::new(sysinfo::Networks::new()),
             cpu_usage_ready: std::sync::atomic::AtomicBool::new(false),
+            network_throughput_ready: std::sync::atomic::AtomicBool::new(false),
         };
         let mut sys = state.system.write().unwrap();
         sys.refresh_cpu_specifics(CpuRefreshKind::everything());

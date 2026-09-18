@@ -6,6 +6,7 @@ import 'package:dart_sysinfo/src/core/sys_info.dart';
 import 'package:dart_sysinfo/src/testing/fake_cpu_domain.dart';
 import 'package:dart_sysinfo/src/testing/fake_disks_domain.dart';
 import 'package:dart_sysinfo/src/testing/fake_memory_domain.dart';
+import 'package:dart_sysinfo/src/testing/fake_network_domain.dart';
 import 'package:dart_sysinfo/src/testing/fake_os_domain.dart';
 // GENERATOR:END fake-imports
 
@@ -17,12 +18,14 @@ class FakeSysInfo extends SysInfo {
     FakeCpuDomain? cpu,
     FakeDisksDomain? disks,
     FakeMemoryDomain? memory,
+    FakeNetworkDomain? network,
     FakeOsDomain? os,
 // GENERATOR:END fake-ctor-params
   })  // GENERATOR:BEGIN fake-ctor-init
       : cpu = cpu ?? FakeCpuDomain(),
         disks = disks ?? FakeDisksDomain(),
         memory = memory ?? FakeMemoryDomain(),
+        network = network ?? FakeNetworkDomain(),
         os = os ?? FakeOsDomain();
 // GENERATOR:END fake-ctor-init
 
@@ -35,6 +38,9 @@ class FakeSysInfo extends SysInfo {
 
   @override
   final FakeMemoryDomain memory;
+
+  @override
+  final FakeNetworkDomain network;
 
   @override
   final FakeOsDomain os;

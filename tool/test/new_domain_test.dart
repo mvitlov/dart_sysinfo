@@ -119,7 +119,7 @@ void main() {
 
       await _runGenerator(
         [
-          'network',
+          'metrics',
           '--stream',
           '--stream-method=throughput',
           '--skip-post-steps',
@@ -129,20 +129,20 @@ void main() {
 
       expect(
         File(
-          '${temp.path}/packages/dart_sysinfo/lib/src/domains/network/network_stream_sample.dart',
+          '${temp.path}/packages/dart_sysinfo/lib/src/domains/metrics/metrics_stream_sample.dart',
         ).existsSync(),
         isTrue,
       );
 
       final domain = File(
-        '${temp.path}/packages/dart_sysinfo/lib/src/domains/network/network_domain.dart',
+        '${temp.path}/packages/dart_sysinfo/lib/src/domains/metrics/metrics_domain.dart',
       ).readAsStringSync();
-      expect(domain, contains('Stream<NetworkStreamSample> throughput'));
+      expect(domain, contains('Stream<MetricsStreamSample> throughput'));
 
       final mock = File(
         '${temp.path}/packages/dart_sysinfo/test/support/mock_rust_lib_api.dart',
       ).readAsStringSync();
-      expect(mock, contains('crateApiNetworkNetworkThroughputStream'));
+      expect(mock, contains('crateApiMetricsMetricsThroughputStream'));
     });
 
     test('refuses to overwrite an existing domain', () async {

@@ -11,6 +11,7 @@ import 'api/cpu.dart';
 import 'api/disks.dart';
 import 'api/lifecycle.dart';
 import 'api/memory.dart';
+import 'api/network.dart';
 import 'api/os.dart';
 import 'api/smoke.dart';
 import 'dart:async';
@@ -32,6 +33,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   RustStreamSink<CpuLoadSampleDto>
   dco_decode_StreamSink_cpu_load_sample_dto_Sse(dynamic raw);
+
+  @protected
+  RustStreamSink<NetworkThroughputSampleDto>
+  dco_decode_StreamSink_network_throughput_sample_dto_Sse(dynamic raw);
 
   @protected
   String dco_decode_String(dynamic raw);
@@ -91,6 +96,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   InitResult dco_decode_init_result(dynamic raw);
 
   @protected
+  IpNetworkEntryDto dco_decode_ip_network_entry_dto(dynamic raw);
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
@@ -98,6 +106,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<DiskVolumeDto> dco_decode_list_disk_volume_dto(dynamic raw);
+
+  @protected
+  List<IpNetworkEntryDto> dco_decode_list_ip_network_entry_dto(dynamic raw);
+
+  @protected
+  List<NetworkInterfaceDto> dco_decode_list_network_interface_dto(dynamic raw);
+
+  @protected
+  List<NetworkThroughputInterfaceDto>
+  dco_decode_list_network_throughput_interface_dto(dynamic raw);
 
   @protected
   Float32List dco_decode_list_prim_f_32_strict(dynamic raw);
@@ -113,6 +131,32 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MemoryInfoDto dco_decode_memory_info_dto(dynamic raw);
+
+  @protected
+  NetworkCumulativeStatsDto dco_decode_network_cumulative_stats_dto(
+    dynamic raw,
+  );
+
+  @protected
+  NetworkInfoDto dco_decode_network_info_dto(dynamic raw);
+
+  @protected
+  NetworkInterfaceDto dco_decode_network_interface_dto(dynamic raw);
+
+  @protected
+  NetworkOperationalStateDto dco_decode_network_operational_state_dto(
+    dynamic raw,
+  );
+
+  @protected
+  NetworkThroughputInterfaceDto dco_decode_network_throughput_interface_dto(
+    dynamic raw,
+  );
+
+  @protected
+  NetworkThroughputSampleDto dco_decode_network_throughput_sample_dto(
+    dynamic raw,
+  );
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -153,6 +197,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   RustStreamSink<CpuLoadSampleDto>
   sse_decode_StreamSink_cpu_load_sample_dto_Sse(SseDeserializer deserializer);
+
+  @protected
+  RustStreamSink<NetworkThroughputSampleDto>
+  sse_decode_StreamSink_network_throughput_sample_dto_Sse(
+    SseDeserializer deserializer,
+  );
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -218,6 +268,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   InitResult sse_decode_init_result(SseDeserializer deserializer);
 
   @protected
+  IpNetworkEntryDto sse_decode_ip_network_entry_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
@@ -225,6 +280,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<DiskVolumeDto> sse_decode_list_disk_volume_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<IpNetworkEntryDto> sse_decode_list_ip_network_entry_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<NetworkInterfaceDto> sse_decode_list_network_interface_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<NetworkThroughputInterfaceDto>
+  sse_decode_list_network_throughput_interface_dto(
     SseDeserializer deserializer,
   );
 
@@ -244,6 +315,34 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MemoryInfoDto sse_decode_memory_info_dto(SseDeserializer deserializer);
+
+  @protected
+  NetworkCumulativeStatsDto sse_decode_network_cumulative_stats_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  NetworkInfoDto sse_decode_network_info_dto(SseDeserializer deserializer);
+
+  @protected
+  NetworkInterfaceDto sse_decode_network_interface_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  NetworkOperationalStateDto sse_decode_network_operational_state_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  NetworkThroughputInterfaceDto sse_decode_network_throughput_interface_dto(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  NetworkThroughputSampleDto sse_decode_network_throughput_sample_dto(
+    SseDeserializer deserializer,
+  );
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -293,6 +392,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_StreamSink_cpu_load_sample_dto_Sse(
     RustStreamSink<CpuLoadSampleDto> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_network_throughput_sample_dto_Sse(
+    RustStreamSink<NetworkThroughputSampleDto> self,
     SseSerializer serializer,
   );
 
@@ -372,6 +477,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_init_result(InitResult self, SseSerializer serializer);
 
   @protected
+  void sse_encode_ip_network_entry_dto(
+    IpNetworkEntryDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
@@ -383,6 +494,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_disk_volume_dto(
     List<DiskVolumeDto> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_ip_network_entry_dto(
+    List<IpNetworkEntryDto> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_network_interface_dto(
+    List<NetworkInterfaceDto> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_network_throughput_interface_dto(
+    List<NetworkThroughputInterfaceDto> self,
     SseSerializer serializer,
   );
 
@@ -412,6 +541,42 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_memory_info_dto(MemoryInfoDto self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_network_cumulative_stats_dto(
+    NetworkCumulativeStatsDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_network_info_dto(
+    NetworkInfoDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_network_interface_dto(
+    NetworkInterfaceDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_network_operational_state_dto(
+    NetworkOperationalStateDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_network_throughput_interface_dto(
+    NetworkThroughputInterfaceDto self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_network_throughput_sample_dto(
+    NetworkThroughputSampleDto self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);

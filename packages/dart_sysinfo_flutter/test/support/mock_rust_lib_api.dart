@@ -4,6 +4,7 @@ import 'package:dart_sysinfo/src/bridge/api/cpu.dart';
 import 'package:dart_sysinfo/src/bridge/api/disks.dart';
 import 'package:dart_sysinfo/src/bridge/api/lifecycle.dart';
 import 'package:dart_sysinfo/src/bridge/api/memory.dart';
+import 'package:dart_sysinfo/src/bridge/api/network.dart';
 import 'package:dart_sysinfo/src/bridge/api/os.dart';
 import 'package:dart_sysinfo/src/bridge/frb_generated.dart';
 import 'package:dart_sysinfo/src/core/abi_guard.dart';
@@ -72,4 +73,14 @@ class MockRustLibApi implements RustLibApi {
 
   @override
   DisksInfoDto crateApiDisksDisksSnapshot() => const DisksInfoDto(volumes: []);
+
+  @override
+  NetworkInfoDto crateApiNetworkNetworkSnapshot() =>
+      const NetworkInfoDto(interfaces: []);
+
+  @override
+  Stream<NetworkThroughputSampleDto> crateApiNetworkNetworkThroughputStream({
+    required BigInt intervalMs,
+  }) =>
+      const Stream<NetworkThroughputSampleDto>.empty();
 }

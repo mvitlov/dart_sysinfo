@@ -101,6 +101,68 @@ void main() {
     });
   });
 
+  group('FakeNetworkDomain', () {
+    test('fake_network_defaults_and_setSnapshot', () async {
+      final domain = FakeNetworkDomain();
+      final defaultInfo = await domain.snapshot();
+
+      expect(defaultInfo.interfaces, isEmpty);
+
+      domain.setSnapshot(
+        NetworkInfo(
+          interfaces: [
+            NetworkInterface(
+              name: 'en0',
+              macAddress: '00:11:22:33:44:55',
+              ipNetworks: const [
+                IpNetworkEntry(address: '10.0.0.2', prefixLength: 24),
+              ],
+              mtu: 1500,
+              operationalState: NetworkOperationalState.up,
+              cumulative: const NetworkCumulativeStats(
+                totalReceivedBytes: 100,
+                totalTransmittedBytes: 200,
+                totalPacketsReceived: 1,
+                totalPacketsTransmitted: 2,
+                totalErrorsOnReceived: 0,
+                totalErrorsOnTransmitted: 0,
+              ),
+            ),
+          ],
+        ),
+      );
+
+      final updated = await domain.snapshot();
+      expect(updated.interfaces.single.name, 'en0');
+    });
+
+    test('fake_network_emitThroughput_delivers_to_listener', () async {
+      final domain = FakeNetworkDomain();
+      final values = <NetworkThroughputSample>[];
+
+      final sub = domain.throughput().listen(values.add);
+      domain.emitThroughput(
+        const NetworkThroughputSample(
+          interfaces: [
+            NetworkThroughputInterface(
+              name: 'en0',
+              receivedBytes: 42,
+              transmittedBytes: 84,
+              packetsReceived: 1,
+              packetsTransmitted: 2,
+              errorsOnReceived: 0,
+              errorsOnTransmitted: 0,
+            ),
+          ],
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel();
+
+      expect(values.single.interfaces.single.receivedBytes, 42);
+    });
+  });
+
   group('FakeMemoryDomain', () {
     test('fake_memory_defaults_and_setSnapshot', () async {
       final domain = FakeMemoryDomain();
@@ -210,6 +272,7 @@ void main() {
       expect(identical(SysInfo.instance.cpu, cpu), isTrue);
       expect(SysInfo.instance.memory, isA<FakeMemoryDomain>());
       expect(SysInfo.instance.disks, isA<FakeDisksDomain>());
+      expect(SysInfo.instance.network, isA<FakeNetworkDomain>());
       expect(SysInfo.instance.os, isA<FakeOsDomain>());
     });
 

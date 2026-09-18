@@ -10,17 +10,19 @@ import 'package:dart_sysinfo/src/core/shared_stream_registry.dart';
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain.dart';
 import 'package:dart_sysinfo/src/domains/disks/disks_domain.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain.dart';
+import 'package:dart_sysinfo/src/domains/network/network_domain.dart';
 import 'package:dart_sysinfo/src/domains/os/os_domain.dart';
 // GENERATOR:END domain-imports
 // GENERATOR:BEGIN domain-impl-imports
 import 'package:dart_sysinfo/src/domains/cpu/cpu_domain_impl.dart';
 import 'package:dart_sysinfo/src/domains/disks/disks_domain_impl.dart';
 import 'package:dart_sysinfo/src/domains/memory/memory_domain_impl.dart';
+import 'package:dart_sysinfo/src/domains/network/network_domain_impl.dart';
 import 'package:dart_sysinfo/src/domains/os/os_domain_impl.dart';
 // GENERATOR:END domain-impl-imports
 import 'package:meta/meta.dart';
 
-/// Public facade for OS, CPU, memory, and disks domains.
+/// Public facade for OS, CPU, memory, disks, and network domains.
 abstract class SysInfo {
   // GENERATOR:BEGIN domain-getters
   /// CPU metrics namespace.
@@ -31,6 +33,9 @@ abstract class SysInfo {
 
   /// Memory metrics namespace.
   MemoryDomain get memory;
+
+  /// Network metrics namespace.
+  NetworkDomain get network;
 
   /// OS metrics namespace.
   OsDomain get os;
@@ -88,6 +93,7 @@ class _RealSysInfo extends SysInfo {
       : cpu = CpuDomainImpl(),
         disks = DisksDomainImpl(),
         memory = MemoryDomainImpl(),
+        network = NetworkDomainImpl(),
         os = OsDomainImpl();
 // GENERATOR:END domain-impl-init
 
@@ -110,6 +116,9 @@ class _RealSysInfo extends SysInfo {
 
   @override
   final MemoryDomainImpl memory;
+
+  @override
+  final NetworkDomainImpl network;
 
   @override
   final OsDomainImpl os;
