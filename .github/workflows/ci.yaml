@@ -22,69 +22,6 @@ concurrency:
 permissions:
   contents: read
 
-# Shared 9-cell matrix for flutter-build (Cargokit gate).
-# Native Assets matrix lives in native-assets-matrix.yml — keep both in sync.
-x-flutter-build-matrix: &flutter-build-matrix
-  include:
-    # --- Latest (3.47.4): all 5 platforms ---
-    - flutter-version: '3.47.4'
-      sdk-tier: latest
-      platform: android
-      runs-on: ubuntu-latest
-      rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-      build: cd example && flutter build apk --debug
-    - flutter-version: '3.47.4'
-      sdk-tier: latest
-      platform: ios
-      runs-on: macos-latest
-      rust-targets: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
-      build: cd example && flutter build ios --debug --no-codesign
-    - flutter-version: '3.47.4'
-      sdk-tier: latest
-      platform: linux
-      runs-on: ubuntu-latest
-      rust-targets: x86_64-unknown-linux-gnu
-      build: cd example && flutter build linux --debug
-    - flutter-version: '3.47.4'
-      sdk-tier: latest
-      platform: macos
-      runs-on: macos-latest
-      rust-targets: aarch64-apple-darwin x86_64-apple-darwin
-      build: cd example && flutter build macos --debug
-    - flutter-version: '3.47.4'
-      sdk-tier: latest
-      platform: windows
-      runs-on: windows-latest
-      rust-targets: x86_64-pc-windows-msvc
-      build: cd example; flutter build windows --debug
-    # --- Minimum (3.38.1): android + linux spot-check ---
-    # 3.38.0 shipped Dart 3.10.0-beta and fails pub get with sdk: >=3.10.0.
-    - flutter-version: '3.38.1'
-      sdk-tier: minimum
-      platform: android
-      runs-on: ubuntu-latest
-      rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-      build: cd example && flutter build apk --debug
-    - flutter-version: '3.38.1'
-      sdk-tier: minimum
-      platform: linux
-      runs-on: ubuntu-latest
-      rust-targets: x86_64-unknown-linux-gnu
-      build: cd example && flutter build linux --debug
-    # --- Intermediate (3.44.0): android + linux spot-check ---
-    - flutter-version: '3.44.0'
-      sdk-tier: intermediate
-      platform: android
-      runs-on: ubuntu-latest
-      rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-      build: cd example && flutter build apk --debug
-    - flutter-version: '3.44.0'
-      sdk-tier: intermediate
-      platform: linux
-      runs-on: ubuntu-latest
-      rust-targets: x86_64-unknown-linux-gnu
-      build: cd example && flutter build linux --debug
-
 jobs:
   dart-only-test:
     name: Flutter-free core (${{ matrix.dart-image }})
@@ -185,7 +122,67 @@ jobs:
     timeout-minutes: 90
     strategy:
       fail-fast: false
-      matrix: *flutter-build-matrix
+      # Keep in sync with native-assets-matrix.yml (PRD §7.2).
+      matrix:
+        include:
+          # --- Latest (3.47.4): all 5 platforms ---
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: android
+            runs-on: ubuntu-latest
+            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+            build: cd example && flutter build apk --debug
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: ios
+            runs-on: macos-latest
+            rust-targets: aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+            build: cd example && flutter build ios --debug --no-codesign
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: linux
+            runs-on: ubuntu-latest
+            rust-targets: x86_64-unknown-linux-gnu
+            build: cd example && flutter build linux --debug
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: macos
+            runs-on: macos-latest
+            rust-targets: aarch64-apple-darwin x86_64-apple-darwin
+            build: cd example && flutter build macos --debug
+          - flutter-version: '3.47.4'
+            sdk-tier: latest
+            platform: windows
+            runs-on: windows-latest
+            rust-targets: x86_64-pc-windows-msvc
+            build: cd example; flutter build windows --debug
+          # --- Minimum (3.38.1): android + linux spot-check ---
+          # 3.38.0 shipped Dart 3.10.0-beta and fails pub get with sdk: >=3.10.0.
+          - flutter-version: '3.38.1'
+            sdk-tier: minimum
+            platform: android
+            runs-on: ubuntu-latest
+            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+            build: cd example && flutter build apk --debug
+          - flutter-version: '3.38.1'
+            sdk-tier: minimum
+            platform: linux
+            runs-on: ubuntu-latest
+            rust-targets: x86_64-unknown-linux-gnu
+            build: cd example && flutter build linux --debug
+          # --- Intermediate (3.44.0): android + linux spot-check ---
+          - flutter-version: '3.44.0'
+            sdk-tier: intermediate
+            platform: android
+            runs-on: ubuntu-latest
+            rust-targets: aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+            build: cd example && flutter build apk --debug
+          - flutter-version: '3.44.0'
+            sdk-tier: intermediate
+            platform: linux
+            runs-on: ubuntu-latest
+            rust-targets: x86_64-unknown-linux-gnu
+            build: cd example && flutter build linux --debug
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
