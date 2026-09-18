@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- M2 milestone sign-off: PRD, EPICS, CONTRIBUTING, and agent rules synced.
 - P1 capability matrix (`docs/capability-matrix.md`).
 - Apple store-profile stub docs (`docs/apple-store-profile.md`).
 - Example app manual QA checklist (`docs/example-app-qa.md`).

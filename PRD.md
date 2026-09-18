@@ -2,7 +2,7 @@
 
 **Document type:** Product Requirements Document (v1.3, implementation-ready)
 **Status:** ✅ **APPROVED** — cross-functional sign-off complete (Engineering, DX/API Design, QA; see §14). Architecture (v1.0), SDK/build-backend/compliance (v1.1), developer-experience (v1.2), and consistency/sequencing (v1.3) reviews are all resolved.
-**Implementation progress (repo):** M0 ✅ · M1 ✅ · M2–M5 not started — see [`EPICS.md`](./EPICS.md).
+**Implementation progress (repo):** M0 ✅ · M1 ✅ · M2 ✅ · M3–M5 not started — see [`EPICS.md`](./EPICS.md).
 **SDK policy:** Minimum Flutter 3.38.0 / Dart 3.10.0; development & CI latest Flutter 3.47.4 / Dart 3.13.3 (see §1.5)
 **Author role assumption:** Reader is a senior engineer; this document is prescriptive and implementation-ready.
 **Companion documents:** [`TDD.md`](./TDD.md) specifies *how* every decision below is implemented (concrete types, module layout, field mappings — currently covers M0–M2); [`EPICS.md`](./EPICS.md) breaks the milestones in §12 into traceable Epics and Stories ready to become tracker issues.

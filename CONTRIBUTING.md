@@ -1,10 +1,11 @@
 # Contributing to dart_sysinfo
 
-Thank you for contributing. **EPIC-M0 and EPIC-M1 are complete** — the repo ships
-P1 domains (OS, CPU, memory), lifecycle glue, testing fakes, and a P1 CI gate.
+Thank you for contributing. **EPIC-M0, EPIC-M1, and EPIC-M2 are complete** — the
+repo ships P1 domains (OS, CPU, memory), lifecycle glue, testing fakes, a P1 CI
+gate, and the parallel Native Assets track (build hook, CI matrix, sunset clock).
 Release automation, P2 domains, and domain-checklist CI land in M3/M4 (see notes
-below). Current milestone options: **M2** (Native Assets track, parallel) or
-**M3** (disks/network + generator).
+below). **Next milestone options:** **M3** (disks/network + generator) or **M5**
+(Native Assets default, after PRD §3.3 sunset criterion).
 
 ## Governing documents
 

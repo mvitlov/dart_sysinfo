@@ -79,6 +79,10 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 **Goal:** stand up the parallel, CI-gated Native Assets backend so evidence accumulates toward the PRD §3.3 sunset criterion. Runs alongside M1/M3, never blocks them.
 
+**Definition of done:** all Stories below are ✅, the `native-assets` CI matrix has been green at least once, and the sunset-clock workflow has recorded at least one scheduled sample on `main`.
+
+**Status:** ✅ complete — sunset clock is accumulating toward PRD §3.3 bullet 2; Cargokit remains default until M5.
+
 | ID | Title | Status | Area | PRD § | TDD § | Acceptance criteria |
 |---|---|---|---|---|---|---|
 | M2-01 | `hook/build.dart` via `flutter_rust_bridge_hooks` | ✅ | Bridge | §3.3, §7.1 | §7 | Build hook compiles the Rust crate via `native_toolchain_rust` and registers it as a code asset |
@@ -134,12 +138,12 @@ Dependency chain is strictly sequential at the Epic level (M0 → M1 → ... →
 
 ## Current focus
 
-**Completed:** EPIC-M0 (scaffolding), EPIC-M1 (P1 domains).
+**Completed:** EPIC-M0 (scaffolding), EPIC-M1 (P1 domains), EPIC-M2 (Native Assets track).
 
 **Next (pick one):**
 
 - **EPIC-M3** — P2 domains (disks, network), domain generator, dartdoc/ABI CI gates.
-- **EPIC-M5** — Native Assets default (after §3.3 sunset criterion met; not a 1.0 blocker).
+- **EPIC-M5** — Native Assets default (after PRD §3.3 sunset criterion met; not a 1.0 blocker). Sunset clock runs weekly on `main`; query with `bash tool/ci/sunset_clock_report.sh`.
 
 **Known M1 deferrals (not gaps in story completion):**
 
